@@ -3,12 +3,12 @@ using UnityEngine.InputSystem;
 
 public class PlayerMovement : MonoBehaviour
 {
-    [SerializeField] private CharacterController controller;
+    [SerializeField] private CharacterController controller; // Drag your character controller here
 
     //-- Rotation Variables --//
-    [SerializeField] private Transform cameraTransform; // Drag your camera here
+    [SerializeField] private Transform cameraPivotTransform; // Drag your camera pivot here
     float xRotation = 0f;
-    float mouseSensitivity = 5f;
+    readonly float mouseSensitivity = 5f;
 
     //--Gravity --//
     private Vector3 velocity;
@@ -20,10 +20,18 @@ public class PlayerMovement : MonoBehaviour
     Vector3 inputMove;
     bool isGrounded;
 
-    //-- Input Actions --//
+    //-- Crouching Variables --//
+    private float standHeight = 1f;
+    private float crouchHeight = .65f;
+    private float crouchSpeed = 5f;
+    private float targetHeight = 0f;
+    private bool isCrouched = false;
+
+    //-- Input Actions --//  -- To add an action, make sure to add in OnDisable, OnEnable, and in StartErrorChecking.
     private InputAction lookAction;
     private InputAction moveAction;
     private InputAction jumpAction;
+    private InputAction crouchAction;
 
     // -- Specialty Methods -- //
     private void Start()
@@ -35,29 +43,66 @@ public class PlayerMovement : MonoBehaviour
     private void Update()
     {
         // -- Player Button Pushes -- //
+        Crouch();
         Rotate();
         Movement();
         Jump();
+        
 
         if (controller == null)
         {
-            Debug.LogError("[PlayerMovment] Can't find the UIManager in Update");
+            Debug.LogError("[PlayerMovment] Can't find the controller in Update");
         }
-        else { controller.Move((inputMove + velocity) * Time.deltaTime); }
+        else 
+        { 
+            controller.Move((inputMove + velocity) * Time.deltaTime); 
+        }
     }
     private void OnEnable()
     {
         lookAction?.Enable();
         moveAction?.Enable();
         jumpAction?.Enable();
+        crouchAction?.Enable();
     }
     private void OnDisable()
     {
         lookAction?.Disable();
         moveAction?.Disable();
         jumpAction?.Disable();
+        crouchAction?.Disable();
     }
+
     // -- Main Methods -- //
+    private void Crouch()
+    {
+        if (crouchAction == null) return;
+        if(crouchAction.triggered)
+        {
+            isCrouched = !isCrouched;
+        }
+        // -- Prep for crouching -- //
+        Vector3 pos = cameraPivotTransform.localPosition;
+        targetHeight = isCrouched ? crouchHeight : standHeight;
+
+        if (Mathf.Abs(pos.y - targetHeight) > 0.001f)
+        {
+            // -- Slide Camera down -- //
+            pos.y = Mathf.Lerp(pos.y, targetHeight, Time.deltaTime * crouchSpeed);
+            cameraPivotTransform.localPosition = pos;
+        }
+        
+        // -- Adjust Player Controller Height -- //
+
+
+        // -- adjust move speed -- //
+
+
+
+        if (crouchAction == null) return;
+
+
+    }
     private void Jump()
     {
         isGrounded = controller.isGrounded;
@@ -68,10 +113,9 @@ public class PlayerMovement : MonoBehaviour
         if (jumpAction == null) return;
         if (jumpAction.triggered && isGrounded)
         {
-            velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+            velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity); // if we intend to double jump we should velocity.y +=
         }
-        // Gravity always applies
-        velocity.y += gravity * Time.deltaTime;
+        velocity.y += gravity * Time.deltaTime; // Gravity always applies
     }
     private void Movement()
     {
@@ -86,7 +130,7 @@ public class PlayerMovement : MonoBehaviour
 
         if (lookAction == null) return;
 
-        Vector2 mouseDelta = lookAction.ReadValue<Vector2>() * mouseSensitivity * Time.deltaTime;
+        Vector2 mouseDelta = mouseSensitivity * Time.deltaTime * lookAction.ReadValue<Vector2>();
 
         // Horizontal rotation (Y-axis)
         transform.Rotate(Vector3.up * mouseDelta.x);
@@ -94,7 +138,7 @@ public class PlayerMovement : MonoBehaviour
         // Vertical rotation (X-axis)
         xRotation -= mouseDelta.y;
         xRotation = Mathf.Clamp(xRotation, -80f, 80f);
-        cameraTransform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
+        cameraPivotTransform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
     }
 
     // -- Supplemental Methods -- //
@@ -102,7 +146,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (controller == null)
             Debug.LogError("[PlayerMovement] CharacterController not assigned.");
-        if (cameraTransform == null)
+        if (cameraPivotTransform == null)
             Debug.LogError("[PlayerMovement] Camera Transform not assigned.");
 
         if (TryGetComponent<PlayerInput>(out var playerInput))
@@ -110,6 +154,7 @@ public class PlayerMovement : MonoBehaviour
             lookAction = playerInput.actions["Look"];
             moveAction = playerInput.actions["Move"];
             jumpAction = playerInput.actions["Jump"];
+            crouchAction = playerInput.actions["Crouch"];
         }
         else
         {
