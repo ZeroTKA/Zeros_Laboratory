@@ -3,6 +3,10 @@ using UnityEngine.InputSystem;
 
 public class PlayerMovement : MonoBehaviour
 {
+    /// <summary>
+    /// -- To Do List -- 
+    /// 1. When crouching, setting the controller height isn't lerpd. It's immediate. Do we care?
+    /// </summary>
     [SerializeField] private CharacterController controller; // Drag your character controller here
 
     //-- Rotation Variables --//
@@ -21,8 +25,10 @@ public class PlayerMovement : MonoBehaviour
     bool isGrounded;
 
     //-- Crouching Variables --//
-    private float standHeight = 1f;
-    private float crouchHeight = .65f;
+    private float standingColliderHeight;
+    private Vector3 standingColliderVector3;
+    private float standHeight = 1f; // camera's perspective
+    private float crouchHeight = .65f; // camer's perspective
     private float crouchSpeed = 5f;
     private float targetHeight = 0f;
     private bool isCrouched = false;
@@ -38,6 +44,9 @@ public class PlayerMovement : MonoBehaviour
     {
         StartErrorChecking();
         Cursor.lockState = CursorLockMode.Locked;
+        standingColliderHeight = controller.height; 
+        // grabbing the initial height for the controller at a standing position. Assuming it starts standing.
+        standingColliderVector3 = controller.center;
     }
 
     private void Update()
@@ -80,8 +89,11 @@ public class PlayerMovement : MonoBehaviour
         if(crouchAction.triggered)
         {
             isCrouched = !isCrouched;
+            SetCharacterControllerHeightAndCenter(); // Adjust Player Controller Height 
+
+            // -- Adjust move speed -- //
         }
-        // -- Prep for crouching -- //
+        // -- Prep for lerping each frame. -- //
         Vector3 pos = cameraPivotTransform.localPosition;
         targetHeight = isCrouched ? crouchHeight : standHeight;
 
@@ -90,18 +102,8 @@ public class PlayerMovement : MonoBehaviour
             // -- Slide Camera down -- //
             pos.y = Mathf.Lerp(pos.y, targetHeight, Time.deltaTime * crouchSpeed);
             cameraPivotTransform.localPosition = pos;
-        }
+        } 
         
-        // -- Adjust Player Controller Height -- //
-
-
-        // -- adjust move speed -- //
-
-
-
-        if (crouchAction == null) return;
-
-
     }
     private void Jump()
     {
@@ -127,7 +129,6 @@ public class PlayerMovement : MonoBehaviour
     }
     private void Rotate()
     {
-
         if (lookAction == null) return;
 
         Vector2 mouseDelta = mouseSensitivity * Time.deltaTime * lookAction.ReadValue<Vector2>();
@@ -142,6 +143,24 @@ public class PlayerMovement : MonoBehaviour
     }
 
     // -- Supplemental Methods -- //
+    private void SetCharacterControllerHeightAndCenter()
+    {
+        if(isCrouched)
+        {
+            float cameraDelta = standHeight - crouchHeight;
+            controller.height = standingColliderHeight - cameraDelta;
+            controller.center = new Vector3(
+                controller.center.x,
+                controller.center.y - cameraDelta / 2,
+                controller.center.z);
+        }
+        else
+        {
+            controller.height = standingColliderHeight;
+            controller.center = standingColliderVector3;
+        }
+
+    }
     private void StartErrorChecking()
     {
         if (controller == null)
