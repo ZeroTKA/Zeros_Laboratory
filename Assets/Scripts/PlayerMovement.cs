@@ -20,17 +20,18 @@ public class PlayerMovement : MonoBehaviour
     readonly float jumpHeight = 1f;
 
     //-- Movement Variables --//
-    readonly float moveSpeed = 5f;
+    float moveSpeed = 5f;
     Vector3 inputMove;
     bool isGrounded;
 
     //-- Crouching Variables --//
-    private float standingColliderHeight;
     private Vector3 standingColliderVector3;
+    private float standingColliderHeight;
     private float standHeight = 1f; // camera's perspective
-    private float crouchHeight = .65f; // camer's perspective
+    private float crouchHeight = .65f; // camera's perspective
     private float crouchSpeed = 5f;
     private float targetHeight = 0f;
+    readonly private float changeInCrouchSpeed = 3f;
     private bool isCrouched = false;
 
     //-- Input Actions --//  -- To add an action, make sure to add in OnDisable, OnEnable, and in StartErrorChecking.
@@ -90,8 +91,7 @@ public class PlayerMovement : MonoBehaviour
         {
             isCrouched = !isCrouched;
             SetCharacterControllerHeightAndCenter(); // Adjust Player Controller Height 
-
-            // -- Adjust move speed -- //
+            if (isCrouched) { moveSpeed -= changeInCrouchSpeed; } else { moveSpeed += changeInCrouchSpeed; } // Adjust move speed            
         }
         // -- Prep for lerping each frame. -- //
         Vector3 pos = cameraPivotTransform.localPosition;
