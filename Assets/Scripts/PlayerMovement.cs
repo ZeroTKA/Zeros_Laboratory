@@ -20,7 +20,8 @@ public class PlayerMovement : MonoBehaviour
     readonly float jumpHeight = 1f;
 
     //-- Movement Variables --//
-    float moveSpeed = 5f;
+    private float baseMoveSpeed = 5f;
+    float currentMoveSpeed;
     Vector3 inputMove;
     bool isGrounded;
 
@@ -29,19 +30,21 @@ public class PlayerMovement : MonoBehaviour
     private float standingColliderHeight;
     private float standHeight = 1f; // camera's perspective
     private float crouchHeight = .65f; // camera's perspective
-    private float crouchSpeed = 5f;
+    private float cameraLerpSpeed = 5f;
     private float targetHeight = 0f;
     readonly private float changeInCrouchSpeed = 3f;
     private bool isCrouched = false;
 
     //-- Prone Variables --//
-    float proneHeight = .3f;
+    private bool isProne = false;
+    private float proneHeight = .3f;
 
     //-- Input Actions --//  -- To add an action, make sure to add in OnDisable, OnEnable, and in StartErrorChecking.
     private InputAction lookAction;
     private InputAction moveAction;
     private InputAction jumpAction;
     private InputAction crouchAction;
+    private InputAction proneAction;
 
     // Stance enum to make intent explicit
     private enum Stance { Standing, Crouched, Prone }
@@ -54,12 +57,15 @@ public class PlayerMovement : MonoBehaviour
         standingColliderHeight = controller.height; 
         // grabbing the initial height for the controller at a standing position. Assuming it starts standing.
         standingColliderCenter = controller.center;
+        currentMoveSpeed = baseMoveSpeed;
     }
 
     private void Update()
     {
         // -- Player Button Pushes -- //
         Crouch();
+        Prone();
+        ChangeCameraHeight();
         Rotate();
         Movement();
         Jump();
@@ -80,6 +86,7 @@ public class PlayerMovement : MonoBehaviour
         moveAction?.Enable();
         jumpAction?.Enable();
         crouchAction?.Enable();
+        proneAction?.Enable();
     }
     private void OnDisable()
     {
@@ -87,6 +94,7 @@ public class PlayerMovement : MonoBehaviour
         moveAction?.Disable();
         jumpAction?.Disable();
         crouchAction?.Disable();
+        proneAction?.Disable();
     }
 
     // -- Main Methods -- //
@@ -96,20 +104,11 @@ public class PlayerMovement : MonoBehaviour
         if(crouchAction.triggered)
         {
             isCrouched = !isCrouched;
+            if (isCrouched) isProne = false;
             SetCharacterControllerHeightAndCenter(isCrouched ? Stance.Crouched : Stance.Standing); // Adjust Player Controller Height 
-            if (isCrouched) { moveSpeed -= changeInCrouchSpeed; } else { moveSpeed += changeInCrouchSpeed; } // Adjust move speed            
-        }
-        // -- Prep for lerping each frame. -- //
-        Vector3 pos = cameraPivotTransform.localPosition;
-        targetHeight = isCrouched ? crouchHeight : standHeight;
-
-        if (Mathf.Abs(pos.y - targetHeight) > 0.001f)
-        {
-            // -- Slide Camera down -- //
-            pos.y = Mathf.Lerp(pos.y, targetHeight, Time.deltaTime * crouchSpeed);
-            cameraPivotTransform.localPosition = pos;
-        } 
-        
+            if (isCrouched) { currentMoveSpeed -= changeInCrouchSpeed; } else { currentMoveSpeed += changeInCrouchSpeed; } // Adjust move speed            
+            currentMoveSpeed = baseMoveSpeed - (isCrouched ? changeInCrouchSpeed : 0f);
+        }    
     }
     private void Jump()
     {
@@ -130,8 +129,33 @@ public class PlayerMovement : MonoBehaviour
         if (moveAction == null) return;
 
         Vector2 input = moveAction.ReadValue<Vector2>();
-        inputMove = (transform.right * input.x + transform.forward * input.y) * moveSpeed;
+        inputMove = (transform.right * input.x + transform.forward * input.y) * currentMoveSpeed;
 
+    }
+    private void Prone()
+    {
+        if (proneAction == null) return;
+        if (proneAction.triggered)
+        {
+            isProne = !isProne;
+            if (isProne) isCrouched = false;
+            SetCharacterControllerHeightAndCenter(isProne ? Stance.Prone : Stance.Standing); // Adjust Player Controller Height 
+
+            if (isProne) { currentMoveSpeed -= changeInCrouchSpeed; } else { currentMoveSpeed += changeInCrouchSpeed; } // Adjust move speed            
+            currentMoveSpeed = baseMoveSpeed - (isProne ? changeInCrouchSpeed : 0f);
+        }
+        // -- Prep for lerping each frame. -- //
+        Vector3 pos = cameraPivotTransform.localPosition;
+        // camera target depends on current stance (prone overrides crouch)
+        if (isProne) targetHeight = proneHeight;
+        else targetHeight = isCrouched ? crouchHeight : standHeight;
+
+        if (Mathf.Abs(pos.y - targetHeight) > 0.001f)
+        {
+            // -- Slide Camera down -- //
+            pos.y = Mathf.Lerp(pos.y, targetHeight, Time.deltaTime * cameraLerpSpeed);
+            cameraPivotTransform.localPosition = pos;
+        }
     }
     private void Rotate()
     {
@@ -149,6 +173,24 @@ public class PlayerMovement : MonoBehaviour
     }
 
     // -- Supplemental Methods -- //
+    private void ChangeCameraHeight()
+    {
+        if (cameraPivotTransform == null) return;
+
+        //-- Prep Lerping --//
+        float targetHeight;
+        if (isProne) targetHeight = proneHeight;
+        else targetHeight = isCrouched ? crouchHeight : standHeight;
+
+
+        Vector3 pos = cameraPivotTransform.localPosition;
+        if (Mathf.Abs(pos.y - targetHeight) > 0.001f)
+        {
+            //-- Slide Camera Down --//
+            pos.y = Mathf.Lerp(pos.y, targetHeight, Time.deltaTime * cameraLerpSpeed);
+            cameraPivotTransform.localPosition = pos;
+        }
+    }
     private void SetCharacterControllerHeightAndCenter(Stance stance)
     {
         if (controller == null) return;
@@ -200,6 +242,7 @@ public class PlayerMovement : MonoBehaviour
             moveAction = playerInput.actions["Move"];
             jumpAction = playerInput.actions["Jump"];
             crouchAction = playerInput.actions["Crouch"];
+            proneAction = playerInput.actions["Prone"];
         }
         else
         {
