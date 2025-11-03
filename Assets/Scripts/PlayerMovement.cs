@@ -25,7 +25,7 @@ public class PlayerMovement : MonoBehaviour
     bool isGrounded;
 
     //-- Crouching Variables --//
-    private Vector3 standingColliderVector3;
+    private Vector3 standingColliderCenter;
     private float standingColliderHeight;
     private float standHeight = 1f; // camera's perspective
     private float crouchHeight = .65f; // camera's perspective
@@ -34,11 +34,17 @@ public class PlayerMovement : MonoBehaviour
     readonly private float changeInCrouchSpeed = 3f;
     private bool isCrouched = false;
 
+    //-- Prone Variables --//
+    float proneHeight = .3f;
+
     //-- Input Actions --//  -- To add an action, make sure to add in OnDisable, OnEnable, and in StartErrorChecking.
     private InputAction lookAction;
     private InputAction moveAction;
     private InputAction jumpAction;
     private InputAction crouchAction;
+
+    // Stance enum to make intent explicit
+    private enum Stance { Standing, Crouched, Prone }
 
     // -- Specialty Methods -- //
     private void Start()
@@ -47,7 +53,7 @@ public class PlayerMovement : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         standingColliderHeight = controller.height; 
         // grabbing the initial height for the controller at a standing position. Assuming it starts standing.
-        standingColliderVector3 = controller.center;
+        standingColliderCenter = controller.center;
     }
 
     private void Update()
@@ -90,7 +96,7 @@ public class PlayerMovement : MonoBehaviour
         if(crouchAction.triggered)
         {
             isCrouched = !isCrouched;
-            SetCharacterControllerHeightAndCenter(); // Adjust Player Controller Height 
+            SetCharacterControllerHeightAndCenter(isCrouched ? Stance.Crouched : Stance.Standing); // Adjust Player Controller Height 
             if (isCrouched) { moveSpeed -= changeInCrouchSpeed; } else { moveSpeed += changeInCrouchSpeed; } // Adjust move speed            
         }
         // -- Prep for lerping each frame. -- //
@@ -143,23 +149,43 @@ public class PlayerMovement : MonoBehaviour
     }
 
     // -- Supplemental Methods -- //
-    private void SetCharacterControllerHeightAndCenter()
+    private void SetCharacterControllerHeightAndCenter(Stance stance)
     {
-        if(isCrouched)
-        {
-            float cameraDelta = standHeight - crouchHeight;
-            controller.height = standingColliderHeight - cameraDelta;
-            controller.center = new Vector3(
-                controller.center.x,
-                controller.center.y - cameraDelta / 2,
-                controller.center.z);
-        }
-        else
-        {
-            controller.height = standingColliderHeight;
-            controller.center = standingColliderVector3;
-        }
+        if (controller == null) return;
 
+        switch (stance)
+        {
+            case Stance.Standing:
+                controller.height = standingColliderHeight;
+                controller.center = standingColliderCenter;
+                break;
+
+            case Stance.Crouched:
+                {
+                    float cameraDelta = standHeight - crouchHeight;
+                    float targetControllerHeight = standingColliderHeight - cameraDelta;
+                    Vector3 targetCenter = new Vector3(
+                        standingColliderCenter.x,
+                        standingColliderCenter.y - cameraDelta / 2f,
+                        standingColliderCenter.z);
+                    controller.height = targetControllerHeight;
+                    controller.center = targetCenter;
+                }
+                break;
+
+            case Stance.Prone:
+                {
+                    float cameraDelta = standHeight - proneHeight;
+                    float targetControllerHeight = standingColliderHeight - cameraDelta;
+                    Vector3 targetCenter = new Vector3(
+                        standingColliderCenter.x,
+                        standingColliderCenter.y - cameraDelta / 2f,
+                        standingColliderCenter.z);
+                    controller.height = targetControllerHeight;
+                    controller.center = targetCenter;
+                }
+                break;
+        }
     }
     private void StartErrorChecking()
     {
