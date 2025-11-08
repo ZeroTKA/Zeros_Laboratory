@@ -65,13 +65,25 @@ MonoBehaviour:
       of the flame as it rises. SUPER important the seeds are different.
     theme: Classic
     textSize: Small
+  - title: To DO
+    position:
+      serializedVersion: 2
+      x: 414
+      y: -897
+      width: 131
+      height: 211
+    contents: "1. Remember to pull variables out for easier control. \n2. More tweaking.
+      Not sure I like the color.\n3. Change the png to include more options. maybe
+      need to go at least 12 instead of 4"
+    theme: Classic
+    textSize: Small
   categories: []
   uiBounds:
     serializedVersion: 2
-    x: 261
-    y: -1434
-    width: 1067
-    height: 2570
+    x: 0
+    y: -1374
+    width: 1302
+    height: 2483
 --- !u!114 &114350483966674976
 MonoBehaviour:
   m_ObjectHideFlags: 1
