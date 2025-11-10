@@ -1720,9 +1720,21 @@ VisualEffect:
   m_ResourceVersion: 1
   m_PropertySheet:
     m_Float:
-      m_Array: []
+      m_Array:
+      - m_Value: 5
+        m_Name: Density
+        m_Overridden: 1
+      - m_Value: 0.8
+        m_Name: LifetimeMin
+        m_Overridden: 1
+      - m_Value: 1.2
+        m_Name: LifetimeMax
+        m_Overridden: 1
     m_Vector2f:
-      m_Array: []
+      m_Array:
+      - m_Value: {x: 10, y: 5}
+        m_Name: Box Size (x,z)
+        m_Overridden: 1
     m_Vector3f:
       m_Array: []
     m_Vector4f:
