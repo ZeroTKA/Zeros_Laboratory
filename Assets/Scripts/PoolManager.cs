@@ -1,10 +1,61 @@
+using NUnit.Framework;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class PoolManager : MonoBehaviour
-{    
-    public static PoolManager Instance;
+{
+
+    /// <summary>
+    /// High-level overview of how the PoolManager works:
+    /// - Each pool type has its own parent transform for hierarchy organization.
+    /// - Each pool maintains a list of objects and a stack of available indices.
+    /// - When an object is requested, we pop a pre-cached index from the stack for fast retrieval,
+    ///   avoiding costly iteration to find an available object.
+    /// - Each pooled object requires a 'Poolable' script, which stores its index in the pool.
+    ///   This index is assigned at creation and used to return the object efficiently.
+    /// </summary>
+
+    /// <summary>
+    /// To Do List:
+    /// - if no stack / list / transform exists for a pool type, create them on the fly.????
+    /// - continue on with all the main methods.
+    /// </summary>
+
+
+    public static PoolManager Instance { get; private set; }
 
     [SerializeField] GameObject prefab; // Temp Testing, Remove later.
+
+    // -- Transform References -- //
+    [SerializeField] private Transform enemyPoolTransform;
+    [SerializeField] private Transform miscPoolTransform;
+    [SerializeField] private Transform sfxPoolTransform;
+    [SerializeField] private Transform uiPoolTransform;
+    [SerializeField] private Transform vfxPoolTransform;
+    private Transform currentParentTransform; // recycled variable so we can set the parent transform to whatever pool it needs to be.
+
+    // -- Lists -- //
+    private List<GameObject> enemyList = new();
+    private List<GameObject> miscList = new();
+    private List<GameObject> sfxList = new();
+    private List<GameObject> uiList = new();
+    private List<GameObject> vfxList = new();
+    private List<GameObject> currentList; // recycled variable for current list to put objects in.
+
+
+    /// <summary>
+    /// Retrieves a pooled object using a pre-cached index from the available stack.
+    /// This avoids costly iteration by using constant-time stack operations,
+    /// improving performance in high-frequency pooling scenarios.
+    /// </summary>
+    // -- Stacks -- //
+    private Stack<int> enemyIndexStack = new();
+    private Stack<int> miscIndexStack = new();
+    private Stack<int> sfxIndexStack = new();
+    private Stack<int> uiIndexStack = new();
+    private Stack<int> vfxIndexStack = new();
+    private Stack<int> currentIndexStack; // recycled variable for current stack to put indexes in.
+
 
     // -- Specialty Methods -- //
     private void Awake()
@@ -22,12 +73,8 @@ public class PoolManager : MonoBehaviour
     }
     void Start()
     {
-        Create();
-        PutBack();
-        Rent();
+        
     }
-
-
 
     // -- Main Methods -- //
     /// <summary>
@@ -36,8 +83,22 @@ public class PoolManager : MonoBehaviour
     /// <remarks>Think of this like a quartermaster. The quartermaster (PoolManager) uses a special spell 
     /// to conjure new weapons (GameObjects) when inventory is low. Mostly used internally.
     /// </remarks>
-    private void Create()
+    /// <param name="prefab">This is the prefab you want to get from the pool.</param>
+    /// <param name="poolType">Use the public enum and PoolManager will set things up accordingly.</param>
+    private void Create(GameObject prefab, PoolType poolType, bool activate = true)
     {
+        // -- Prep work -- //
+        PrepareObjectForPooling(poolType); // important to do this first so the reused variables are set for this method call.
+        GameObject genericObject = Instantiate(prefab);
+        currentList.Add(genericObject);
+        int index = currentList.Count - 1;
+
+        // -- Actual work on the object -- //
+        genericObject.transform.SetParent(currentParentTransform);
+        genericObject.SetActive(activate);
+
+//////////////////////////////////////////////////////////////////// Continue HERE /////////////////////////////////////////////////////////////////
+
 
     }
     /// <summary>
@@ -46,7 +107,7 @@ public class PoolManager : MonoBehaviour
     /// <remarks>Think of this like a quartermaster. When you are done with your weapon (GameObject), you return it to the quartermaster (PoolManager).
     /// The quatermaster thanks you for returning it in good condition so it can be used again later.
     /// </remarks>
-    public void PutBack() // Return object to the pool
+    public void PutBack()
     {
 
     }
@@ -63,8 +124,54 @@ public class PoolManager : MonoBehaviour
     /// bullet.transform.position = firePoint.position;
     /// bullet.SetActive(true);
     /// </example>
-    public GameObject Rent() // Get object from the pool
+    public GameObject Rent()
     {
         return gameObject;
+    }
+
+    // -- Supplemental Methods -- //
+    /// <summary>
+    /// Sets the variables corresponding to the specified poolType.
+    /// </summary>
+    /// <remarks>If the poolType is missing then we just put everything in miscellaneous</remarks>
+    /// <param name="poolType">Use the public enum and PoolManager will set things up accordingly.</param>
+    private void PrepareObjectForPooling(PoolType poolType)
+    {
+        switch(poolType)
+        {
+            case PoolType.Enemy:
+                currentParentTransform = enemyPoolTransform;
+                currentList = enemyList;
+                break;
+            case PoolType.Misc:
+                currentParentTransform = miscPoolTransform;
+                currentList = miscList;
+                break;
+            case PoolType.SFX:
+                currentParentTransform = sfxPoolTransform;
+                currentList = sfxList;
+                break;
+            case PoolType.UI:
+                currentParentTransform = uiPoolTransform;
+                currentList = uiList;
+                break;
+            case PoolType.VFX:
+                currentParentTransform = vfxPoolTransform;
+                currentList = vfxList;
+                break;
+            default:
+                Debug.LogWarning($"[PoolManager] Looks like {poolType} doesn't have a case in the switch. Placing in misc for now");
+                currentParentTransform = miscPoolTransform;
+                currentList = miscList;
+                break;
+        }
+    }
+    public enum PoolType
+    {
+        Enemy,
+        Misc,
+        SFX,
+        UI,
+        VFX
     }
 }
