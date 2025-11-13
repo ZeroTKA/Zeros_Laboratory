@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class PoolManager : MonoBehaviour
@@ -25,6 +26,7 @@ public class PoolManager : MonoBehaviour
     public static PoolManager Instance { get; private set; }
 
     [SerializeField] GameObject prefab; // Temp Testing, Remove later.
+    private Vector3 postion = new Vector3(0, 0, 0); // Temp Testing, Remove later.
 
     // -- Transform References -- //
     [SerializeField] private Transform enemyPoolTransform;
@@ -73,7 +75,11 @@ public class PoolManager : MonoBehaviour
     }
     void Start()
     {
-        
+        for(int i = 0; i < 5; i++)
+        {
+            Create(prefab, PoolType.Enemy);
+
+        }
     }
 
     // -- Main Methods -- //
@@ -96,8 +102,25 @@ public class PoolManager : MonoBehaviour
         // -- Actual work on the object -- //
         genericObject.transform.SetParent(currentParentTransform);
         genericObject.SetActive(activate);
+        if (!activate) currentIndexStack.Push(index); // meaning it's disabled then push index becaue it's available.
+        if (genericObject.TryGetComponent<Poolable>(out var poolable))
+        {
+            // Validate index is in range
+            if (index < 0 || index >= currentList.Count)
+            {
+                Debug.LogError($"[PoolManager] Invalid pool index {index} for {genericObject.name} in {currentList}");
+            }
+            else
+            {
+                poolable.PoolIndex = index;
+            }
+        }
+        else
+        {
+            Debug.LogError($"Enemy prefab missing Poolable component at index {index} for {genericObject.name} in {currentList}");
+        }
 
-//////////////////////////////////////////////////////////////////// Continue HERE /////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////// Continue HERE /////////////////////////////////////////////////////////////////
 
 
     }
@@ -137,32 +160,38 @@ public class PoolManager : MonoBehaviour
     /// <param name="poolType">Use the public enum and PoolManager will set things up accordingly.</param>
     private void PrepareObjectForPooling(PoolType poolType)
     {
-        switch(poolType)
+        switch (poolType)
         {
             case PoolType.Enemy:
                 currentParentTransform = enemyPoolTransform;
                 currentList = enemyList;
+                currentIndexStack = enemyIndexStack;
                 break;
             case PoolType.Misc:
                 currentParentTransform = miscPoolTransform;
                 currentList = miscList;
+                currentIndexStack = miscIndexStack;
                 break;
             case PoolType.SFX:
                 currentParentTransform = sfxPoolTransform;
                 currentList = sfxList;
+                currentIndexStack = sfxIndexStack;
                 break;
             case PoolType.UI:
                 currentParentTransform = uiPoolTransform;
                 currentList = uiList;
+                currentIndexStack = uiIndexStack;
                 break;
             case PoolType.VFX:
                 currentParentTransform = vfxPoolTransform;
                 currentList = vfxList;
+                currentIndexStack = vfxIndexStack;
                 break;
             default:
                 Debug.LogWarning($"[PoolManager] Looks like {poolType} doesn't have a case in the switch. Placing in misc for now");
                 currentParentTransform = miscPoolTransform;
                 currentList = miscList;
+                currentIndexStack = miscIndexStack;
                 break;
         }
     }
