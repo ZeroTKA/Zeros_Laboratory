@@ -12,8 +12,15 @@ public class PoolManager : MonoBehaviour
     /// - Each pool maintains a list of objects and a stack of available indices.
     /// - When an object is requested, we pop a pre-cached index from the stack for fast retrieval,
     ///   avoiding costly iteration to find an available object.
-    /// - Each pooled object requires a 'Poolable' script, which stores its index in the pool.
-    ///   This index is assigned at creation and used to return the object efficiently.
+    /// - Each pooled object requires a 'Poolable' script, which stores data about the object for the sake of the Pool Manager. 
+    ///   Every object will know about itself and be able to communicate necessary data to the PoolManager when PutBack / Rented
+    ///   
+    /// </summary>
+
+    /// <summary>
+    /// Instructions:
+    /// 1. Create your enums for PoolType.
+    /// 2. Every object that will be pooled needs a 'Poolable' script attached to it.
     /// </summary>
 
     /// <summary>
@@ -78,7 +85,26 @@ public class PoolManager : MonoBehaviour
         for(int i = 0; i < 5; i++)
         {
             Create(prefab, PoolType.Enemy);
-
+        }
+        for (int i = 0; i < 5; i++)
+        {
+            Create(prefab, PoolType.Misc);
+        }
+        for (int i = 0; i < 5; i++)
+        {
+            Create(prefab, PoolType.SFX);
+        }
+        for (int i = 0; i < 5; i++)
+        {
+            Create(prefab, PoolType.VFX);
+        }
+        for (int i = 0; i < 5; i++)
+        {
+            Create(prefab, PoolType.UI);
+        }
+        for (int i = 0; i < 5; i++)
+        {
+            Create(prefab, PoolType.Winter);
         }
     }
 
@@ -201,6 +227,7 @@ public class PoolManager : MonoBehaviour
         Misc,
         SFX,
         UI,
-        VFX
+        VFX,
+        Winter
     }
 }
