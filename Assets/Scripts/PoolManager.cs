@@ -25,8 +25,9 @@ public class PoolManager : MonoBehaviour
 
     /// <summary>
     /// To Do List:
-    /// - if no stack / list / transform exists for a pool type, create them on the fly.????
+    /// - if no stack / list / transform exists for a pool type, create them on the fly.???? Yes. Dictionary <poolType>, List<GameObject>} (or stack)
     /// - continue on with all the main methods.
+    /// - Move PoolType to poolable instead of having the methods require it.
     /// </summary>
 
 
@@ -51,12 +52,6 @@ public class PoolManager : MonoBehaviour
     private List<GameObject> vfxList = new();
     private List<GameObject> currentList; // recycled variable for current list to put objects in.
 
-
-    /// <summary>
-    /// Retrieves a pooled object using a pre-cached index from the available stack.
-    /// This avoids costly iteration by using constant-time stack operations,
-    /// improving performance in high-frequency pooling scenarios.
-    /// </summary>
     // -- Stacks -- //
     private Stack<int> enemyIndexStack = new();
     private Stack<int> miscIndexStack = new();
@@ -156,9 +151,12 @@ public class PoolManager : MonoBehaviour
     /// <remarks>Think of this like a quartermaster. When you are done with your weapon (GameObject), you return it to the quartermaster (PoolManager).
     /// The quatermaster thanks you for returning it in good condition so it can be used again later.
     /// </remarks>
-    public void PutBack()
+    public void PutBack(GameObject genericObject)
     {
-
+        // grab index
+        // push index to stack
+        // set inactive.
+        // done?
     }
     /// <summary>
     /// Gives an object from the pool to the script that's calling it.
