@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -138,7 +139,7 @@ public class PoolManager : MonoBehaviour
         }
         else
         {
-            Debug.LogError($"Enemy prefab missing Poolable component at index {index} for {genericObject.name} in {currentList}");
+            Debug.LogError($"Prefab missing Poolable component at index {index} for {genericObject.name} in {currentList}");
         }
 
         //////////////////////////////////////////////////////////////////// Continue HERE /////////////////////////////////////////////////////////////////
@@ -151,12 +152,29 @@ public class PoolManager : MonoBehaviour
     /// <remarks>Think of this like a quartermaster. When you are done with your weapon (GameObject), you return it to the quartermaster (PoolManager).
     /// The quatermaster thanks you for returning it in good condition so it can be used again later.
     /// </remarks>
-    public void PutBack(GameObject genericObject)
+    public void PutBack(GameObject genericObject, PoolType poolType)
     {
-        // grab index
-        // push index to stack
-        // set inactive.
-        // done?
+        // -- Error checking and skipping objects that are already inactive. We assume anything that's inactive is already in the pool.
+        if (genericObject == null)
+        {
+            Debug.LogError("[Pool Manager] Something tried to return a null object to the pool.");
+            return;
+        }
+        if (!genericObject.activeSelf)
+        {
+            return;
+        }
+        // -- Now we return the things to the correct places
+        genericObject.SetActive(false);
+        PrepareObjectForPooling(poolType);
+        if (genericObject.TryGetComponent<Poolable>(out var poolable))
+        {
+            currentIndexStack.Push(poolable.PoolIndex);
+        }
+        else
+        {
+            Debug.LogError($"Prefab missing Poolable component for {genericObject.name} in {currentList}");
+        }
     }
     /// <summary>
     /// Gives an object from the pool to the script that's calling it.
