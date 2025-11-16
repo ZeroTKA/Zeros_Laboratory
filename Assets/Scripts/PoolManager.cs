@@ -250,7 +250,7 @@ public class PoolManager : MonoBehaviour
     {
         for (int i = 0; i < 900; i++)
         {
-            yield return new WaitForSeconds(UnityEngine.Random.Range(.1f, .7f));
+            yield return new WaitForSeconds(UnityEngine.Random.Range(.1f, .2f));
             GameObject winner = Rent(prefab); // Temp Testing, Remove later.
         }
     }
