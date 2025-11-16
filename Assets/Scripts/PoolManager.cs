@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -80,10 +81,7 @@ public class PoolManager : MonoBehaviour
     }
     void Start()
     {
-        for (int i = 0; i < 30; i++)
-        {
-            GameObject winner = Create(prefab); // Temp Testing, Remove later.
-        }
+        StartCoroutine(Spawn()); // delete me later
     }
     private void OnDestroy()
     {
@@ -170,7 +168,7 @@ public class PoolManager : MonoBehaviour
     /// </example>
     public GameObject Rent(GameObject prefab)
     {
-        if (TryGetComponent<Poolable>(out var poolable))
+        if (prefab.TryGetComponent<Poolable>(out var poolable))
         {
             PrepareObjectForPooling(poolable.typeOfPool);
             if (currentIndexStack != null && currentIndexStack.Count > 0)
@@ -246,6 +244,14 @@ public class PoolManager : MonoBehaviour
         VFX,
         Winter
     }
-    
 
+    // -- TEMP. DELETE LATER -- //
+    IEnumerator Spawn()
+    {
+        for (int i = 0; i < 900; i++)
+        {
+            yield return new WaitForSeconds(UnityEngine.Random.Range(.1f, .7f));
+            GameObject winner = Rent(prefab); // Temp Testing, Remove later.
+        }
+    }
 }
