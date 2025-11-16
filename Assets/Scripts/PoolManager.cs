@@ -1,11 +1,7 @@
-using NUnit.Framework;
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
-using static Poolable;
-using static PoolManager;
+
 
 public class PoolManager : MonoBehaviour
 {
@@ -29,44 +25,21 @@ public class PoolManager : MonoBehaviour
 
     /// <summary>
     /// To Do List:
-    /// - if no stack / list / transform exists for a pool type, create them on the fly.???? Yes. Dictionary <poolType>, List<GameObject>} (or stack)
-    /// - continue on with all the main methods.
-    /// - Move PoolType to poolable instead of having the methods require it.
+    /// 
     /// </summary>
 
 
     public static PoolManager Instance { get; private set; }
 
-    [SerializeField] GameObject prefab; // Temp Testing, Remove later.
-    private Vector3 postion = new Vector3(0, 0, 0); // Temp Testing, Remove later.
+    [SerializeField] GameObject[] prefab; // Temp Testing, Remove later.
 
     // -- Transform References -- //
-    [SerializeField] private Transform enemyPoolTransform;
-    [SerializeField] private Transform miscPoolTransform;
-    [SerializeField] private Transform sfxPoolTransform;
-    [SerializeField] private Transform uiPoolTransform;
-    [SerializeField] private Transform vfxPoolTransform;
-    private Transform currentParentTransform; // recycled variable so we can set the parent transform to whatever pool it needs to be.
-
-    // -- Lists -- //
-    private List<GameObject> enemyList = new();
-    private List<GameObject> miscList = new();
-    private List<GameObject> sfxList = new();
-    private List<GameObject> uiList = new();
-    private List<GameObject> vfxList = new();
-    private List<GameObject> currentList; // recycled variable for current list to put objects in.
-
-    // -- Stacks -- //
-    private Stack<int> enemyIndexStack = new();
-    private Stack<int> miscIndexStack = new();
-    private Stack<int> sfxIndexStack = new();
-    private Stack<int> uiIndexStack = new();
-    private Stack<int> vfxIndexStack = new();
-    private Stack<int> currentIndexStack; // recycled variable for current stack to put indexes in.
+    [SerializeField] private Transform masterPool;
 
     // -- Dictionary -- //
-    private Dictionary<PoolType, List<GameObject>> poolLists = new();
-    private Dictionary<PoolType, Stack<int>> poolStacks = new();
+    private readonly Dictionary<PoolType, List<GameObject>> poolLists = new();
+    private readonly Dictionary<PoolType, Stack<int>> poolStacks = new();
+    private readonly Dictionary<PoolType, Transform> poolTransforms = new();
 
     // -- Specialty Methods -- //
     private void Awake()
@@ -84,6 +57,11 @@ public class PoolManager : MonoBehaviour
         {
             poolLists[type] = new List<GameObject>();
             poolStacks[type] = new Stack<int>();
+
+            // -- transform parenting -- //
+            GameObject poolTransform = new(type.ToString());
+            poolTransform.transform.SetParent(masterPool);
+            poolTransforms[type] = poolTransform.transform;
         }
 
     }
@@ -114,16 +92,14 @@ public class PoolManager : MonoBehaviour
 
         if (genericObject.TryGetComponent<Poolable>(out var poolable))
         {
-            PrepareObjectForPooling(poolable.typeOfPool);
+            EnsurePoolExists(poolable.typeOfPool);
             genericObject.SetActive(activate);
-            genericObject.transform.SetParent(currentParentTransform);
+            genericObject.transform.SetParent(poolTransforms[poolable.typeOfPool]);
             poolLists[poolable.typeOfPool].Add(genericObject);
-            //////currentList.Add(genericObject);
             int index = poolLists[poolable.typeOfPool].Count - 1;
             if (!activate)
             {
                 poolStacks[poolable.typeOfPool].Push(index);
-                /////////currentIndexStack.Push(index); // meaning it's disabled then push index becaue it's available.
             }
             poolable.PoolIndex = index;
         }
@@ -157,9 +133,7 @@ public class PoolManager : MonoBehaviour
 
         if (genericObject.TryGetComponent<Poolable>(out var poolable))
         {
-            PrepareObjectForPooling(poolable.typeOfPool);
             poolStacks[poolable.typeOfPool].Push(poolable.PoolIndex);
-            /////////////////currentIndexStack.Push(poolable.PoolIndex);
         }
         else
         {
@@ -183,12 +157,8 @@ public class PoolManager : MonoBehaviour
     {
         if (prefab.TryGetComponent<Poolable>(out var poolable))
         {
-            PrepareObjectForPooling(poolable.typeOfPool);
             if(poolStacks[poolable.typeOfPool].Count > 0)
-            /////////if (currentIndexStack != null && currentIndexStack.Count > 0)
             {
-                /////int index = currentIndexStack.Pop();
-                ////////GameObject genericObject = currentList[index];
                 int index = poolStacks[poolable.typeOfPool].Pop();
                 GameObject genericObject = poolLists[poolable.typeOfPool][index];
                 genericObject.SetActive(true);
@@ -208,46 +178,23 @@ public class PoolManager : MonoBehaviour
     }
 
     // -- Supplemental Methods -- //
-    /// <summary>
-    /// Sets the variables corresponding to the specified poolType.
-    /// </summary>
-    /// <remarks>If the poolType is missing then we just put everything in miscellaneous</remarks>
-    /// <param name="poolType">Use the public enum and PoolManager will set things up accordingly.</param>
-    private void PrepareObjectForPooling(PoolType poolType)
+    private void EnsurePoolExists(PoolType type)
     {
-        switch (poolType)
+        // Fallback for unknown or newly added pool types
+        if (!poolLists.ContainsKey(type))
         {
-            case PoolType.Enemy:
-                currentParentTransform = enemyPoolTransform;
-                currentList = enemyList;
-                currentIndexStack = enemyIndexStack;
-                break;
-            case PoolType.Misc:
-                currentParentTransform = miscPoolTransform;
-                currentList = miscList;
-                currentIndexStack = miscIndexStack;
-                break;
-            case PoolType.SFX:
-                currentParentTransform = sfxPoolTransform;
-                currentList = sfxList;
-                currentIndexStack = sfxIndexStack;
-                break;
-            case PoolType.UI:
-                currentParentTransform = uiPoolTransform;
-                currentList = uiList;
-                currentIndexStack = uiIndexStack;
-                break;
-            case PoolType.VFX:
-                currentParentTransform = vfxPoolTransform;
-                currentList = vfxList;
-                currentIndexStack = vfxIndexStack;
-                break;
-            default:
-                Debug.LogWarning($"[PoolManager] Looks like {poolType} doesn't have a case in the switch. Placing in misc for now");
-                currentParentTransform = miscPoolTransform;
-                currentList = miscList;
-                currentIndexStack = miscIndexStack;
-                break;
+            poolLists[type] = new List<GameObject>();
+        }
+        if (!poolStacks.ContainsKey(type))
+        {
+            poolStacks[type] = new Stack<int>();
+        }
+        if (!poolTransforms.ContainsKey(type))
+        {
+            // -- transform parenting -- //
+            GameObject poolTransform = new(type.ToString());
+            poolTransform.transform.SetParent(masterPool);
+            poolTransforms[type] = poolTransform.transform;
         }
     }
 
@@ -267,7 +214,7 @@ public class PoolManager : MonoBehaviour
         for (int i = 0; i < 900; i++)
         {
             yield return new WaitForSeconds(UnityEngine.Random.Range(.1f, .2f));
-            GameObject winner = Rent(prefab); // Temp Testing, Remove later.
+            GameObject winner = Rent(prefab[UnityEngine.Random.Range(0,prefab.Length)]); // Temp Testing, Remove later.
         }
     }
 }

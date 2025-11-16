@@ -13,7 +13,7 @@ public class Poolable : MonoBehaviour
     }
     IEnumerator Return()
     {
-        yield return new WaitForSeconds(Random.Range(.1f, .2f));
+        yield return new WaitForSeconds(Random.Range(10f, 20f));
         PoolManager.Instance.PutBack(this.gameObject);
     }
 }
