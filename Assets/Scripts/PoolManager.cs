@@ -80,10 +80,14 @@ public class PoolManager : MonoBehaviour
     }
     void Start()
     {
-        for(int i = 0; i < 10; i++)
+        for (int i = 0; i < 30; i++)
         {
-            Create(prefab); // Temp Testing, Remove later.
+            GameObject winner = Create(prefab); // Temp Testing, Remove later.
         }
+    }
+    private void OnDestroy()
+    {
+        Instance = null;
     }
 
     // -- Main Methods -- //
@@ -95,13 +99,13 @@ public class PoolManager : MonoBehaviour
     /// </remarks>
     /// <param name="prefab">This is the prefab you want to get from the pool.</param>
     /// <param name="poolType">Use the public enum and PoolManager will set things up accordingly.</param>
-    private void Create(GameObject prefab, bool activate = true)
+    private GameObject Create(GameObject prefab, bool activate = true)
     {
         // -- Prep work -- //
-        GameObject genericObject = Instantiate(prefab);        
+        GameObject genericObject = Instantiate(prefab);
 
         // -- Actual work on the object -- //
-        
+
         if (genericObject.TryGetComponent<Poolable>(out var poolable))
         {
             PrepareObjectForPooling(poolable.typeOfPool);
@@ -109,25 +113,15 @@ public class PoolManager : MonoBehaviour
             genericObject.transform.SetParent(currentParentTransform);
             currentList.Add(genericObject);
             int index = currentList.Count - 1;
-            
-            // Validate index is in range
-            if (index < 0 || index >= currentList.Count)
-            {
-                Debug.LogError($"[PoolManager] Invalid pool index {index} for {genericObject.name} in {currentList}");
-            }
-            else
-            {
-                if (!activate) currentIndexStack.Push(index); // meaning it's disabled then push index becaue it's available.
-                poolable.PoolIndex = index;
-            }
+            if (!activate) currentIndexStack.Push(index); // meaning it's disabled then push index becaue it's available.
+            poolable.PoolIndex = index;
+
         }
         else
         {
-            Debug.LogError($"Prefab missing Poolable component at index {genericObject.name} in {currentList}");
+            Debug.LogError($"Prefab missing Poolable component at index {genericObject.name}");
         }
-
-        //////////////////////////////////////////////////////////////////// Continue HERE /////////////////////////////////////////////////////////////////
-
+        return genericObject;
 
     }
     /// <summary>
@@ -150,15 +144,15 @@ public class PoolManager : MonoBehaviour
         }
         // -- Now we return the things to the correct places
         genericObject.SetActive(false);
-        
+
         if (genericObject.TryGetComponent<Poolable>(out var poolable))
-        {           
+        {
             PrepareObjectForPooling(poolable.typeOfPool);
             currentIndexStack.Push(poolable.PoolIndex);
         }
         else
         {
-            Debug.LogError($"Prefab missing Poolable component for {genericObject.name} in {currentList}");
+            Debug.LogError($"Prefab missing Poolable component for {genericObject.name}");
         }
     }
     /// <summary>
@@ -176,10 +170,10 @@ public class PoolManager : MonoBehaviour
     /// </example>
     public GameObject Rent(GameObject prefab)
     {
-        if(TryGetComponent<Poolable>(out var poolable))
+        if (TryGetComponent<Poolable>(out var poolable))
         {
             PrepareObjectForPooling(poolable.typeOfPool);
-            if(currentIndexStack.Count > 0)
+            if (currentIndexStack != null && currentIndexStack.Count > 0)
             {
                 int index = currentIndexStack.Pop();
                 GameObject genericObject = currentList[index];
@@ -188,15 +182,15 @@ public class PoolManager : MonoBehaviour
             }
             else
             {
-                Create(prefab, false); // create new object but keep it inactive for now.
-                int index = currentIndexStack.Pop();
-                GameObject rentedObject = currentList[index];
-                rentedObject.SetActive(true);
-                return rentedObject;
+                GameObject genericObject = Create(prefab);
+                return genericObject;
+            }
         }
-        return prefab;
-        // see if there is an object available
-        // pop index else create new object
+        else
+        {
+            Debug.LogError($"{prefab.name} is missing poolable. Huh?!");
+            return null;
+        }
     }
 
     // -- Supplemental Methods -- //
@@ -252,5 +246,6 @@ public class PoolManager : MonoBehaviour
         VFX,
         Winter
     }
+    
 
 }
