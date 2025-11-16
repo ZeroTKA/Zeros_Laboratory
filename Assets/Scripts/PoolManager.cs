@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using static Poolable;
+using static PoolManager;
 
 public class PoolManager : MonoBehaviour
 {
@@ -78,29 +80,9 @@ public class PoolManager : MonoBehaviour
     }
     void Start()
     {
-        for(int i = 0; i < 5; i++)
+        for(int i = 0; i < 10; i++)
         {
-            Create(prefab, PoolType.Enemy);
-        }
-        for (int i = 0; i < 5; i++)
-        {
-            Create(prefab, PoolType.Misc);
-        }
-        for (int i = 0; i < 5; i++)
-        {
-            Create(prefab, PoolType.SFX);
-        }
-        for (int i = 0; i < 5; i++)
-        {
-            Create(prefab, PoolType.VFX);
-        }
-        for (int i = 0; i < 5; i++)
-        {
-            Create(prefab, PoolType.UI);
-        }
-        for (int i = 0; i < 5; i++)
-        {
-            Create(prefab, PoolType.Winter);
+            Create(prefab); // Temp Testing, Remove later.
         }
     }
 
@@ -113,20 +95,21 @@ public class PoolManager : MonoBehaviour
     /// </remarks>
     /// <param name="prefab">This is the prefab you want to get from the pool.</param>
     /// <param name="poolType">Use the public enum and PoolManager will set things up accordingly.</param>
-    private void Create(GameObject prefab, PoolType poolType, bool activate = true)
+    private void Create(GameObject prefab, bool activate = true)
     {
         // -- Prep work -- //
-        PrepareObjectForPooling(poolType); // important to do this first so the reused variables are set for this method call.
-        GameObject genericObject = Instantiate(prefab);
-        currentList.Add(genericObject);
-        int index = currentList.Count - 1;
+        GameObject genericObject = Instantiate(prefab);        
 
         // -- Actual work on the object -- //
-        genericObject.transform.SetParent(currentParentTransform);
-        genericObject.SetActive(activate);
-        if (!activate) currentIndexStack.Push(index); // meaning it's disabled then push index becaue it's available.
+        
         if (genericObject.TryGetComponent<Poolable>(out var poolable))
         {
+            PrepareObjectForPooling(poolable.typeOfPool);
+            genericObject.SetActive(activate);
+            genericObject.transform.SetParent(currentParentTransform);
+            currentList.Add(genericObject);
+            int index = currentList.Count - 1;
+            
             // Validate index is in range
             if (index < 0 || index >= currentList.Count)
             {
@@ -134,12 +117,13 @@ public class PoolManager : MonoBehaviour
             }
             else
             {
+                if (!activate) currentIndexStack.Push(index); // meaning it's disabled then push index becaue it's available.
                 poolable.PoolIndex = index;
             }
         }
         else
         {
-            Debug.LogError($"Prefab missing Poolable component at index {index} for {genericObject.name} in {currentList}");
+            Debug.LogError($"Prefab missing Poolable component at index {genericObject.name} in {currentList}");
         }
 
         //////////////////////////////////////////////////////////////////// Continue HERE /////////////////////////////////////////////////////////////////
@@ -152,7 +136,7 @@ public class PoolManager : MonoBehaviour
     /// <remarks>Think of this like a quartermaster. When you are done with your weapon (GameObject), you return it to the quartermaster (PoolManager).
     /// The quatermaster thanks you for returning it in good condition so it can be used again later.
     /// </remarks>
-    public void PutBack(GameObject genericObject, PoolType poolType)
+    public void PutBack(GameObject genericObject)
     {
         // -- Error checking and skipping objects that are already inactive. We assume anything that's inactive is already in the pool.
         if (genericObject == null)
@@ -166,9 +150,11 @@ public class PoolManager : MonoBehaviour
         }
         // -- Now we return the things to the correct places
         genericObject.SetActive(false);
-        PrepareObjectForPooling(poolType);
+        
         if (genericObject.TryGetComponent<Poolable>(out var poolable))
         {
+           
+            PrepareObjectForPooling(poolable.typeOfPool);
             currentIndexStack.Push(poolable.PoolIndex);
         }
         else
@@ -189,9 +175,11 @@ public class PoolManager : MonoBehaviour
     /// bullet.transform.position = firePoint.position;
     /// bullet.SetActive(true);
     /// </example>
-    public GameObject Rent()
+    public GameObject Rent(GameObject prefab)
     {
-        return gameObject;
+        return prefab;
+        // see if there is an object available
+        // pop index else create new object
     }
 
     // -- Supplemental Methods -- //
@@ -237,6 +225,7 @@ public class PoolManager : MonoBehaviour
                 break;
         }
     }
+
     public enum PoolType
     {
         Enemy,
@@ -246,4 +235,5 @@ public class PoolManager : MonoBehaviour
         VFX,
         Winter
     }
+
 }

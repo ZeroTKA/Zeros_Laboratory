@@ -126,3 +126,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ae22b43865032fd4e8eb8eadeb4a2de3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Poolable
+  typeOfPool: 0

@@ -3,5 +3,7 @@ using UnityEngine;
 public class Poolable : MonoBehaviour
 {    
     public int PoolIndex { get; set; }
-    public PoolManager.PoolType PoolType { get; set; }
+    public PoolManager.PoolType typeOfPool;
+
+
 }
