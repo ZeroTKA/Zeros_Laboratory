@@ -64,6 +64,9 @@ public class PoolManager : MonoBehaviour
     private Stack<int> vfxIndexStack = new();
     private Stack<int> currentIndexStack; // recycled variable for current stack to put indexes in.
 
+    // -- Dictionary -- //
+    private Dictionary<PoolType, List<GameObject>> poolLists = new();
+    private Dictionary<PoolType, Stack<int>> poolStacks = new();
 
     // -- Specialty Methods -- //
     private void Awake()
@@ -76,6 +79,11 @@ public class PoolManager : MonoBehaviour
         {
             Debug.LogError("[PoolManager] Multiple instances were created. Destroying duplicate instance.");
             Destroy(gameObject);
+        }
+        foreach(PoolType type in System.Enum.GetValues(typeof(PoolType)))
+        {
+            poolLists[type] = new List<GameObject>();
+            poolStacks[type] = new Stack<int>();
         }
 
     }
@@ -109,11 +117,15 @@ public class PoolManager : MonoBehaviour
             PrepareObjectForPooling(poolable.typeOfPool);
             genericObject.SetActive(activate);
             genericObject.transform.SetParent(currentParentTransform);
-            currentList.Add(genericObject);
-            int index = currentList.Count - 1;
-            if (!activate) currentIndexStack.Push(index); // meaning it's disabled then push index becaue it's available.
+            poolLists[poolable.typeOfPool].Add(genericObject);
+            //////currentList.Add(genericObject);
+            int index = poolLists[poolable.typeOfPool].Count - 1;
+            if (!activate)
+            {
+                poolStacks[poolable.typeOfPool].Push(index);
+                /////////currentIndexStack.Push(index); // meaning it's disabled then push index becaue it's available.
+            }
             poolable.PoolIndex = index;
-
         }
         else
         {
@@ -146,7 +158,8 @@ public class PoolManager : MonoBehaviour
         if (genericObject.TryGetComponent<Poolable>(out var poolable))
         {
             PrepareObjectForPooling(poolable.typeOfPool);
-            currentIndexStack.Push(poolable.PoolIndex);
+            poolStacks[poolable.typeOfPool].Push(poolable.PoolIndex);
+            /////////////////currentIndexStack.Push(poolable.PoolIndex);
         }
         else
         {
@@ -171,10 +184,13 @@ public class PoolManager : MonoBehaviour
         if (prefab.TryGetComponent<Poolable>(out var poolable))
         {
             PrepareObjectForPooling(poolable.typeOfPool);
-            if (currentIndexStack != null && currentIndexStack.Count > 0)
+            if(poolStacks[poolable.typeOfPool].Count > 0)
+            /////////if (currentIndexStack != null && currentIndexStack.Count > 0)
             {
-                int index = currentIndexStack.Pop();
-                GameObject genericObject = currentList[index];
+                /////int index = currentIndexStack.Pop();
+                ////////GameObject genericObject = currentList[index];
+                int index = poolStacks[poolable.typeOfPool].Pop();
+                GameObject genericObject = poolLists[poolable.typeOfPool][index];
                 genericObject.SetActive(true);
                 return genericObject;
             }
@@ -245,7 +261,7 @@ public class PoolManager : MonoBehaviour
         Winter
     }
 
-    // -- TEMP. DELETE LATER -- //
+    /////////////// -- TEMP. DELETE LATER -- ///////////////////////
     IEnumerator Spawn()
     {
         for (int i = 0; i < 900; i++)
