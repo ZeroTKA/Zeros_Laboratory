@@ -152,8 +152,7 @@ public class PoolManager : MonoBehaviour
         genericObject.SetActive(false);
         
         if (genericObject.TryGetComponent<Poolable>(out var poolable))
-        {
-           
+        {           
             PrepareObjectForPooling(poolable.typeOfPool);
             currentIndexStack.Push(poolable.PoolIndex);
         }
@@ -177,6 +176,24 @@ public class PoolManager : MonoBehaviour
     /// </example>
     public GameObject Rent(GameObject prefab)
     {
+        if(TryGetComponent<Poolable>(out var poolable))
+        {
+            PrepareObjectForPooling(poolable.typeOfPool);
+            if(currentIndexStack.Count > 0)
+            {
+                int index = currentIndexStack.Pop();
+                GameObject genericObject = currentList[index];
+                genericObject.SetActive(true);
+                return genericObject;
+            }
+            else
+            {
+                Create(prefab, false); // create new object but keep it inactive for now.
+                int index = currentIndexStack.Pop();
+                GameObject rentedObject = currentList[index];
+                rentedObject.SetActive(true);
+                return rentedObject;
+        }
         return prefab;
         // see if there is an object available
         // pop index else create new object
