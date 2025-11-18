@@ -46,7 +46,7 @@ public class SpawnManager : MonoBehaviour
     IEnumerator Spawn() // Temp Testing, Remove later.
     {
         GetRandomSpawnLocation(spawnPoints[0]);
-        for (int i = 0; i < 900; i++)
+        for (int i = 0; i < 90000; i++)
         {            
             yield return new WaitForSeconds(Random.Range(.05f, .1f));
             GameObject winner = PoolManager.Instance.Rent(prefab[Random.Range(0, prefab.Length)]);

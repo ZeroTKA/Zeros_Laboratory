@@ -134,7 +134,7 @@ public class PoolManager : MonoBehaviour
         }
         else
         {
-            Debug.LogError($"Prefab missing Poolable component for {genericObject.name}");
+            Debug.LogError($"[Pool Manager] Prefab missing Poolable component for {genericObject.name}");
         }
     }
     /// <summary>
