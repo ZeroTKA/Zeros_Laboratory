@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -29,9 +28,7 @@ public class PoolManager : MonoBehaviour
     /// </summary>
 
 
-    public static PoolManager Instance { get; private set; }
-
-    [SerializeField] GameObject[] prefab; // Temp Testing, Remove later.
+    public static PoolManager Instance { get; private set; }    
 
     // -- Transform References -- //
     [SerializeField] private Transform masterPool;
@@ -50,7 +47,7 @@ public class PoolManager : MonoBehaviour
         }
         else
         {
-            Debug.LogError("[PoolManager] Multiple instances were created. Destroying duplicate instance.");
+            Debug.LogWarning("[PoolManager] Multiple instances were created. Destroying duplicate instance.");
             Destroy(gameObject);
         }
         foreach(PoolType type in System.Enum.GetValues(typeof(PoolType)))
@@ -67,7 +64,7 @@ public class PoolManager : MonoBehaviour
     }
     void Start()
     {
-        StartCoroutine(Spawn()); // delete me later
+
     }
     private void OnDestroy()
     {
@@ -178,6 +175,13 @@ public class PoolManager : MonoBehaviour
     }
 
     // -- Supplemental Methods -- //
+    /// <summary>
+    /// During creation, figures out if the list / stack / transform exist for the PoolType. If not, create them.
+    /// </summary>
+    /// <remarks>
+    /// Truthfully this is all organizational purposes--at least for now. Maybe in the future the PoolType will have something else attached to it.
+    /// </remarks>
+    /// <param name="type">Enum describing what pool this object belongs to.</param>
     private void EnsurePoolExists(PoolType type)
     {
         // Fallback for unknown or newly added pool types
@@ -206,15 +210,5 @@ public class PoolManager : MonoBehaviour
         UI,
         VFX,
         Winter
-    }
-
-    /////////////// -- TEMP. DELETE LATER -- ///////////////////////
-    IEnumerator Spawn()
-    {
-        for (int i = 0; i < 900; i++)
-        {
-            yield return new WaitForSeconds(UnityEngine.Random.Range(.1f, .2f));
-            GameObject winner = Rent(prefab[UnityEngine.Random.Range(0,prefab.Length)]); // Temp Testing, Remove later.
-        }
     }
 }

@@ -5,15 +5,13 @@ public class Poolable : MonoBehaviour
 {    
     public int PoolIndex { get; set; }
     public PoolManager.PoolType typeOfPool;
-
-    // -- temp. delete everything below later -- //
     private void OnEnable()
     {
-        StartCoroutine(Return());
+        StartCoroutine(Despawn());
     }
-    IEnumerator Return()
+    IEnumerator Despawn()
     {
-        yield return new WaitForSeconds(Random.Range(10f, 20f));
-        PoolManager.Instance.PutBack(this.gameObject);
+        yield return new WaitForSeconds(Random.Range(3f, 4f));
+        PoolManager.Instance.PutBack(gameObject);
     }
 }
