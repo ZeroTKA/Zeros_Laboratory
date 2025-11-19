@@ -1,6 +1,6 @@
+using NUnit.Framework;
 using System.Collections;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Unity.VisualScripting;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class SpawnManager : MonoBehaviour
@@ -8,12 +8,15 @@ public class SpawnManager : MonoBehaviour
 
     /// <summary>
     /// To Do
-    /// 1. Multi Spawn Points
+    /// 1. Add conditional adding  of spawnpoints when getting them. Such as proximity? In camera view? these type of things.
+    /// 2. Max enemies?
     /// </summary>
     public static SpawnManager instance;
 
     [SerializeField] GameObject[] prefab; // Temp Testing, Remove later.
     [SerializeField] GameObject[] spawnPoints;
+
+    private List<Bounds> allBoundsList = new();
 
     private float x1;
     private float x2;
@@ -43,14 +46,33 @@ public class SpawnManager : MonoBehaviour
 
 
     // -- Supplemental Methods -- //
+    /// <summary>
+    /// Weak method and very basic. Maybe we will add more possibilities.
+    /// </summary>
+    /// <returns></returns>
     IEnumerator Spawn() // Temp Testing, Remove later.
     {
-        GetRandomSpawnLocation(spawnPoints[0]);
+        GatherBoundsForList();
         for (int i = 0; i < 90000; i++)
         {            
             yield return new WaitForSeconds(Random.Range(.05f, .1f));
             GameObject winner = PoolManager.Instance.Rent(prefab[Random.Range(0, prefab.Length)]);
-            winner.transform.position = new Vector3(Random.Range(x1, x2), y, Random.Range(z1, z2));
+            winner.transform.position = GetRandomSpawnLocation();
+        }
+    }
+
+    private void GatherBoundsForList()
+    {
+        foreach (GameObject genericObject in spawnPoints)
+        {
+            if (genericObject.TryGetComponent<BoxCollider>(out var box))
+            {
+                allBoundsList.Add(box.bounds);
+            }
+            else
+            {
+                Debug.LogError($"[SpawnManager] No Box Collider on {genericObject.name}");
+            }
         }
     }
     /// <summary>
@@ -59,20 +81,13 @@ public class SpawnManager : MonoBehaviour
     /// <remarks>
     /// Ultimately we are getting the X range, Y Value, and Z range. We use this box to determine potential spawn locations.
     /// </remarks>
-    /// <param name="spawnPointCollider"></param>
-    private void GetRandomSpawnLocation (GameObject spawnPointCollider)
+    private Vector3 GetRandomSpawnLocation()
     {
-        if(spawnPointCollider.TryGetComponent<BoxCollider>(out var box))
-        {
-            x1 = box.bounds.max.x;
-            x2 = box.bounds.min.x;
-            y = box.bounds.min.y;
-            z1 = box.bounds.max.z;
-            z2 = box.bounds.min.z;
-        }
-        else
-        {
-            Debug.LogError($"[SpawnManager] No Box Collider on {spawnPointCollider.name}");
-        }
+        Bounds randomBounds = allBoundsList[Random.Range(0, allBoundsList.Count)];
+        Vector3 spawnLocation = new Vector3(
+            Random.Range(randomBounds.min.x, randomBounds.max.x),
+            randomBounds.min.y,
+            Random.Range(randomBounds.min.z, randomBounds.max.z));
+        return spawnLocation;
     }
 }
