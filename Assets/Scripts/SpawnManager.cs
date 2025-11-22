@@ -18,12 +18,6 @@ public class SpawnManager : MonoBehaviour
 
     private List<Bounds> allBoundsList = new();
 
-    private float x1;
-    private float x2;
-    private float y;
-    private float z1;
-    private float z2;
-
     // -- Specialty Methods -- //
     private void Awake()
     {
@@ -46,20 +40,6 @@ public class SpawnManager : MonoBehaviour
 
 
     // -- Supplemental Methods -- //
-    /// <summary>
-    /// Weak method and very basic. Maybe we will add more possibilities.
-    /// </summary>
-    /// <returns></returns>
-    IEnumerator Spawn() // Temp Testing, Remove later.
-    {
-        GatherBoundsForList();
-        for (int i = 0; i < 90000; i++)
-        {            
-            yield return new WaitForSeconds(Random.Range(.05f, .1f));
-            GameObject winner = PoolManager.Instance.Rent(prefab[Random.Range(0, prefab.Length)]);
-            winner.transform.position = GetRandomSpawnLocation();
-        }
-    }
 
     private void GatherBoundsForList()
     {
@@ -83,6 +63,7 @@ public class SpawnManager : MonoBehaviour
     /// </remarks>
     private Vector3 GetRandomSpawnLocation()
     {
+        //////////////////////////// Do the logic. Validate each point. Add appropiate index to a list and just update the list as necessary?
         Bounds randomBounds = allBoundsList[Random.Range(0, allBoundsList.Count)];
         Vector3 spawnLocation = new Vector3(
             Random.Range(randomBounds.min.x, randomBounds.max.x),
@@ -90,4 +71,20 @@ public class SpawnManager : MonoBehaviour
             Random.Range(randomBounds.min.z, randomBounds.max.z));
         return spawnLocation;
     }
+
+    /// <summary>
+    /// Weak method and very basic. Maybe we will add more possibilities.
+    /// </summary>
+    /// <returns></returns>
+    IEnumerator Spawn() // Temp Testing, Remove later.
+    {
+        GatherBoundsForList();
+        for (int i = 0; i < 90000; i++)
+        {
+            yield return new WaitForSeconds(Random.Range(.05f, .1f));
+            GameObject winner = PoolManager.Instance.Rent(prefab[Random.Range(0, prefab.Length)]);
+            winner.transform.position = GetRandomSpawnLocation();
+        }
+    }
+
 }
