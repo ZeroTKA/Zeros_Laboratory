@@ -620,7 +620,7 @@ GameObject:
   - component: {fileID: 345873201}
   m_Layer: 0
   m_Name: PlayerBody
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2176,6 +2176,7 @@ MonoBehaviour:
   - {fileID: 3658684514537412799, guid: d557252e48ad5894aa376c0906035167, type: 3}
   spawnPoints:
   - {fileID: 2125808366}
+  closestDistanceUntilWeStopSpawning: 40
 --- !u!1 &2117084260
 GameObject:
   m_ObjectHideFlags: 0

@@ -2,6 +2,7 @@ using NUnit.Framework;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class SpawnManager : MonoBehaviour
 {
@@ -10,13 +11,17 @@ public class SpawnManager : MonoBehaviour
     /// To Do
     /// 1. Add conditional adding  of spawnpoints when getting them. Such as proximity? In camera view? these type of things.
     /// 2. Max enemies?
+    /// 3. What do we do if no valid spawn locations? Pause?
     /// </summary>
     public static SpawnManager instance;
+    Transform playerTransform;
 
     [SerializeField] GameObject[] prefab; // Temp Testing, Remove later.
     [SerializeField] GameObject[] spawnPoints;
+    [SerializeField] float closestDistanceUntilWeStopSpawning;
 
     private List<Bounds> allBoundsList = new();
+    private List<int> indexOfValidSpawnPoints = new();
 
     // -- Specialty Methods -- //
     private void Awake()
@@ -34,6 +39,7 @@ public class SpawnManager : MonoBehaviour
     private void Start()
     {
         StartCoroutine(Spawn());
+        playerTransform = GameObject.FindWithTag("Player").transform;
     }
 
     // -- Main Method -- //
@@ -63,13 +69,65 @@ public class SpawnManager : MonoBehaviour
     /// </remarks>
     private Vector3 GetRandomSpawnLocation()
     {
-        //////////////////////////// Do the logic. Validate each point. Add appropiate index to a list and just update the list as necessary?
-        Bounds randomBounds = allBoundsList[Random.Range(0, allBoundsList.Count)];
-        Vector3 spawnLocation = new Vector3(
-            Random.Range(randomBounds.min.x, randomBounds.max.x),
-            randomBounds.min.y,
-            Random.Range(randomBounds.min.z, randomBounds.max.z));
-        return spawnLocation;
+        GetValidSpawnLocations();
+        if (indexOfValidSpawnPoints.Count > 0)
+        {
+            Bounds randomBounds = allBoundsList[indexOfValidSpawnPoints[Random.Range(0, indexOfValidSpawnPoints.Count)]];
+            Vector3 spawnLocation = new Vector3(
+                Random.Range(randomBounds.min.x, randomBounds.max.x),
+                randomBounds.min.y,
+                Random.Range(randomBounds.min.z, randomBounds.max.z));
+            return spawnLocation;
+        }
+        else
+        {
+            Debug.LogWarning("[SpawnManager] We are returning Vector3.zero even though there's no valid spawn location. Why isn't there a valid spawn location?");
+            return Vector3.zero; 
+        }    
+
+    }
+    /// <summary>
+    /// This is a conditional check for spawn points we can spawn at.
+    /// </summary>
+    private void GetValidSpawnLocations()
+    {
+        indexOfValidSpawnPoints.Clear();
+        Vector3 playerPosition = playerTransform.position; // cache this becasue I don't want to run it for every single loop.
+        for (int i = 0; i < allBoundsList.Count; i++)
+        {
+            // -- Conditional reasons to NOT spawn something.
+            if (
+                AreWeTooCloseToSpawnPoint(allBoundsList[i],playerPosition))
+            {
+                continue;
+            }
+            else
+            {
+                indexOfValidSpawnPoints.Add(i);
+            }
+        }
+        /// Iterate through Bounds list
+        /// Add passes to list
+        /// iterate through this new list
+    }
+    /// <summary>
+    /// Determines if the player is too close to the spawn. If so, invalidates the spawn point.
+    /// </summary>
+    /// <param name="bounds">This is the bounds to check against the distance against.</param>
+    /// <param name="playerPosition">Object we are comparing the distance to--typically the player??</param>
+    /// <returns>Returns true if the bounds is too close to the object. Reutrns false if the object is NOT too close.</returns>
+    private bool AreWeTooCloseToSpawnPoint(Bounds bounds, Vector3 playerPosition)
+    {        
+        float distance = Vector3.Distance(bounds.ClosestPoint(playerPosition), playerPosition);
+        Debug.Log($"distance is {distance} so it's {distance < closestDistanceUntilWeStopSpawning} ");
+        if(distance > closestDistanceUntilWeStopSpawning)
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }            
     }
 
     /// <summary>
