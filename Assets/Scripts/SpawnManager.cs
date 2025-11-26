@@ -19,7 +19,9 @@ public class SpawnManager : MonoBehaviour
     [SerializeField] GameObject[] prefab; // Temp Testing, Remove later.
     [SerializeField] GameObject[] spawnPoints;
     [SerializeField] float closestDistanceUntilWeStopSpawning;
+    [SerializeField] int maxEnemies;
 
+    private int enemySpawnCount = 0;  // the idea is to allow a maximum spawn amount.
     private List<Bounds> allBoundsList = new();
     private List<int> indexOfValidSpawnPoints = new();
 
@@ -129,6 +131,15 @@ public class SpawnManager : MonoBehaviour
             return true;
         }            
     }
+    public void RegisterDespawn()
+    {
+        enemySpawnCount--;
+        if (enemySpawnCount < 0 )
+        {
+            enemySpawnCount = 0;
+            Debug.LogWarning($"[Spawn Manager] enemySpawnCount is less than 0. Changed to 0 but how did it get negative?!");
+        }
+    }
 
     /// <summary>
     /// Weak method and very basic. Maybe we will add more possibilities.
@@ -139,10 +150,17 @@ public class SpawnManager : MonoBehaviour
         GatherBoundsForList();
         for (int i = 0; i < 90000; i++)
         {
-            yield return new WaitForSeconds(Random.Range(.05f, .1f));
+            // Wait until there is room to spawn
+            while (enemySpawnCount >= maxEnemies)
+            {
+                yield return null; // wait one frame, check again
+            }
+
+            yield return new WaitForSeconds(Random.Range(.1f, .1f));
+
             GameObject winner = PoolManager.Instance.Rent(prefab[Random.Range(0, prefab.Length)]);
             winner.transform.position = GetRandomSpawnLocation();
+            enemySpawnCount++;
         }
     }
-
 }
