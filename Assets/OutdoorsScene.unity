@@ -585,7 +585,7 @@ Transform:
   m_GameObject: {fileID: 207859550}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 21.52, y: 2, z: 31.01}
+  m_LocalPosition: {x: 19.01, y: 2, z: 31.01}
   m_LocalScale: {x: 6.09, y: 2, z: 10}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2223,7 +2223,7 @@ Transform:
   m_GameObject: {fileID: 2078980813}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 18.41, y: 2, z: 48.62}
+  m_LocalPosition: {x: 18.41, y: 2, z: 52.38}
   m_LocalScale: {x: 6.09, y: 2, z: 10}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2279,8 +2279,8 @@ MonoBehaviour:
   - {fileID: 2125808366}
   - {fileID: 207859550}
   - {fileID: 2078980813}
-  closestDistanceUntilWeStopSpawning: 30
-  maxEnemies: 10
+  closestDistanceUntilWeStopSpawning: 3
+  maxEnemies: 1500
 --- !u!1 &2117084260
 GameObject:
   m_ObjectHideFlags: 0

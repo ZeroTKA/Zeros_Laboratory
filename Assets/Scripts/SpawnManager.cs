@@ -9,8 +9,6 @@ public class SpawnManager : MonoBehaviour
 
     /// <summary>
     /// To Do
-    /// 1. Add conditional adding  of spawnpoints when getting them. Such as proximity? In camera view? these type of things.
-    /// 2. Max enemies?
     /// 3. What do we do if no valid spawn locations? Pause?
     /// </summary>
     public static SpawnManager instance;
@@ -40,6 +38,12 @@ public class SpawnManager : MonoBehaviour
     }
     private void Start()
     {
+        StartCoroutine(Spawn());
+        StartCoroutine(Spawn());
+        StartCoroutine(Spawn());
+        StartCoroutine(Spawn());
+        StartCoroutine(Spawn());
+        StartCoroutine(Spawn());
         StartCoroutine(Spawn());
         playerTransform = GameObject.FindWithTag("Player").transform;
     }
@@ -121,7 +125,6 @@ public class SpawnManager : MonoBehaviour
     private bool AreWeTooCloseToSpawnPoint(Bounds bounds, Vector3 playerPosition)
     {        
         float distance = Vector3.Distance(bounds.ClosestPoint(playerPosition), playerPosition);
-        Debug.Log($"distance is {distance} so it's {distance < closestDistanceUntilWeStopSpawning} ");
         if(distance > closestDistanceUntilWeStopSpawning)
         {
             return false;
@@ -131,15 +134,7 @@ public class SpawnManager : MonoBehaviour
             return true;
         }            
     }
-    public void RegisterDespawn()
-    {
-        enemySpawnCount--;
-        if (enemySpawnCount < 0 )
-        {
-            enemySpawnCount = 0;
-            Debug.LogWarning($"[Spawn Manager] enemySpawnCount is less than 0. Changed to 0 but how did it get negative?!");
-        }
-    }
+
 
     /// <summary>
     /// Weak method and very basic. Maybe we will add more possibilities.
@@ -156,11 +151,27 @@ public class SpawnManager : MonoBehaviour
                 yield return null; // wait one frame, check again
             }
 
-            yield return new WaitForSeconds(Random.Range(.1f, .1f));
+            yield return new WaitForSeconds(Random.Range(.00001f, .00001f));
 
             GameObject winner = PoolManager.Instance.Rent(prefab[Random.Range(0, prefab.Length)]);
             winner.transform.position = GetRandomSpawnLocation();
-            enemySpawnCount++;
+            if(indexOfValidSpawnPoints.Count >0)
+            {
+                enemySpawnCount++;
+            }
+            
+        }
+    }
+    /// <summary>
+    /// This method is meant to be a part of the max enemy count. This allows another object to call despawn to keep our enemySpawnCount accurate.
+    /// </summary>
+    public void RegisterDespawn()
+    {
+        enemySpawnCount--;
+        if (enemySpawnCount < 0)
+        {
+            enemySpawnCount = 0;
+            Debug.LogWarning($"[Spawn Manager] enemySpawnCount is less than 0. Changed to 0 but how did it get negative?!");
         }
     }
 }
