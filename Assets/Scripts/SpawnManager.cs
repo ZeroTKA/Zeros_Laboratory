@@ -38,13 +38,6 @@ public class SpawnManager : MonoBehaviour
     }
     private void Start()
     {
-        StartCoroutine(Spawn());
-        StartCoroutine(Spawn());
-        StartCoroutine(Spawn());
-        StartCoroutine(Spawn());
-        StartCoroutine(Spawn());
-        StartCoroutine(Spawn());
-        StartCoroutine(Spawn());
         playerTransform = GameObject.FindWithTag("Player").transform;
     }
 
