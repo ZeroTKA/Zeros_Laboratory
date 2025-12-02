@@ -39,6 +39,7 @@ public class SpawnManager : MonoBehaviour
     private void Start()
     {
         playerTransform = GameObject.FindWithTag("Player").transform;
+        StartCoroutine(Spawn());
     }
 
     // -- Main Method -- //
@@ -144,7 +145,7 @@ public class SpawnManager : MonoBehaviour
                 yield return null; // wait one frame, check again
             }
 
-            yield return new WaitForSeconds(Random.Range(.00001f, .00001f));
+            yield return new WaitForSeconds(Random.Range(.01f, .01f));
 
             GameObject winner = PoolManager.Instance.Rent(prefab[Random.Range(0, prefab.Length)]);
             winner.transform.position = GetRandomSpawnLocation();
