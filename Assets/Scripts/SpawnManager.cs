@@ -145,7 +145,7 @@ public class SpawnManager : MonoBehaviour
                 yield return null; // wait one frame, check again
             }
 
-            yield return new WaitForSeconds(Random.Range(.01f, .01f));
+            yield return new WaitForSeconds(Random.Range(.09f, .09f));
 
             GameObject winner = PoolManager.Instance.Rent(prefab[Random.Range(0, prefab.Length)]);
             winner.transform.position = GetRandomSpawnLocation();

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 
@@ -26,8 +27,13 @@ public class PoolManager : MonoBehaviour
     /// To Do List:
     /// 
     /// </summary>
+    // -- TEST References. DELETE Between Lines -- //
+    [SerializeField] private TextMeshProUGUI totalSpawnText;
+    private int totalSpawnCount = 0;
+    [SerializeField] private TextMeshProUGUI totalReturnedText;
+    private int totalReturnedCount = 0;
 
-
+    // -- TEST References. DELETE Between Lines -- //
     public static PoolManager Instance { get; private set; }    
 
     // -- Transform References -- //
@@ -152,6 +158,8 @@ public class PoolManager : MonoBehaviour
     /// </example>
     public GameObject Rent(GameObject prefab)
     {
+        totalSpawnCount++;
+        UpdateUI();
         if (prefab.TryGetComponent<Poolable>(out var poolable))
         {
             if(poolStacks[poolable.typeOfPool].Count > 0)
@@ -172,6 +180,7 @@ public class PoolManager : MonoBehaviour
             Debug.LogError($"{prefab.name} is missing poolable. Huh?!");
             return null;
         }
+
     }
 
     // -- Supplemental Methods -- //
@@ -210,5 +219,12 @@ public class PoolManager : MonoBehaviour
         UI,
         VFX,
         Winter
+    }
+
+    // -- TEST METHODS, DELETE.
+    public void UpdateUI()
+    {
+        totalSpawnText.text = "Total Pool Objects: " + totalSpawnCount;
+        totalReturnedText.text = "Active: " + (totalSpawnCount - totalReturnedCount);
     }
 }
