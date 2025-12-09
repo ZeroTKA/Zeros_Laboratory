@@ -30,8 +30,10 @@ public class PoolManager : MonoBehaviour
     // -- TEST References. DELETE Between Lines -- //
     [SerializeField] private TextMeshProUGUI totalSpawnText;
     private int totalSpawnCount = 0;
-    [SerializeField] private TextMeshProUGUI totalReturnedText;
+    [SerializeField] private TextMeshProUGUI totalActiveText;
     private int totalReturnedCount = 0;
+    [SerializeField] private TextMeshProUGUI totalCreatedText;
+    private int totalCreatedCount = 0;
 
     // -- TEST References. DELETE Between Lines -- //
     public static PoolManager Instance { get; private set; }    
@@ -88,6 +90,10 @@ public class PoolManager : MonoBehaviour
     /// <param name="poolType">Use the public enum and PoolManager will set things up accordingly.</param>
     private GameObject Create(GameObject prefab, bool activate = true)
     {
+        // -- DELETE BETWEEN LINES (TESTING PURPOSES ONLY) -- //
+        totalCreatedCount++;
+        UpdateUI();
+        // -- DELETE BETWEEN LINES (TESTING PURPOSES ONLY) -- //
         // -- Prep work -- //
         GameObject genericObject = Instantiate(prefab);
 
@@ -121,6 +127,12 @@ public class PoolManager : MonoBehaviour
     /// </remarks>
     public void PutBack(GameObject genericObject)
     {
+        // -- DELETE BETWEEN LINES (TESTING PURPOSES ONLY) -- //
+        totalReturnedCount++;
+        UpdateUI();
+        // -- DELETE BETWEEN LINES (TESTING PURPOSES ONLY) -- //
+
+
         // -- Error checking and skipping objects that are already inactive. We assume anything that's inactive is already in the pool.
         if (genericObject == null)
         {
@@ -158,8 +170,11 @@ public class PoolManager : MonoBehaviour
     /// </example>
     public GameObject Rent(GameObject prefab)
     {
+        // -- DELETE BETWEEN LINES (TESTING PURPOSES ONLY) -- //
         totalSpawnCount++;
         UpdateUI();
+        // -- DELETE BETWEEN LINES (TESTING PURPOSES ONLY) -- //
+
         if (prefab.TryGetComponent<Poolable>(out var poolable))
         {
             if(poolStacks[poolable.typeOfPool].Count > 0)
@@ -224,7 +239,8 @@ public class PoolManager : MonoBehaviour
     // -- TEST METHODS, DELETE.
     public void UpdateUI()
     {
-        totalSpawnText.text = "Total Pool Objects: " + totalSpawnCount;
-        totalReturnedText.text = "Active: " + (totalSpawnCount - totalReturnedCount);
+        totalSpawnText.text = "Total Enemies Spawned: " + totalSpawnCount;
+        totalActiveText.text = "Active Enemies: " + (totalSpawnCount - totalReturnedCount);
+        totalCreatedText.text = "Total Enemies Created: " + (totalCreatedCount);
     }
 }
