@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -27,13 +28,17 @@ public class PoolManager : MonoBehaviour
     /// To Do List:
     /// 
     /// </summary>
+    
     // -- TEST References. DELETE Between Lines -- //
     [SerializeField] private TextMeshProUGUI totalSpawnText;
     private int totalSpawnCount = 0;
-    [SerializeField] private TextMeshProUGUI totalActiveText;
-    private int totalReturnedCount = 0;
     [SerializeField] private TextMeshProUGUI totalCreatedText;
     private int totalCreatedCount = 0;
+    [SerializeField] private TextMeshProUGUI totalActiveText;
+    private int totalReturnedCount = 0;
+    [SerializeField] private TextMeshProUGUI averageCreateText;
+    private System.Diagnostics.Stopwatch createStopwatch = new();
+    private System.Diagnostics.Stopwatch reuseStopwatch = new();
 
     // -- TEST References. DELETE Between Lines -- //
     public static PoolManager Instance { get; private set; }    
@@ -69,6 +74,7 @@ public class PoolManager : MonoBehaviour
             poolTransforms[type] = poolTransform.transform;
         }
 
+
     }
     void Start()
     {
@@ -90,12 +96,16 @@ public class PoolManager : MonoBehaviour
     /// <param name="poolType">Use the public enum and PoolManager will set things up accordingly.</param>
     private GameObject Create(GameObject prefab, bool activate = true)
     {
+
+        // -- Prep work -- //
+        createStopwatch.Start(); // DELETE STOP WATCH 
+        GameObject genericObject = Instantiate(prefab);
+        createStopwatch.Stop();  // DELETE STOP WATCH
+
         // -- DELETE BETWEEN LINES (TESTING PURPOSES ONLY) -- //
         totalCreatedCount++;
         UpdateUI();
         // -- DELETE BETWEEN LINES (TESTING PURPOSES ONLY) -- //
-        // -- Prep work -- //
-        GameObject genericObject = Instantiate(prefab);
 
         // -- Actual work on the object -- //
 
@@ -241,6 +251,9 @@ public class PoolManager : MonoBehaviour
     {
         totalSpawnText.text = "Total Enemies Spawned: " + totalSpawnCount;
         totalActiveText.text = "Active Enemies: " + (totalSpawnCount - totalReturnedCount);
-        totalCreatedText.text = "Total Enemies Created: " + (totalCreatedCount);
+        totalCreatedText.text = "Total Enemies Created: " + totalCreatedCount;
+        averageCreateText.text = "Avg Time to Create: " + Math.Round((float)createStopwatch.ElapsedMilliseconds / totalCreatedCount,5) + "ms";
+        
+
     }
 }
