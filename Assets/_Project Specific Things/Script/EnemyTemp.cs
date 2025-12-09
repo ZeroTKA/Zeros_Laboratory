@@ -14,10 +14,6 @@ public class EnemyTemp : MonoBehaviour
             Debug.LogError("Move Point doesn't exist for some reason. What.");
         }
     }
-    private void OnDisable()
-    {
-        SpawnManager.instance.RegisterDespawn();
-    }
 
     private void Update()
     {

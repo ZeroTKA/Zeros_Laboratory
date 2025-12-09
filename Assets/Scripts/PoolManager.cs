@@ -38,7 +38,9 @@ public class PoolManager : MonoBehaviour
     private int totalReturnedCount = 0;
     [SerializeField] private TextMeshProUGUI averageCreateText;
     private System.Diagnostics.Stopwatch createStopwatch = new();
+    [SerializeField] private TextMeshProUGUI averageReuseText;
     private System.Diagnostics.Stopwatch reuseStopwatch = new();
+    private int totalReusedCount = 0;
 
     // -- TEST References. DELETE Between Lines -- //
     public static PoolManager Instance { get; private set; }    
@@ -104,6 +106,7 @@ public class PoolManager : MonoBehaviour
 
         // -- DELETE BETWEEN LINES (TESTING PURPOSES ONLY) -- //
         totalCreatedCount++;
+        totalSpawnCount++;
         UpdateUI();
         // -- DELETE BETWEEN LINES (TESTING PURPOSES ONLY) -- //
 
@@ -139,6 +142,7 @@ public class PoolManager : MonoBehaviour
     {
         // -- DELETE BETWEEN LINES (TESTING PURPOSES ONLY) -- //
         totalReturnedCount++;
+        SpawnManager.instance.enemySpawnCount--;
         UpdateUI();
         // -- DELETE BETWEEN LINES (TESTING PURPOSES ONLY) -- //
 
@@ -180,10 +184,7 @@ public class PoolManager : MonoBehaviour
     /// </example>
     public GameObject Rent(GameObject prefab)
     {
-        // -- DELETE BETWEEN LINES (TESTING PURPOSES ONLY) -- //
-        totalSpawnCount++;
-        UpdateUI();
-        // -- DELETE BETWEEN LINES (TESTING PURPOSES ONLY) -- //
+
 
         if (prefab.TryGetComponent<Poolable>(out var poolable))
         {
@@ -191,7 +192,15 @@ public class PoolManager : MonoBehaviour
             {
                 int index = poolStacks[poolable.typeOfPool].Pop();
                 GameObject genericObject = poolLists[poolable.typeOfPool][index];
+                reuseStopwatch.Start(); // DELETE STOP WATCH
                 genericObject.SetActive(true);
+                reuseStopwatch.Stop(); // DELETE STOP WATCH
+
+                // -- DELETE BETWEEN LINES (TESTING PURPOSES ONLY) -- //
+                totalSpawnCount++;
+                totalReusedCount++;
+                UpdateUI();
+                // -- DELETE BETWEEN LINES (TESTING PURPOSES ONLY) -- //
                 return genericObject;
             }
             else
@@ -205,7 +214,6 @@ public class PoolManager : MonoBehaviour
             Debug.LogError($"{prefab.name} is missing poolable. Huh?!");
             return null;
         }
-
     }
 
     // -- Supplemental Methods -- //
@@ -252,8 +260,12 @@ public class PoolManager : MonoBehaviour
         totalSpawnText.text = "Total Enemies Spawned: " + totalSpawnCount;
         totalActiveText.text = "Active Enemies: " + (totalSpawnCount - totalReturnedCount);
         totalCreatedText.text = "Total Enemies Created: " + totalCreatedCount;
-        averageCreateText.text = "Avg Time to Create: " + Math.Round((float)createStopwatch.ElapsedMilliseconds / totalCreatedCount,5) + "ms";
-        
+        averageCreateText.text = "Avg Time to Create: " +
+            Math.Round((double)createStopwatch.ElapsedTicks / System.Diagnostics.Stopwatch.Frequency * 1000.0 / totalCreatedCount,5) + 
+            "ms";
+        averageReuseText.text = "Avg Time to Reuse: " + 
+            Math.Round((double)reuseStopwatch.ElapsedTicks / System.Diagnostics.Stopwatch.Frequency * 1000.0 / totalReusedCount, 5) +
+            "ms";
 
     }
 }

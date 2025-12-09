@@ -19,7 +19,7 @@ public class SpawnManager : MonoBehaviour
     [SerializeField] float closestDistanceUntilWeStopSpawning;
     [SerializeField] int maxEnemies;
 
-    private int enemySpawnCount = 0;  // the idea is to allow a maximum spawn amount.
+    public int enemySpawnCount = 0;  // the idea is to allow a maximum spawn amount.
     private List<Bounds> allBoundsList = new();
     private List<int> indexOfValidSpawnPoints = new();
 
@@ -106,9 +106,6 @@ public class SpawnManager : MonoBehaviour
                 indexOfValidSpawnPoints.Add(i);
             }
         }
-        /// Iterate through Bounds list
-        /// Add passes to list
-        /// iterate through this new list
     }
     /// <summary>
     /// Determines if the player is too close to the spawn. If so, invalidates the spawn point.
@@ -145,7 +142,7 @@ public class SpawnManager : MonoBehaviour
                 yield return null; // wait one frame, check again
             }
 
-            yield return new WaitForSeconds(Random.Range(.09f, .09f));
+            yield return new WaitForSeconds(Random.Range(.01f, .01f));
 
             GameObject winner = PoolManager.Instance.Rent(prefab[Random.Range(0, prefab.Length)]);
             winner.transform.position = GetRandomSpawnLocation();
