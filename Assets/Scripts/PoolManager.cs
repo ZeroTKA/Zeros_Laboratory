@@ -263,9 +263,16 @@ public class PoolManager : MonoBehaviour
         averageCreateText.text = "Avg Time to Create: " +
             Math.Round((double)createStopwatch.ElapsedTicks / System.Diagnostics.Stopwatch.Frequency * 1000.0 / totalCreatedCount,5) + 
             "ms";
-        averageReuseText.text = "Avg Time to Reuse: " + 
-            Math.Round((double)reuseStopwatch.ElapsedTicks / System.Diagnostics.Stopwatch.Frequency * 1000.0 / totalReusedCount, 5) +
-            "ms";
-
+        if (totalReturnedCount > 0)
+        {
+            averageReuseText.text = "Avg Time to Reuse: " +
+                Math.Round((double)reuseStopwatch.ElapsedTicks / System.Diagnostics.Stopwatch.Frequency * 1000.0 / totalReusedCount, 5) +
+                "ms";
+        }
+        else
+        {
+            averageReuseText.text = "Avg Time to Reuse: No Data";
+        } 
+            
     }
 }
