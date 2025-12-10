@@ -4205,6 +4205,7 @@ MonoBehaviour:
   - {fileID: 807136848}
   closestDistanceUntilWeStopSpawning: 3
   maxEnemies: 250
+  TotalEnemiesToSpawn: 90000
   enemySpawnCount: 0
 --- !u!1 &2117084260
 GameObject:

@@ -16,6 +16,7 @@ public class SpawnManager : MonoBehaviour
     [SerializeField] GameObject[] spawnPoints;
     [SerializeField] float closestDistanceUntilWeStopSpawning;
     [SerializeField] int maxEnemies;
+    [SerializeField] int TotalEnemiesToSpawn;
 
     public int enemySpawnCount = 0;  // the idea is to allow a maximum spawn amount.
     private List<Bounds> allBoundsList = new();
@@ -128,11 +129,10 @@ public class SpawnManager : MonoBehaviour
     /// <summary>
     /// Weak method and very basic. Maybe we will add more possibilities.
     /// </summary>
-    /// <returns></returns>
     IEnumerator Spawn() // Temp Testing, Remove later.
     {
         GatherBoundsForList();
-        for (int i = 0; i < 90000; i++)
+        for (int i = 0; i < TotalEnemiesToSpawn; i++)
         {
             // Wait until there is room to spawn
             while (enemySpawnCount >= maxEnemies)
@@ -149,18 +149,6 @@ public class SpawnManager : MonoBehaviour
                 enemySpawnCount++;
             }
             
-        }
-    }
-    /// <summary>
-    /// This method is meant to be a part of the max enemy count. This allows another object to call despawn to keep our enemySpawnCount accurate.
-    /// </summary>
-    public void RegisterDespawn()
-    {
-        enemySpawnCount--;
-        if (enemySpawnCount < 0)
-        {
-            enemySpawnCount = 0;
-            Debug.LogWarning($"[Spawn Manager] enemySpawnCount is less than 0. Changed to 0 but how did it get negative?!");
         }
     }
 }

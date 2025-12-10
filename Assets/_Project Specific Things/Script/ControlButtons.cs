@@ -7,7 +7,7 @@ public static void ButtonPushedDoTheThing(int buttonID)
         switch (buttonID)
         {
             case 0:
-                Debug.Log("Control Button 0 Pressed");
+                Debug.Log("ButtonID is 0. Did you forget to set the correct ButtonID?");
                 break;
             case 1:
                 Debug.Log("Control Button 1 Pressed");
