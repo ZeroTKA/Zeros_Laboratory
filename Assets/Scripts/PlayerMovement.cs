@@ -7,7 +7,16 @@ public class PlayerMovement : MonoBehaviour
     /// -- To Do List -- 
     /// 1. When crouching, setting the controller height isn't lerpd. It's immediate. Do we care?
     /// </summary>
+
+    ///<summary>
+    /// to add an action do the following:
+    /// OnEnable
+    /// OnDisable
+    /// StartErrorChecking
+    /// Make its own Method
+    /// </summary>
     [SerializeField] private CharacterController controller; // Drag your character controller here
+    [SerializeField] private Camera playerCamera; // Drag your player camera here
 
     //-- Rotation Variables --//
     [SerializeField] private Transform cameraPivotTransform; // Drag your camera pivot here
@@ -40,12 +49,16 @@ public class PlayerMovement : MonoBehaviour
     private float proneHeight = .3f;
     private readonly float proneSpeed = .3f; // as in move at a rate of 30% of base move speed.
 
+    // -- Interaction Variables --//
+    private float interactDistance = 3f;
+
     //-- Input Actions --//  -- To add an action, make sure to add in OnDisable, OnEnable, and in StartErrorChecking.
     private InputAction lookAction;
     private InputAction moveAction;
     private InputAction jumpAction;
     private InputAction crouchAction;
     private InputAction proneAction;
+    private InputAction interactAction;
 
     private float cameraLerpSpeed = 5f;
 
@@ -72,8 +85,7 @@ public class PlayerMovement : MonoBehaviour
         Prone();
         ChangeCameraHeight();
         Jump();
-
-
+        Interact();
         if (controller == null)
         {
             Debug.LogError("[PlayerMovment] Can't find the controller in Update");
@@ -90,6 +102,7 @@ public class PlayerMovement : MonoBehaviour
         jumpAction?.Enable();
         crouchAction?.Enable();
         proneAction?.Enable();
+        interactAction?.Enable();
     }
     private void OnDisable()
     {
@@ -98,6 +111,7 @@ public class PlayerMovement : MonoBehaviour
         jumpAction?.Disable();
         crouchAction?.Disable();
         proneAction?.Disable();
+        interactAction?.Disable();
     }
 
     // -- Main Methods -- //
@@ -110,6 +124,22 @@ public class PlayerMovement : MonoBehaviour
             if (isCrouched) isProne = false; // you can't be both prone and crouched.
             SetCharacterControllerHeightAndCenter(isCrouched ? Stance.Crouched : Stance.Standing); // Adjust Player Controller Height           
             currentMoveSpeed = isCrouched ? baseMoveSpeed * crouchSpeed : baseMoveSpeed; // Adjust move speed
+        }
+    }
+    private void Interact()
+    {
+        if (interactAction == null) return;
+        if (interactAction.triggered)
+        {
+            Debug.Log("Left");
+            Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
+            if (Physics.Raycast(ray, out RaycastHit hit, interactDistance))
+            {
+                if (hit.transform.gameObject.TryGetComponent<Buttons>(out Buttons component))
+                {
+                    component.ButtonPressed();
+                }
+            }
         }
     }
     private void Jump()
@@ -234,6 +264,7 @@ public class PlayerMovement : MonoBehaviour
             jumpAction = playerInput.actions["Jump"];
             crouchAction = playerInput.actions["Crouch"];
             proneAction = playerInput.actions["Prone"];
+            interactAction = playerInput.actions["Interact"];
         }
         else
         {
