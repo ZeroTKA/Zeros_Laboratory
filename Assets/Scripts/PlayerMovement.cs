@@ -131,7 +131,6 @@ public class PlayerMovement : MonoBehaviour
         if (interactAction == null) return;
         if (interactAction.triggered)
         {
-            Debug.Log("Left");
             Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
             if (Physics.Raycast(ray, out RaycastHit hit, interactDistance))
             {
