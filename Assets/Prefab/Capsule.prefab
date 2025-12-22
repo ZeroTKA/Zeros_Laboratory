@@ -12,9 +12,9 @@ GameObject:
   - component: {fileID: 7581957524685338472}
   - component: {fileID: 768802639463590749}
   - component: {fileID: 5672345347072591298}
-  - component: {fileID: 9209361930803360646}
   - component: {fileID: 1871166007327731697}
   - component: {fileID: 7408248846843405020}
+  - component: {fileID: -5704296663206480950}
   m_Layer: 0
   m_Name: Capsule
   m_TagString: Enemy
@@ -116,19 +116,6 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &9209361930803360646
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5510578754598200664}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ae22b43865032fd4e8eb8eadeb4a2de3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Poolable
-  typeOfPool: 0
 --- !u!54 &1871166007327731697
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -169,3 +156,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyTemp
   speed: 8
+--- !u!114 &-5704296663206480950
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5510578754598200664}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 263ebed15e194a34badeef2940b21aca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PoolableTest
+  typeOfPool: 0

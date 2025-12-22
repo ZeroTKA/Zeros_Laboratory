@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-
-public class PoolManager : MonoBehaviour
+public class PoolManagerTest : MonoBehaviour
 {
-
     /// <summary>
     /// High-level overview of how the PoolManager works:
     /// - Each pool type has its own parent transform for hierarchy organization.
@@ -28,7 +26,7 @@ public class PoolManager : MonoBehaviour
     /// To Do List:
     /// 
     /// </summary>
-    
+
     // -- TEST References. DELETE Between Lines -- //
     [SerializeField] private TextMeshProUGUI totalSpawnText;
     private int totalSpawnCount = 0;
@@ -43,7 +41,7 @@ public class PoolManager : MonoBehaviour
     private int totalReusedCount = 0;
 
     // -- TEST References. DELETE Between Lines -- //
-    public static PoolManager Instance { get; private set; }    
+    public static PoolManagerTest Instance { get; private set; }
 
     // -- Transform References -- //
     [SerializeField] private Transform masterPool;
@@ -65,7 +63,7 @@ public class PoolManager : MonoBehaviour
             Debug.LogWarning("[PoolManager] Multiple instances were created. Destroying duplicate instance.");
             Destroy(gameObject);
         }
-        foreach(PoolType type in System.Enum.GetValues(typeof(PoolType)))
+        foreach (PoolType type in System.Enum.GetValues(typeof(PoolType)))
         {
             poolLists[type] = new List<GameObject>();
             poolStacks[type] = new Stack<int>();
@@ -112,7 +110,7 @@ public class PoolManager : MonoBehaviour
 
         // -- Actual work on the object -- //
 
-        if (genericObject.TryGetComponent<Poolable>(out var poolable))
+        if (genericObject.TryGetComponent<PoolableTest>(out var poolable))
         {
             EnsurePoolExists(poolable.typeOfPool);
             genericObject.SetActive(activate);
@@ -142,7 +140,7 @@ public class PoolManager : MonoBehaviour
     {
         // -- DELETE BETWEEN LINES (TESTING PURPOSES ONLY) -- //
         totalReturnedCount++;
-        SpawnManager.instance.enemySpawnCount--;
+        SpawnManagerTest.instance.enemySpawnCount--;
         UpdateUI();
         // -- DELETE BETWEEN LINES (TESTING PURPOSES ONLY) -- //
 
@@ -160,7 +158,7 @@ public class PoolManager : MonoBehaviour
         // -- Now we return the things to the correct places
         genericObject.SetActive(false);
 
-        if (genericObject.TryGetComponent<Poolable>(out var poolable))
+        if (genericObject.TryGetComponent<PoolableTest>(out var poolable))
         {
             poolStacks[poolable.typeOfPool].Push(poolable.PoolIndex);
         }
@@ -186,9 +184,9 @@ public class PoolManager : MonoBehaviour
     {
 
 
-        if (prefab.TryGetComponent<Poolable>(out var poolable))
+        if (prefab.TryGetComponent<PoolableTest>(out var poolable))
         {
-            if(poolStacks[poolable.typeOfPool].Count > 0)
+            if (poolStacks[poolable.typeOfPool].Count > 0)
             {
                 int index = poolStacks[poolable.typeOfPool].Pop();
                 GameObject genericObject = poolLists[poolable.typeOfPool][index];
@@ -261,7 +259,7 @@ public class PoolManager : MonoBehaviour
         totalActiveText.text = "Active Enemies: " + (totalSpawnCount - totalReturnedCount);
         totalCreatedText.text = "Total Enemies Created: " + totalCreatedCount;
         averageCreateText.text = "Avg Time to Create: " +
-            Math.Round((double)createStopwatch.ElapsedTicks / System.Diagnostics.Stopwatch.Frequency * 1000.0 / totalCreatedCount,5) + 
+            Math.Round((double)createStopwatch.ElapsedTicks / System.Diagnostics.Stopwatch.Frequency * 1000.0 / totalCreatedCount, 5) +
             "ms";
         if (totalReturnedCount > 0)
         {
@@ -272,12 +270,7 @@ public class PoolManager : MonoBehaviour
         else
         {
             averageReuseText.text = "Avg Time to Reuse: No Data";
-        } 
-            
-    }
+        }
 
-    public static implicit operator PoolManager(PoolManagerTest v)
-    {
-        throw new NotImplementedException();
     }
 }
