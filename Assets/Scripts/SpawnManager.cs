@@ -38,7 +38,6 @@ public class SpawnManager : MonoBehaviour
     private void Start()
     {
         playerTransform = GameObject.FindWithTag("Player").transform;
-        StartCoroutine(Spawn());
     }
 
     // -- Main Method -- //
@@ -123,32 +122,5 @@ public class SpawnManager : MonoBehaviour
         {
             return true;
         }            
-    }
-
-
-    /// <summary>
-    /// Weak method and very basic. Maybe we will add more possibilities.
-    /// </summary>
-    IEnumerator Spawn() // Temp Testing, Remove later.
-    {
-        GatherBoundsForList();
-        for (int i = 0; i < TotalEnemiesToSpawn; i++)
-        {
-            // Wait until there is room to spawn
-            while (enemySpawnCount >= maxEnemies)
-            {
-                yield return null; // wait one frame, check again
-            }
-
-            yield return new WaitForSeconds(Random.Range(.01f, .01f));
-
-            GameObject winner = PoolManager.Instance.Rent(prefab[Random.Range(0, prefab.Length)]);
-            winner.transform.position = GetRandomSpawnLocation();
-            if(indexOfValidSpawnPoints.Count >0)
-            {
-                enemySpawnCount++;
-            }
-            
-        }
     }
 }

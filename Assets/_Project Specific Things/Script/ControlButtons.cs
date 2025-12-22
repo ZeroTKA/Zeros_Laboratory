@@ -57,6 +57,10 @@ public static void ButtonPushedDoTheThing(int buttonID)
             case 16:
                 Debug.Log("Control Button 16 Pressed");
                 break;
+            case 99:
+                Debug.Log("Control Button 99 Pressed");
+                SpawnManagerTest.instance.ToggleSpawning();
+                break;
             default:
                 Debug.Log("Unknown Control Button Pressed");
                 break;

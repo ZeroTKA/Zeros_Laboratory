@@ -22,7 +22,11 @@ public class SpawnManagerTest : MonoBehaviour
     public int enemySpawnCount = 0;  // the idea is to allow a maximum spawn amount.
     private List<Bounds> allBoundsList = new();
     private List<int> indexOfValidSpawnPoints = new();
-    
+    private bool spawningIsActive = false;
+    private bool stopSpawningRequested = false;
+
+  
+
 
     // -- Specialty Methods -- //
     private void Awake()
@@ -40,7 +44,6 @@ public class SpawnManagerTest : MonoBehaviour
     private void Start()
     {
         playerTransform = GameObject.FindWithTag("Player").transform;
-        StartCoroutine(Spawn());
     }
 
     // -- Main Method -- //
@@ -138,6 +141,24 @@ public class SpawnManagerTest : MonoBehaviour
     }
 
     /// <summary>
+    /// The idea here is to toggle spawning on and off via a push of a button. We use a bool to request stopping of the coroutine.
+    /// This way we can exit gracefully instead of using StopCoroutine.
+    /// </summary>
+    public void ToggleSpawning()
+    { 
+        if(spawningIsActive)
+        {
+            stopSpawningRequested = true;
+            spawningIsActive = false;
+        }
+        else
+        {
+            StartCoroutine(Spawn());
+            spawningIsActive = true;
+        }
+    }
+
+    /// <summary>
     /// Weak method and very basic. Maybe we will add more possibilities.
     /// </summary>
     IEnumerator Spawn() // Temp Testing, Remove later.
@@ -148,10 +169,9 @@ public class SpawnManagerTest : MonoBehaviour
             // Wait until there is room to spawn
             while (enemySpawnCount >= maxEnemies)
             {
+                if(stopSpawningRequested){ stopSpawningRequested = false; yield break; }
                 yield return null; // wait one frame, check again
             }
-
-            yield return new WaitForSeconds(Random.Range(.01f, .01f));
 
             GameObject winner = PoolManagerTest.Instance.Rent(prefab[Random.Range(0, prefab.Length)]);
             winner.transform.position = GetRandomSpawnLocation();
@@ -159,7 +179,10 @@ public class SpawnManagerTest : MonoBehaviour
             {
                 enemySpawnCount++;
             }
+            if (stopSpawningRequested) { stopSpawningRequested = false; yield break; }
 
+            yield return new WaitForSeconds(Random.Range(.01f, .01f));
         }
+        spawningIsActive = false;
     }
 }
