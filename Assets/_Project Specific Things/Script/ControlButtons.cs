@@ -28,21 +28,27 @@ public static void ButtonPushedDoTheThing(int buttonID)
                 SpawnManagerTest.instance.UpdateMaxEnemies(-100);
                 break;
             case 7:
+                SpawnManagerTest.instance.UpdateSpawnsPerSecond(1);
                 Debug.Log("Control Button 7 Pressed");
                 break;
             case 8:
+                SpawnManagerTest.instance.UpdateSpawnsPerSecond(-1);
                 Debug.Log("Control Button 8 Pressed");
                 break;
             case 9:
+                SpawnManagerTest.instance.UpdateSpawnsPerSecond(10);
                 Debug.Log("Control Button 9 Pressed");
                 break;
             case 10:
+                SpawnManagerTest.instance.UpdateSpawnsPerSecond(-10);
                 Debug.Log("Control Button 10 Pressed");
                 break;
             case 11:
+                SpawnManagerTest.instance.UpdateSpawnsPerSecond(100);
                 Debug.Log("Control Button 11 Pressed");
                 break;
             case 12:
+                SpawnManagerTest.instance.UpdateSpawnsPerSecond(-100);
                 Debug.Log("Control Button 12 Pressed");
                 break;
             case 13:

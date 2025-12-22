@@ -517,7 +517,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 010
+  m_text: 020
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -844,6 +844,22 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 8516742487364966523}
     m_Modifications:
+    - target: {fileID: 1309322669284592475, guid: 20fbf8b5f3429ad489a5014b0065eafc, type: 3}
+      propertyPath: buttonID
+      value: 9
+      objectReference: {fileID: 0}
+    - target: {fileID: 1321844687325350645, guid: 20fbf8b5f3429ad489a5014b0065eafc, type: 3}
+      propertyPath: buttonID
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 2679370390610968936, guid: 20fbf8b5f3429ad489a5014b0065eafc, type: 3}
+      propertyPath: buttonID
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 2916464412238556046, guid: 20fbf8b5f3429ad489a5014b0065eafc, type: 3}
+      propertyPath: buttonID
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 3336311840895356227, guid: 20fbf8b5f3429ad489a5014b0065eafc, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.02165
@@ -883,6 +899,14 @@ PrefabInstance:
     - target: {fileID: 3336311840895356227, guid: 20fbf8b5f3429ad489a5014b0065eafc, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7929210267090629941, guid: 20fbf8b5f3429ad489a5014b0065eafc, type: 3}
+      propertyPath: buttonID
+      value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 8102628375445501099, guid: 20fbf8b5f3429ad489a5014b0065eafc, type: 3}
+      propertyPath: buttonID
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 8813692013747322474, guid: 20fbf8b5f3429ad489a5014b0065eafc, type: 3}
       propertyPath: m_Name
@@ -4667,7 +4691,9 @@ MonoBehaviour:
   maxEnemies: 100
   TotalEnemiesToSpawn: 900000
   maxEnemiesText: {fileID: 1011809426}
+  spawnsPerSecondText: {fileID: 230502881}
   enemySpawnCount: 0
+  spawnsPerSecond: 20
 --- !u!1 &2117084260
 GameObject:
   m_ObjectHideFlags: 0

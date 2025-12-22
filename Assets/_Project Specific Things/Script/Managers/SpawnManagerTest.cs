@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class SpawnManagerTest : MonoBehaviour
@@ -18,6 +19,7 @@ public class SpawnManagerTest : MonoBehaviour
     [SerializeField] int maxEnemies;
     [SerializeField] int TotalEnemiesToSpawn;
     [SerializeField] TextMeshProUGUI maxEnemiesText;
+    [SerializeField] TextMeshProUGUI spawnsPerSecondText;
 
     public int enemySpawnCount = 0;  // the idea is to allow a maximum spawn amount.
     private List<Bounds> allBoundsList = new();
@@ -25,7 +27,8 @@ public class SpawnManagerTest : MonoBehaviour
     private bool spawningIsActive = false;
     private bool stopSpawningRequested = false;
 
-  
+    private float spawnAccumulator = 0f;
+    [SerializeField] private float spawnsPerSecond;
 
 
     // -- Specialty Methods -- //
@@ -139,6 +142,16 @@ public class SpawnManagerTest : MonoBehaviour
         }
         maxEnemiesText.text = maxEnemies.ToString();
     }
+    public void UpdateSpawnsPerSecond(int changeAmount)
+    {
+        spawnsPerSecond += changeAmount;
+        if (spawnsPerSecond < 0)
+        {
+            spawnsPerSecond = 0;
+            Debug.LogWarning("[SpawnManager] Spawns Per Second went below zero. Resetting to zero.");
+        }
+        spawnsPerSecondText.text = spawnsPerSecond.ToString();
+    }
 
     /// <summary>
     /// The idea here is to toggle spawning on and off via a push of a button. We use a bool to request stopping of the coroutine.
@@ -172,16 +185,19 @@ public class SpawnManagerTest : MonoBehaviour
                 if(stopSpawningRequested){ stopSpawningRequested = false; yield break; }
                 yield return null; // wait one frame, check again
             }
-
-            GameObject winner = PoolManagerTest.Instance.Rent(prefab[Random.Range(0, prefab.Length)]);
-            winner.transform.position = GetRandomSpawnLocation();
-            if (indexOfValidSpawnPoints.Count > 0)
+            spawnAccumulator += spawnsPerSecond * Time.deltaTime;
+            while(spawnAccumulator >= 1f)
             {
-                enemySpawnCount++;
+                GameObject winner = PoolManagerTest.Instance.Rent(prefab[Random.Range(0, prefab.Length)]);
+                winner.transform.position = GetRandomSpawnLocation();
+                if (indexOfValidSpawnPoints.Count > 0)
+                {
+                    enemySpawnCount++;
+                }
+                spawnAccumulator -= 1f;
             }
             if (stopSpawningRequested) { stopSpawningRequested = false; yield break; }
-
-            yield return new WaitForSeconds(Random.Range(.01f, .01f));
+            yield return null;
         }
         spawningIsActive = false;
     }
