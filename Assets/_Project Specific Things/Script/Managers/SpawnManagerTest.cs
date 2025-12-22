@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class SpawnManagerTest : MonoBehaviour
@@ -16,10 +17,12 @@ public class SpawnManagerTest : MonoBehaviour
     [SerializeField] float closestDistanceUntilWeStopSpawning;
     [SerializeField] int maxEnemies;
     [SerializeField] int TotalEnemiesToSpawn;
+    [SerializeField] TextMeshProUGUI maxEnemiesText;
 
     public int enemySpawnCount = 0;  // the idea is to allow a maximum spawn amount.
     private List<Bounds> allBoundsList = new();
     private List<int> indexOfValidSpawnPoints = new();
+    
 
     // -- Specialty Methods -- //
     private void Awake()
@@ -44,7 +47,24 @@ public class SpawnManagerTest : MonoBehaviour
 
 
     // -- Supplemental Methods -- //
-
+    /// <summary>
+    /// Determines if the player is too close to the spawn. If so, invalidates the spawn point.
+    /// </summary>
+    /// <param name="bounds">This is the bounds to check against the distance against.</param>
+    /// <param name="playerPosition">Object we are comparing the distance to--typically the player??</param>
+    /// <returns>Returns true if the bounds is too close to the object. Reutrns false if the object is NOT too close.</returns>
+    private bool AreWeTooCloseToSpawnPoint(Bounds bounds, Vector3 playerPosition)
+    {
+        float distance = Vector3.Distance(bounds.ClosestPoint(playerPosition), playerPosition);
+        if (distance > closestDistanceUntilWeStopSpawning)
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+    }
     private void GatherBoundsForList()
     {
         foreach (GameObject genericObject in spawnPoints)
@@ -105,25 +125,17 @@ public class SpawnManagerTest : MonoBehaviour
             }
         }
     }
-    /// <summary>
-    /// Determines if the player is too close to the spawn. If so, invalidates the spawn point.
-    /// </summary>
-    /// <param name="bounds">This is the bounds to check against the distance against.</param>
-    /// <param name="playerPosition">Object we are comparing the distance to--typically the player??</param>
-    /// <returns>Returns true if the bounds is too close to the object. Reutrns false if the object is NOT too close.</returns>
-    private bool AreWeTooCloseToSpawnPoint(Bounds bounds, Vector3 playerPosition)
-    {
-        float distance = Vector3.Distance(bounds.ClosestPoint(playerPosition), playerPosition);
-        if (distance > closestDistanceUntilWeStopSpawning)
-        {
-            return false;
-        }
-        else
-        {
-            return true;
-        }
-    }
 
+    public void UpdateMaxEnemies(int changeAmount)
+    {
+        maxEnemies += changeAmount;
+        if (maxEnemies < 0)
+        {
+            maxEnemies = 0;
+            Debug.LogWarning("[SpawnManager] Enemy Spawn Count went below zero. Resetting to zero.");
+        }
+        maxEnemiesText.text = maxEnemies.ToString();
+    }
 
     /// <summary>
     /// Weak method and very basic. Maybe we will add more possibilities.

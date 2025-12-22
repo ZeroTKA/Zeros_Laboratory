@@ -10,22 +10,22 @@ public static void ButtonPushedDoTheThing(int buttonID)
                 Debug.Log("ButtonID is 0. Did you forget to set the correct ButtonID?");
                 break;
             case 1:
-                Debug.Log("Control Button 1 Pressed");
+                SpawnManagerTest.instance.UpdateMaxEnemies(1);
                 break;
             case 2:
-                Debug.Log("Control Button 2 Pressed");
+                SpawnManagerTest.instance.UpdateMaxEnemies(-1);
                 break;
             case 3:
-                Debug.Log("Control Button 3 Pressed");
+                SpawnManagerTest.instance.UpdateMaxEnemies(10);
                 break;
             case 4:
-                Debug.Log("Control Button 4 Pressed");
+                SpawnManagerTest.instance.UpdateMaxEnemies(-10);
                 break;
             case 5:
-                Debug.Log("Control Button 5 Pressed");
+                SpawnManagerTest.instance.UpdateMaxEnemies(100);
                 break;
             case 6:
-                Debug.Log("Control Button 6 Pressed");
+                SpawnManagerTest.instance.UpdateMaxEnemies(-100);
                 break;
             case 7:
                 Debug.Log("Control Button 7 Pressed");
