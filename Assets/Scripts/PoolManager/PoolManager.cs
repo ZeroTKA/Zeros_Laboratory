@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 
 
@@ -9,44 +7,38 @@ public class PoolManager : MonoBehaviour
 
     /// <summary>
     /// High-level overview of how the PoolManager works:
-    /// - Each pool type has its own parent transform for hierarchy organization.
+    /// - Each pool type has its own parent transform to keep the hierarchy organized.
     /// - Each pool maintains a list of objects and a stack of available indices.
-    /// - When an object is requested, we pop a pre-cached index from the stack for fast retrieval,
-    ///   avoiding costly iteration to find an available object.
-    /// - Each pooled object requires a 'Poolable' script, which stores data about the object for the sake of the Pool Manager. 
-    ///   Every object will know about itself and be able to communicate necessary data to the PoolManager when PutBack / Rented
+    /// - When an object is requested, the PoolManager pops a pre-cached index from the stack,
+    ///   allowing fast retrieval without iterating to find a free object.
+    /// - Each pooled object must have a 'Poolable' component, which stores metadata used by the PoolManager.
+    ///   This allows objects to provide information to the PoolManager when they are Rented() and PutBack().
+    ///   
+    /// - The PoolManager expects each object to handle its own reset logic when returned.
+    ///   Resetting state is the responsibility of the object itself, not the PoolManager.
+    /// - The PoolManager expects calling scripts to handle all positioning and movement.
+    ///   Its only responsibility is to provide a valid pooled object.
     ///   
     /// </summary>
 
     /// <summary>
     /// Instructions:
-    /// 1. Create your enums for PoolType.
-    /// 2. Every object that will be pooled needs a 'Poolable' script attached to it.
+    /// 1. Add the Poolable component to any prefab you want to be pooled, and assign its PoolType in the inspector.
+    /// 2. If you're introducing a new pool category, add the corresponding PoolType value to the PoolManager enum.
+    /// 3. Assign masterPool in the PoolManager inspector to a dedicated GameObject in your scene for organization.
+    /// 4. Call PoolManager.Instance.Rent(prefab) to retrieve an object from the pool.
+    /// 5. Call PoolManager.Instance.PutBack(obj) to return the object to the pool when you're finished with it.
     /// </summary>
 
     /// <summary>
     /// To Do List:
     /// 
     /// </summary>
-    
-    // -- TEST References. DELETE Between Lines -- //
-    [SerializeField] private TextMeshProUGUI totalSpawnText;
-    private int totalSpawnCount = 0;
-    [SerializeField] private TextMeshProUGUI totalCreatedText;
-    private int totalCreatedCount = 0;
-    [SerializeField] private TextMeshProUGUI totalActiveText;
-    private int totalReturnedCount = 0;
-    [SerializeField] private TextMeshProUGUI averageCreateText;
-    private System.Diagnostics.Stopwatch createStopwatch = new();
-    [SerializeField] private TextMeshProUGUI averageReuseText;
-    private System.Diagnostics.Stopwatch reuseStopwatch = new();
-    private int totalReusedCount = 0;
 
-    // -- TEST References. DELETE Between Lines -- //
     public static PoolManager Instance { get; private set; }    
 
     // -- Transform References -- //
-    [SerializeField] private Transform masterPool;
+    [SerializeField] private Transform masterPool; // this is the parent object that all pools go under.
 
     // -- Dictionary -- //
     private readonly Dictionary<PoolType, List<GameObject>> poolLists = new();
@@ -54,6 +46,11 @@ public class PoolManager : MonoBehaviour
     private readonly Dictionary<PoolType, Transform> poolTransforms = new();
 
     // -- Specialty Methods -- //
+
+    /// <summary>
+    /// All initialization is done in Awake so that everything is ready before other scripts run.
+    /// Other scripts typically use Start(), which executes after Awake(), preventing null reference issues.
+    /// </summary>
     private void Awake()
     {
         if (Instance == null)
@@ -65,7 +62,9 @@ public class PoolManager : MonoBehaviour
             Debug.LogWarning("[PoolManager] Multiple instances were created. Destroying duplicate instance.");
             Destroy(gameObject);
         }
-        foreach(PoolType type in System.Enum.GetValues(typeof(PoolType)))
+
+        // -- Initialize dictionaries for each PoolType -- //
+        foreach (PoolType type in System.Enum.GetValues(typeof(PoolType)))
         {
             poolLists[type] = new List<GameObject>();
             poolStacks[type] = new Stack<int>();
@@ -75,13 +74,8 @@ public class PoolManager : MonoBehaviour
             poolTransform.transform.SetParent(masterPool);
             poolTransforms[type] = poolTransform.transform;
         }
-
-
     }
-    void Start()
-    {
 
-    }
     private void OnDestroy()
     {
         Instance = null;
@@ -96,22 +90,13 @@ public class PoolManager : MonoBehaviour
     /// </remarks>
     /// <param name="prefab">This is the prefab you want to get from the pool.</param>
     /// <param name="poolType">Use the public enum and PoolManager will set things up accordingly.</param>
+    /// <param name="activate">If true, the object will be active upon creation. Default is true. Useful for preloading.</param>
     private GameObject Create(GameObject prefab, bool activate = true)
     {
-
         // -- Prep work -- //
-        createStopwatch.Start(); // DELETE STOP WATCH 
         GameObject genericObject = Instantiate(prefab);
-        createStopwatch.Stop();  // DELETE STOP WATCH
-
-        // -- DELETE BETWEEN LINES (TESTING PURPOSES ONLY) -- //
-        totalCreatedCount++;
-        totalSpawnCount++;
-        UpdateUI();
-        // -- DELETE BETWEEN LINES (TESTING PURPOSES ONLY) -- //
 
         // -- Actual work on the object -- //
-
         if (genericObject.TryGetComponent<Poolable>(out var poolable))
         {
             EnsurePoolExists(poolable.typeOfPool);
@@ -121,16 +106,16 @@ public class PoolManager : MonoBehaviour
             int index = poolLists[poolable.typeOfPool].Count - 1;
             if (!activate)
             {
+                // if the object is inactive, make sure to add it to the stack to be used. 
                 poolStacks[poolable.typeOfPool].Push(index);
             }
             poolable.PoolIndex = index;
         }
         else
         {
-            Debug.LogError($"Prefab missing Poolable component at index {genericObject.name}");
+            Debug.LogError($"[PoolManager] Prefab missing Poolable component. It's named {genericObject.name}");
         }
         return genericObject;
-
     }
     /// <summary>
     /// Returns the object to the pool for reuse.
@@ -140,24 +125,20 @@ public class PoolManager : MonoBehaviour
     /// </remarks>
     public void PutBack(GameObject genericObject)
     {
-        // -- DELETE BETWEEN LINES (TESTING PURPOSES ONLY) -- //
-        totalReturnedCount++;
-        SpawnManager.instance.enemySpawnCount--;
-        UpdateUI();
-        // -- DELETE BETWEEN LINES (TESTING PURPOSES ONLY) -- //
-
-
         // -- Error checking and skipping objects that are already inactive. We assume anything that's inactive is already in the pool.
         if (genericObject == null)
         {
-            Debug.LogError("[Pool Manager] Something tried to return a null object to the pool.");
+            Debug.LogError("[PoolManager] Something tried to return a null object to the pool.");
             return;
         }
+        // -- We assume if the object is already inactive, it's already in the pool.
         if (!genericObject.activeSelf)
         {
+            Debug.LogWarning($"[PoolManager] Something tried to return an already inactive object to the pool. The object is called {genericObject.name}");
             return;
         }
-        // -- Now we return the things to the correct places
+
+        // -- Now we return the things to the correct places -- //
         genericObject.SetActive(false);
 
         if (genericObject.TryGetComponent<Poolable>(out var poolable))
@@ -166,15 +147,17 @@ public class PoolManager : MonoBehaviour
         }
         else
         {
-            Debug.LogError($"[Pool Manager] Prefab missing Poolable component for {genericObject.name}");
+            Debug.LogError($"[PoolManager] Prefab missing Poolable component for {genericObject.name}");
         }
     }
+
+    ///////////////////////////// FINISH CODE REVIEW FOR THE BELOW ///////////////////////////////////////
     /// <summary>
-    /// Gives an object from the pool to the script that's calling it.
+    /// Retrieves an object from the pool and gives it to the script.
     /// </summary>
     /// <remarks>
     /// Think of this like a quartermaster. You go to the quartermaster (PoolManager) and ask for a weapon (GameObject).
-    /// You signed a paper saying you'll return it when you're done (PutBack()). Don't you dare lose it.
+    /// You signed a paper saying you'll PutBack() when you're done. Don't you dare lose it.
     /// </remarks>
     /// <example>
     /// Example usage for grabbing a bullet from the PoolManager:
@@ -184,23 +167,13 @@ public class PoolManager : MonoBehaviour
     /// </example>
     public GameObject Rent(GameObject prefab)
     {
-
-
         if (prefab.TryGetComponent<Poolable>(out var poolable))
         {
             if(poolStacks[poolable.typeOfPool].Count > 0)
             {
                 int index = poolStacks[poolable.typeOfPool].Pop();
                 GameObject genericObject = poolLists[poolable.typeOfPool][index];
-                reuseStopwatch.Start(); // DELETE STOP WATCH
-                genericObject.SetActive(true);
-                reuseStopwatch.Stop(); // DELETE STOP WATCH
 
-                // -- DELETE BETWEEN LINES (TESTING PURPOSES ONLY) -- //
-                totalSpawnCount++;
-                totalReusedCount++;
-                UpdateUI();
-                // -- DELETE BETWEEN LINES (TESTING PURPOSES ONLY) -- //
                 return genericObject;
             }
             else
@@ -246,38 +219,6 @@ public class PoolManager : MonoBehaviour
 
     public enum PoolType
     {
-        Enemy,
-        Misc,
-        SFX,
-        UI,
-        VFX,
-        Winter
-    }
-
-    // -- TEST METHODS, DELETE.
-    public void UpdateUI()
-    {
-        totalSpawnText.text = "Total Enemies Spawned: " + totalSpawnCount;
-        totalActiveText.text = "Active Enemies: " + (totalSpawnCount - totalReturnedCount);
-        totalCreatedText.text = "Total Enemies Created: " + totalCreatedCount;
-        averageCreateText.text = "Avg Time to Create: " +
-            Math.Round((double)createStopwatch.ElapsedTicks / System.Diagnostics.Stopwatch.Frequency * 1000.0 / totalCreatedCount,5) + 
-            "ms";
-        if (totalReturnedCount > 0)
-        {
-            averageReuseText.text = "Avg Time to Reuse: " +
-                Math.Round((double)reuseStopwatch.ElapsedTicks / System.Diagnostics.Stopwatch.Frequency * 1000.0 / totalReusedCount, 5) +
-                "ms";
-        }
-        else
-        {
-            averageReuseText.text = "Avg Time to Reuse: No Data";
-        } 
-            
-    }
-
-    public static implicit operator PoolManager(PoolManagerTest v)
-    {
-        throw new NotImplementedException();
+        Enemy
     }
 }

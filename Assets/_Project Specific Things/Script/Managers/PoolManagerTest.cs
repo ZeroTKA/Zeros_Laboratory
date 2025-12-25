@@ -60,7 +60,7 @@ public class PoolManagerTest : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("[PoolManager] Multiple instances were created. Destroying duplicate instance.");
+            Debug.LogWarning("[PoolManagerTest] Multiple instances were created. Destroying duplicate instance.");
             Destroy(gameObject);
         }
         foreach (PoolType type in System.Enum.GetValues(typeof(PoolType)))
