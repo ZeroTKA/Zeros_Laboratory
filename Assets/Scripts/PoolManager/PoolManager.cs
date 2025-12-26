@@ -35,7 +35,13 @@ public class PoolManager : MonoBehaviour
     /// 
     /// </summary>
 
-    public static PoolManager Instance { get; private set; }    
+    public static PoolManager Instance { get; private set; }
+    
+    // -- Enums -- //
+    public enum PoolType
+    {
+        Enemy
+    }
 
     // -- Transform References -- //
     [SerializeField] private Transform masterPool; // this is the parent object that all pools go under.
@@ -150,8 +156,6 @@ public class PoolManager : MonoBehaviour
             Debug.LogError($"[PoolManager] Prefab missing Poolable component for {genericObject.name}");
         }
     }
-
-    ///////////////////////////// FINISH CODE REVIEW FOR THE BELOW ///////////////////////////////////////
     /// <summary>
     /// Retrieves an object from the pool and gives it to the script.
     /// </summary>
@@ -159,16 +163,11 @@ public class PoolManager : MonoBehaviour
     /// Think of this like a quartermaster. You go to the quartermaster (PoolManager) and ask for a weapon (GameObject).
     /// You signed a paper saying you'll PutBack() when you're done. Don't you dare lose it.
     /// </remarks>
-    /// <example>
-    /// Example usage for grabbing a bullet from the PoolManager:
-    /// GameObject bullet = PoolManager.Instance.Rent();
-    /// bullet.transform.position = firePoint.position;
-    /// bullet.SetActive(true);
-    /// </example>
     public GameObject Rent(GameObject prefab)
     {
         if (prefab.TryGetComponent<Poolable>(out var poolable))
         {
+            // -- If we have something in the stack, use it. -- //
             if(poolStacks[poolable.typeOfPool].Count > 0)
             {
                 int index = poolStacks[poolable.typeOfPool].Pop();
@@ -184,7 +183,7 @@ public class PoolManager : MonoBehaviour
         }
         else
         {
-            Debug.LogError($"{prefab.name} is missing poolable. Huh?!");
+            Debug.LogError($"[PoolManager] {prefab.name} is missing the poolable script.");
             return null;
         }
     }
@@ -215,10 +214,5 @@ public class PoolManager : MonoBehaviour
             poolTransform.transform.SetParent(masterPool);
             poolTransforms[type] = poolTransform.transform;
         }
-    }
-
-    public enum PoolType
-    {
-        Enemy
     }
 }
