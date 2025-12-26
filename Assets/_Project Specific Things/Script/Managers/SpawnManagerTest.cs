@@ -174,7 +174,7 @@ public class SpawnManagerTest : MonoBehaviour
     /// <summary>
     /// Weak method and very basic. Maybe we will add more possibilities.
     /// </summary>
-    IEnumerator Spawn() // Temp Testing, Remove later.
+    IEnumerator Spawn()
     {
         GatherBoundsForList();
         for (int i = 0; i < TotalEnemiesToSpawn; i++)
