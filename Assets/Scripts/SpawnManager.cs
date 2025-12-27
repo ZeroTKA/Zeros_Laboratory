@@ -43,7 +43,14 @@ public class SpawnManager : MonoBehaviour
     }
 
     // -- Main Methods -- //
-
+    /// <summary>
+    /// Gives control on what to spawn, how many, where, and pacing.
+    /// </summary>
+    /// <param name="enemyPrefab">What prefab are we spawning?</param>
+    /// <param name="quantityToSpawn">How many do you want to spawn?</param>
+    /// <param name="spawnPoint">where should we spawn it?</param>
+    /// <param name="spawnsPerSecond">How quickly do we spawn?</param>
+    /// <remarks>This is to spawn a single prefab at a single location. There are more options available.</remarks>
     IEnumerator Spawn(GameObject enemyPrefab, int quantityToSpawn, GameObject spawnPoint, float spawnsPerSecond)
     {
         float spawnAccumulator = 0f;
@@ -53,21 +60,144 @@ public class SpawnManager : MonoBehaviour
 
         for (int i = 0; i < quantityToSpawn; i++)
         {
-            // Wait until there is room to spawn
-            while (enemySpawnCount >= maxEnemies)
-            {
-                yield return null; // wait one frame, check again
-            }
+            // -- Prep work for the while loop -- //
             spawnAccumulator += spawnsPerSecond * Time.deltaTime;
+            VerifyValidSpawnLocations(validSpawnPointsList, boundsList);
             while (spawnAccumulator >= 1f)
             {
-                GameObject enemy = PoolManagerTest.Instance.Rent(enemyPrefab);
-                VerifyValidSpawnLocations(validSpawnPointsList,boundsList); // refresh the list of valid spawn points
-                enemy.transform.position = GetRandomSpawnLocation(validSpawnPointsList, boundsList);
-                if (validSpawnPointsList.Count > 0)
+                if (enemySpawnCount >= maxEnemies)
                 {
-                    enemySpawnCount++;
+                    break;
                 }
+                if (validSpawnPointsList.Count == 0)
+                {
+                    Debug.LogWarning("[SpawnManager] No valid spawn point. Is that really what we want?");
+                    break;
+                }
+                GameObject enemy = PoolManager.Instance.Rent(enemyPrefab);
+                enemy.transform.position = GetRandomSpawnLocation(validSpawnPointsList, boundsList);
+
+                enemySpawnCount++;
+                spawnAccumulator -= 1f;
+            }
+            yield return null;
+        }
+    }
+    /// <summary>
+    /// Gives control on what to spawn, how many, where, and pacing.
+    /// </summary>
+    /// <param name="enemyPrefab">What prefab are we spawning?</param>
+    /// <param name="quantityToSpawn">How many do you want to spawn?</param>
+    /// <param name="spawnPoint">what locations can we spawn it?</param>
+    /// <param name="spawnsPerSecond">How quickly do we spawn?</param>
+    /// <remarks>This is to spawn a single prefab at a variety of locations. There are more options available.</remarks>
+    IEnumerator Spawn(GameObject enemyPrefab, int quantityToSpawn, GameObject[] spawnPoints, float spawnsPerSecond)
+    {
+        float spawnAccumulator = 0f;
+        List<int> validSpawnPointsList = new();
+        List<Bounds> boundsList = new();
+        GatherBounds(spawnPoints, boundsList);
+
+        for (int i = 0; i < quantityToSpawn; i++)
+        {
+            // -- Prep work for the while loop -- //
+            spawnAccumulator += spawnsPerSecond * Time.deltaTime;
+            VerifyValidSpawnLocations(validSpawnPointsList, boundsList);
+            while (spawnAccumulator >= 1f)
+            {
+                if (enemySpawnCount >= maxEnemies)
+                {
+                    break;
+                }
+                if (validSpawnPointsList.Count == 0)
+                {
+                    Debug.LogWarning("[SpawnManager] No valid spawn point. Is that really what we want?");
+                    break;
+                }
+                GameObject enemy = PoolManager.Instance.Rent(enemyPrefab);
+                enemy.transform.position = GetRandomSpawnLocation(validSpawnPointsList, boundsList);
+
+                enemySpawnCount++;
+                spawnAccumulator -= 1f;
+            }
+            yield return null;
+        }
+    }
+    /// <summary>
+    /// Gives control on what to spawn, how many, where, and pacing. The key difference is this will RANDOMLY pick a prefab from a set.
+    /// </summary>
+    /// <param name="enemyPrefab">What prefab are we spawning?</param>
+    /// <param name="quantityToSpawn">How many do you want to spawn?</param>
+    /// <param name="spawnPoint">where should we spawn it?</param>
+    /// <param name="spawnsPerSecond">How quickly do we spawn?</param>
+    /// <remarks>This is to spawn a random prefab at a single location. There are more options available. The intention is if you wanted to spawn some pressure minions but don't care which ones gets spawned.</remarks>
+    IEnumerator Spawn(GameObject[] enemyPrefabs, int quantityToSpawn, GameObject spawnPoint, float spawnsPerSecond)
+    {
+        float spawnAccumulator = 0f;
+        List<int> validSpawnPointsList = new();
+        List<Bounds> boundsList = new();
+        GatherBounds(spawnPoint, boundsList);
+
+        for (int i = 0; i < quantityToSpawn; i++)
+        {
+            // -- Prep work for the while loop -- //
+            spawnAccumulator += spawnsPerSecond * Time.deltaTime;
+            VerifyValidSpawnLocations(validSpawnPointsList, boundsList);
+            while (spawnAccumulator >= 1f)
+            {
+                if (enemySpawnCount >= maxEnemies)
+                {
+                    break;
+                }
+                if (validSpawnPointsList.Count == 0)
+                {
+                    Debug.LogWarning("[SpawnManager] No valid spawn point. Is that really what we want?");
+                    break;
+                }
+                GameObject enemy = PoolManager.Instance.Rent(enemyPrefabs[Random.Range(0,enemyPrefabs.Length)]);
+                enemy.transform.position = GetRandomSpawnLocation(validSpawnPointsList, boundsList);
+
+                enemySpawnCount++;
+                spawnAccumulator -= 1f;
+            }
+            yield return null;
+        }
+    }
+    /// <summary>
+    /// Gives control on what to spawn, how many, where, and pacing. The key difference is this will RANDOMLY pick a prefab from a set.
+    /// </summary>
+    /// <param name="enemyPrefab">What prefab are we spawning?</param>
+    /// <param name="quantityToSpawn">How many do you want to spawn?</param>
+    /// <param name="spawnPoint">where should we spawn it?</param>
+    /// <param name="spawnsPerSecond">How quickly do we spawn?</param>
+    /// <remarks>This is to spawn a random prefab at a variety of locations. There are more options available. The intention is if you wanted to spawn some pressure minions but don't care which ones gets spawned.</remarks>
+    IEnumerator Spawn(GameObject[] enemyPrefabs, int quantityToSpawn, GameObject[] spawnPoints, float spawnsPerSecond)
+    {
+        float spawnAccumulator = 0f;
+        List<int> validSpawnPointsList = new();
+        List<Bounds> boundsList = new();
+        GatherBounds(spawnPoints, boundsList);
+
+        for (int i = 0; i < quantityToSpawn; i++)
+        {
+            // -- Prep work for the while loop -- //
+            spawnAccumulator += spawnsPerSecond * Time.deltaTime;
+            VerifyValidSpawnLocations(validSpawnPointsList, boundsList);
+            while (spawnAccumulator >= 1f)
+            {
+                if (enemySpawnCount >= maxEnemies)
+                {
+                    break;
+                }
+                if (validSpawnPointsList.Count == 0)
+                {
+                    Debug.LogWarning("[SpawnManager] No valid spawn point. Is that really what we want?");
+                    break;
+                }
+                GameObject enemy = PoolManager.Instance.Rent(enemyPrefabs[Random.Range(0, enemyPrefabs.Length)]);
+                enemy.transform.position = GetRandomSpawnLocation(validSpawnPointsList, boundsList);
+
+                enemySpawnCount++;
                 spawnAccumulator -= 1f;
             }
             yield return null;
@@ -75,29 +205,33 @@ public class SpawnManager : MonoBehaviour
     }
 
     // -- Supplemental Methods -- //
+    /// <summary>
+    /// This is to pass a single spawn point to get the bounds added to the list.
+    /// </summary>
+    /// <param name="spawnPoint">We use the box collider attached to an object to determine the spawn location.</param>
+    /// <param name="boundsList">This is the list to keep track of all possible spawn locations.</param>
+    /// <remarks>Technically we just funnel this into the other GatherBounds() method. This is stritctly for simplicity.</remarks>
     private void GatherBounds(GameObject spawnPoint, List<Bounds> boundsList)
     {
-        if (spawnPoint.TryGetComponent<BoxCollider>(out var box))
-        {
-            boundsList.Add(box.bounds);
-        }
-        else
-        {
-            Debug.LogError($"[SpawnManager] No Box Collider on {spawnPoint.name}");            
-        }
-
+        GatherBounds(new[] { spawnPoint }, boundsList);
     }
-    private void GatherBounds(GameObject[] spawnPoint, List<Bounds> boundsList)
+    /// <summary>
+    /// Adds the spawn point locations to the bounds list.
+    /// </summary>
+    /// <param name="spawnPoint">We use the box collider attached to an object to determine the spawn location.</param>
+    /// <param name="boundsList">This is the list to keep track of all possible spawn locations.</param>
+    /// <remarks>This is intended to be as flexible with your system as possible</remarks>
+    private void GatherBounds(IEnumerable<GameObject> spawnPoints, List<Bounds> boundsList)
     {
-        foreach (GameObject genericObject in spawnPoint)
+        foreach (var obj in spawnPoints)
         {
-            if (genericObject.TryGetComponent<BoxCollider>(out var box))
+            if (obj.TryGetComponent<BoxCollider>(out var box))
             {
                 boundsList.Add(box.bounds);
             }
             else
             {
-                Debug.LogError($"[SpawnManager] No Box Collider on {genericObject.name}");
+                Debug.LogError($"[SpawnManager] No Box Collider on {obj.name}");
             }
         }
     }
@@ -108,22 +242,13 @@ public class SpawnManager : MonoBehaviour
     /// Ultimately we are getting the X range, Y Value, and Z range. We use this box to determine potential spawn locations.
     /// </remarks>
     private Vector3 GetRandomSpawnLocation(List<int> validSpawnPoints, List<Bounds> boundsList)
-    {        
-        if (validSpawnPoints.Count > 0)
-        {
-            Bounds randomBounds = boundsList[validSpawnPoints[Random.Range(0, validSpawnPoints.Count)]];
-            Vector3 spawnLocation = new Vector3(
-                Random.Range(randomBounds.min.x, randomBounds.max.x),    // X
-                randomBounds.min.y,                                      // Y
-                Random.Range(randomBounds.min.z, randomBounds.max.z));   // Z
-            return spawnLocation;
-        }
-        else
-        {
-            Debug.LogWarning("[SpawnManager] We are returning Vector3.zero even though there's no valid spawn location. Why isn't there a valid spawn location?");
-            return Vector3.zero;
-        }
-
+    {
+        Bounds randomBounds = boundsList[validSpawnPoints[Random.Range(0, validSpawnPoints.Count)]];
+        Vector3 spawnLocation = new(
+            Random.Range(randomBounds.min.x, randomBounds.max.x),    // X
+            randomBounds.min.y,                                      // Y
+            Random.Range(randomBounds.min.z, randomBounds.max.z));   // Z
+        return spawnLocation;
     }
     /// <summary>
     /// This is a conditional check for spawn points we can spawn at.
