@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class SpawnManager : MonoBehaviour
@@ -203,6 +204,44 @@ public class SpawnManager : MonoBehaviour
             yield return null;
         }
     }
+
+
+    IEnumerator Spawn(IEnumerable<GameObject> enemyPrefabs, int quantityToSpawn, IEnumerable<GameObject> spawnPoints, float spawnsPerSecond)
+    {
+        float spawnAccumulator = 0f;
+        List<int> validSpawnPointsList = new();
+        List<Bounds> boundsList = new();
+        List<GameObject> enemyPrefabsList = enemyPrefabs.ToList();
+        GatherBounds(spawnPoints, boundsList);
+
+        for (int i = 0; i < quantityToSpawn; i++)
+        {
+            // -- Prep work for the while loop -- //
+            spawnAccumulator += spawnsPerSecond * Time.deltaTime;
+            VerifyValidSpawnLocations(validSpawnPointsList, boundsList);
+            while (spawnAccumulator >= 1f)
+            {
+                if (enemySpawnCount >= maxEnemies)
+                {
+                    break;
+                }
+                if (validSpawnPointsList.Count == 0)
+                {
+                    Debug.LogWarning("[SpawnManager] No valid spawn point. Is that really what we want?");
+                    break;
+                }
+                GameObject enemy = PoolManager.Instance.Rent(enemyPrefabsList[Random.Range(0, enemyPrefabsList.Count)]);
+                enemy.transform.position = GetRandomSpawnLocation(validSpawnPointsList, boundsList);
+
+                enemySpawnCount++;
+                spawnAccumulator -= 1f;
+            }
+            yield return null;
+        }
+    }
+
+
+
 
     // -- Supplemental Methods -- //
     /// <summary>
