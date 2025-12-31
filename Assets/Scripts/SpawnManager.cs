@@ -11,7 +11,6 @@ public class SpawnManager : MonoBehaviour
     /// 
     /// </summary>
     public static SpawnManager instance;
-    Transform playerTransform;
 
     [SerializeField] GameObject[] spawnPoints;
     [SerializeField] float closestDistanceUntilWeStopSpawning;
@@ -40,10 +39,12 @@ public class SpawnManager : MonoBehaviour
     }
     private void Start()
     {
-        playerTransform = GameObject.FindWithTag("Player").transform;
+
     }
 
     // -- Main Methods -- //
+
+        // -- Spawn() -- //
     /// <summary>
     /// Gives control on what to spawn, how many, where, and pacing.
     /// </summary>
@@ -81,13 +82,16 @@ public class SpawnManager : MonoBehaviour
         return Spawn(enemyPrefabs, quantityToSpawn, new[] { spawnPoint }, spawnsPerSecond);
     }
     /// <summary>
-    /// Gives control on what to spawn, how many, where, and pacing. The key difference is this will RANDOMLY pick a prefab from a set.
+    /// Spawns a set number of enemies at specified spawn points, using an amount we want to spawn each second.
     /// </summary>
-    /// <param name="enemyPrefab">What prefab are we spawning?</param>
-    /// <param name="quantityToSpawn">How many do you want to spawn?</param>
-    /// <param name="spawnPoint">where should we spawn it?</param>
-    /// <param name="spawnsPerSecond">How quickly do we spawn?</param>
-    /// <remarks>This is to spawn a random prefab at a variety of locations. There are more options available. The intention is if you wanted to spawn some pressure minions but don't care which ones gets spawned.</remarks>
+    /// <param name="enemyPrefabs">The list of possible enemy prefabs to spawn. One is chosen at random each time.</param>
+    /// <param name="quantityToSpawn">The total number of enemies to spawn.</param>
+    /// <param name="spawnPoints">The collection of spawn point objects used to determine valid spawn locations.</param>
+    /// <param name="spawnInterval">The number of spawns we do each second. If it's <= 0 then we assume we want everything instant.</param>
+    /// <remarks>
+    /// A random prefab is selected from <paramref name="enemyPrefabs"/> for each spawn.  
+    /// Useful when you want variety or don't care which specific prefab appears.
+    /// </remarks>
     IEnumerator Spawn(IEnumerable<GameObject> enemyPrefabs, int quantityToSpawn, IEnumerable<GameObject> spawnPoints, float spawnsPerSecond)
     {
         // -- All kinds of error checking -- //
@@ -97,14 +101,15 @@ public class SpawnManager : MonoBehaviour
             yield break;
         }
 
-        if (spawnPoints == null)
-        {
-            Debug.LogError("[SpawnManager] spawnPoints is null.");
-            yield break;
-        }
         if (quantityToSpawn <= 0)
         {
             Debug.LogError("[SpawnManager] Spawn() tried to run with invalid quantity. Quantity to spawn must be greater than zero.");
+            yield break;
+        }
+
+        if (spawnPoints == null)
+        {
+            Debug.LogError("[SpawnManager] spawnPoints is null.");
             yield break;
         }
 
@@ -190,15 +195,116 @@ public class SpawnManager : MonoBehaviour
         }
     }
 
+        // -- SpawnByDuration() -- //
+    /// <summary>
+    /// Spawns a set number of enemies at specified spawn points, using a fixed time interval between each spawn.
+    /// </summary>
+    /// <param name="enemyPrefab">The prefab to spawn.</param>
+    /// <param name="quantityToSpawn">The total number of enemies to spawn.</param>
+    /// <param name="spawnPoint">The spawn point object used to determine a valid spawn location.</param>
+    /// <param name="spawnInterval">The time (in seconds) to wait between each spawn attempt.</param>
+    /// <remarks>
+    /// A random prefab is selected from <paramref name="enemyPrefabs"/> for each spawn.  
+    /// Useful when you want variety or don't care which specific prefab appears.
+    /// </remarks>
+    IEnumerator SpawnByDuration(GameObject enemyPrefab, int quantityToSpawn, GameObject spawnPoint, float spawnInterval)
+    {
+        return Spawn(new[] { enemyPrefab }, quantityToSpawn, new[] { spawnPoint }, spawnInterval);
+    }
+    /// <summary>
+    /// Spawns a set number of enemies at specified spawn points, using a fixed time interval between each spawn.
+    /// </summary>
+    /// <param name="enemyPrefab">The prefab to spawn.</param>
+    /// <param name="quantityToSpawn">The total number of enemies to spawn.</param>
+    /// <param name="spawnPoints">The collection of spawn point objects used to determine valid spawn locations.</param>
+    /// <param name="spawnInterval">The time (in seconds) to wait between each spawn attempt.</param>
+    /// <remarks>
+    /// A random prefab is selected from <paramref name="enemyPrefabs"/> for each spawn.  
+    /// Useful when you want variety or don't care which specific prefab appears.
+    /// </remarks>
+    IEnumerator SpawnByDuration(GameObject enemyPrefab, int quantityToSpawn, IEnumerable<GameObject> spawnPoints, float spawnInterval)
+    {
+        return Spawn(new[] { enemyPrefab }, quantityToSpawn, spawnPoints, spawnInterval);
+    }
+    /// <summary>
+    /// Spawns a set number of enemies at specified spawn points, using a fixed time interval between each spawn.
+    /// </summary>
+    /// <param name="enemyPrefabs">The list of possible enemy prefabs to spawn. One is chosen at random each time.</param>
+    /// <param name="quantityToSpawn">The total number of enemies to spawn.</param>
+    /// <param name="spawnPoint">The spawn point object used to determine a valid spawn location.</param>
+    /// <param name="spawnInterval">The time (in seconds) to wait between each spawn attempt.</param>
+    /// <remarks>
+    /// A random prefab is selected from <paramref name="enemyPrefabs"/> for each spawn.  
+    /// Useful when you want variety or don't care which specific prefab appears.
+    /// </remarks>
+    IEnumerator SpawnByDuration(IEnumerable<GameObject> enemyPrefabs, int quantityToSpawn, GameObject spawnPoint, float spawnInterval)
+    {
+        return Spawn(enemyPrefabs, quantityToSpawn, new[] { spawnPoint }, spawnInterval);
+    }
+    /// <summary>
+    /// Spawns a set number of enemies at specified spawn points, using a fixed time interval between each spawn.
+    /// </summary>
+    /// <param name="enemyPrefabs">The list of possible enemy prefabs to spawn. One is chosen at random each time.</param>
+    /// <param name="quantityToSpawn">The total number of enemies to spawn.</param>
+    /// <param name="spawnPoints">The collection of spawn point objects used to determine valid spawn locations.</param>
+    /// <param name="spawnInterval">The time (in seconds) to wait between each spawn attempt.</param>
+    /// <remarks>
+    /// A random prefab is selected from <paramref name="enemyPrefabs"/> for each spawn.  
+    /// Useful when you want variety or don't care which specific prefab appears.
+    /// </remarks>
     IEnumerator SpawnByDuration(IEnumerable<GameObject> enemyPrefabs, int quantityToSpawn, IEnumerable<GameObject> spawnPoints, float spawnInterval)
     {
+        // -- All kinds of error checking -- //
+        if (enemyPrefabs == null)
+        {
+            Debug.LogError("[SpawnManager] enemyPrefabs is null.");
+            yield break;
+        }
+
+        if (quantityToSpawn <= 0)
+        {
+            Debug.LogError("[SpawnManager] Spawn() tried to run with invalid quantity. Quantity to spawn must be greater than zero.");
+            yield break;
+        }
+
+        if (spawnPoints == null)
+        {
+            Debug.LogError("[SpawnManager] spawnPoints is null.");
+            yield break;
+        }
+
+        if (spawnInterval <= 0f)
+        {
+            Debug.LogError("[SpawnManager] spawnInterval must be > 0");
+            yield break;
+        }
+
+        if (PoolManager.Instance == null)
+        {
+            Debug.LogError("[SpawnManager] PoolManager.Instance is null.");
+            yield break;
+        }
+
+        // -- Prep work for the loop below -- //
         List<int> validSpawnPointsList = new();
         List<Bounds> boundsList = new();
-        List<GameObject> enemyPrefabsList = enemyPrefabs.ToList();
         GatherBounds(spawnPoints, boundsList);
+        if (boundsList.Count == 0)
+        {
+            Debug.LogWarning("[SpawnManager] No spawn bounds found. Aborting spawn.");
+            yield break;
+        }
+
+        List<GameObject> enemyPrefabsList = enemyPrefabs.ToList();
+        if (enemyPrefabsList.Count == 0)
+        {
+            Debug.LogError("[SpawnManager] enemyPrefabs is empty.");
+            yield break;
+        }
 
         for (int i = 0; i < quantityToSpawn; i++)
         {
+            if (!isActiveAndEnabled) yield break;
             yield return new WaitForSeconds(spawnInterval);
             VerifyValidSpawnLocations(validSpawnPointsList, boundsList);
             if (enemySpawnCount >= maxEnemies)
@@ -232,7 +338,7 @@ public class SpawnManager : MonoBehaviour
     /// <summary>
     /// Adds the spawn point locations to the bounds list.
     /// </summary>
-    /// <param name="spawnPoint">We use the box collider attached to an object to determine the spawn location.</param>
+    /// <param name="spawnPoints">We use the box collider attached to an object to determine the spawn location.</param>
     /// <param name="boundsList">This is the list to keep track of all possible spawn locations.</param>
     /// <remarks>This is intended to be as flexible with your system as possible</remarks>
     private void GatherBounds(IEnumerable<GameObject> spawnPoints, List<Bounds> boundsList)
