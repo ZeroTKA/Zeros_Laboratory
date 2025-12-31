@@ -11,10 +11,12 @@ public class SpawnManager : MonoBehaviour
     /// 
     /// </summary>
     public static SpawnManager instance;
+    [SerializeField] private WaitForSeconds _WaitForSeconds = new(.5f); // duration we wait incase there are no valid spawns.
 
     [SerializeField] GameObject[] spawnPoints;
     [SerializeField] float closestDistanceUntilWeStopSpawning;
     [SerializeField] int maxEnemies;
+
 
     public int enemySpawnCount = 0;  // the idea is to allow a maximum spawn amount.
     // private List<Bounds> allBoundsList = new();
@@ -37,13 +39,80 @@ public class SpawnManager : MonoBehaviour
             Destroy(gameObject);
         }
     }
-    private void Start()
-    {
-
-    }
 
     // -- Main Methods -- //
+    IEnumerator SpawnBurst(IEnumerable<GameObject> enemyPrefabs, int quantityToSpawn, IEnumerable<GameObject> spawnPoints, float spawnsPerSecond)
+    {
+        // -- All kinds of error checking -- //
+        if (enemyPrefabs == null)
+        {
+            Debug.LogError("[SpawnManager] enemyPrefabs is null.");
+            yield break;
+        }
 
+        if (quantityToSpawn <= 0)
+        {
+            Debug.LogError("[SpawnManager] Spawn() tried to run with invalid quantity. Quantity to spawn must be greater than zero.");
+            yield break;
+        }
+
+        if (spawnPoints == null)
+        {
+            Debug.LogError("[SpawnManager] spawnPoints is null.");
+            yield break;
+        }
+
+        if (spawnsPerSecond <= 0)
+        {
+            Debug.LogError("[SpawnManager] spawnsPerSecond is an invalid number. It must be greater than 0");
+            yield break;
+        }
+
+        if (PoolManager.Instance == null)
+        {
+            Debug.LogError("[SpawnManager] PoolManager.Instance is null.");
+            yield break;
+        }
+
+        // -- Prep work for the loop ahead -- //
+        var enemyPrefabsList = enemyPrefabs.ToList();
+        if (enemyPrefabsList.Count == 0)
+        {
+            Debug.LogError("[SpawnManager] enemyPrefabs is empty.");
+            yield break;
+        }
+
+        List<Bounds> boundsList = new();
+        GatherBounds(spawnPoints, boundsList);
+        if (boundsList.Count == 0)
+        {
+            Debug.LogWarning("[SpawnManager] No spawn bounds found. Aborting spawn.");
+            yield break;
+        }
+
+        List<int> validSpawnPointsList = new();
+
+        if (spawnsPerSecond <= 0f)
+        {
+            VerifyValidSpawnLocations(validSpawnPointsList, boundsList);
+            if (validSpawnPointsList.Count == 0)
+            {
+                Debug.LogWarning("[SpawnManager] No valid spawn point. Aborting spawn.");
+                yield break;
+            }
+            for (int j = 0; j < quantityToSpawn; j++)
+            {
+                if (enemySpawnCount >= maxEnemies)
+                {
+                    yield break;
+                }
+                GameObject enemy = PoolManager.Instance.Rent(enemyPrefabsList[Random.Range(0, enemyPrefabsList.Count)]);
+                enemy.transform.position = GetRandomSpawnLocation(validSpawnPointsList, boundsList);
+                enemySpawnCount++;
+            }
+            yield break;
+        }
+    }
         // -- Spawn() -- //
     /// <summary>
     /// Gives control on what to spawn, how many, where, and pacing.
@@ -113,11 +182,17 @@ public class SpawnManager : MonoBehaviour
             yield break;
         }
 
+        if(spawnsPerSecond <= 0)
+        {
+            Debug.LogError("[SpawnManager] spawnsPerSecond is an invalid number. It must be greater than 0");
+            yield break;
+        }
+
         if (PoolManager.Instance == null)
         {
             Debug.LogError("[SpawnManager] PoolManager.Instance is null.");
             yield break;
-        }
+        }        
 
         // -- Prep work for the loop ahead -- //
         var enemyPrefabsList = enemyPrefabs.ToList();
@@ -137,28 +212,6 @@ public class SpawnManager : MonoBehaviour
 
         List<int> validSpawnPointsList = new();
 
-        // -- Spawn everything if spawnsPerSecond <= 0 -- //        
-        if (spawnsPerSecond <= 0f)
-        {
-            VerifyValidSpawnLocations(validSpawnPointsList, boundsList);
-            if (validSpawnPointsList.Count == 0)
-            {
-                Debug.LogWarning("[SpawnManager] No valid spawn point. Aborting spawn.");
-                yield break;
-            }
-            for (int j = 0; j < quantityToSpawn; j++)
-            {
-                if (enemySpawnCount >= maxEnemies)
-                {
-                    yield break;
-                }
-                GameObject enemy = PoolManager.Instance.Rent(enemyPrefabsList[Random.Range(0, enemyPrefabsList.Count)]);
-                enemy.transform.position = GetRandomSpawnLocation(validSpawnPointsList, boundsList);
-                enemySpawnCount++;
-            }
-            yield break;
-        }
-
         // -- Prep work for the loop ahead -- //
         float spawnInterval = 1f / spawnsPerSecond;
         int spawned = 0;
@@ -175,8 +228,8 @@ public class SpawnManager : MonoBehaviour
                 VerifyValidSpawnLocations(validSpawnPointsList, boundsList);
                 if (validSpawnPointsList.Count == 0)
                 {
-                    Debug.LogWarning("[SpawnManager] No valid spawn point. Waiting .5 seconds to try and spawn.");
-                    yield return new WaitForSeconds(0.5f);
+                    Debug.LogWarning("[SpawnManager] No valid spawn point. Waiting to try and spawn.");
+                    yield return _WaitForSeconds;
                     break;
                 }
                 if (enemySpawnCount >= maxEnemies)
