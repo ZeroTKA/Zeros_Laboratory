@@ -1,37 +1,24 @@
 using System.Collections;
 using System.Collections.Generic;
-using TMPro;
-using Unity.VisualScripting;
+using System.Linq;
 using UnityEngine;
 
 public class SpawnManagerTest : MonoBehaviour
 {
     /// <summary>
-    /// To Do
-    /// 3. What do we do if no valid spawn locations? Pause?
+    /// To Do List:
+    /// summary / how to use SpawnManager.
     /// </summary>
     public static SpawnManagerTest instance;
-    Transform playerTransform;
-
-    [SerializeField] GameObject[] prefab; // Temp Testing, Remove later.
-    [SerializeField] GameObject[] spawnPoints;
-    [SerializeField] float closestDistanceUntilWeStopSpawning;
+    [SerializeField] private WaitForSeconds _WaitForSeconds = new(.5f); // duration we wait incase there are no valid spawns.
     [SerializeField] int maxEnemies;
-    [SerializeField] int TotalEnemiesToSpawn;
-    [SerializeField] TextMeshProUGUI maxEnemiesText;
-    [SerializeField] TextMeshProUGUI spawnsPerSecondText;
-
     public int enemySpawnCount = 0;  // the idea is to allow a maximum spawn amount.
-    private List<Bounds> allBoundsList = new();
-    private List<int> indexOfValidSpawnPoints = new();
-    private bool spawningIsActive = false;
-    private bool stopSpawningRequested = false;
-
-    private float spawnAccumulator = 0f;
-    [SerializeField] private float spawnsPerSecond;
-
 
     // -- Specialty Methods -- //
+    /// <summary>
+    /// All initialization is done in Awake so that everything is ready before other scripts run.
+    /// Other scripts typically use Start(), which executes after Awake(), preventing null reference issues.
+    /// </summary>
     private void Awake()
     {
         if (instance == null)
@@ -44,44 +31,377 @@ public class SpawnManagerTest : MonoBehaviour
             Destroy(gameObject);
         }
     }
-    private void Start()
+
+    // -- Main Methods -- //
+
+        // -- SpawnBurst() -- //
+    /// <summary>
+    /// Spawns a set number of enemies at specified spawn points immediately.
+    /// </summary>
+    /// <param name="enemyPrefab">The prefab to spawn.</param>
+    /// <param name="quantityToSpawn">The total number of enemies to spawn.</param>
+    /// <param name="spawnPoint">The spawn point object used to determine a valid spawn location.</param>
+    public IEnumerator SpawnBurst(GameObject enemyPrefab, int quantityToSpawn, GameObject spawnPoint)
     {
-        playerTransform = GameObject.FindWithTag("Player").transform;
+        return SpawnBurst(new[] { enemyPrefab }, quantityToSpawn, new[] { spawnPoint });
+    }
+    /// <summary>
+    /// Spawns a set number of enemies at specified spawn points immediately.
+    /// </summary>
+    /// <param name="enemyPrefab">The prefab to spawn.</param>
+    /// <param name="quantityToSpawn">The total number of enemies to spawn.</param>
+    /// <param name="spawnPoints">The collection of spawn point objects used to determine valid spawn locations.</param>
+    public IEnumerator SpawnBurst(GameObject enemyPrefab, int quantityToSpawn, IEnumerable<GameObject> spawnPoints)
+    {
+        return SpawnBurst(new[] { enemyPrefab }, quantityToSpawn, spawnPoints);
+    }
+    /// <summary>
+    /// Spawns a set number of enemies at specified spawn points immediately.
+    /// </summary>
+    /// <param name="enemyPrefabs">The list of possible enemy prefabs to spawn. One is chosen at random each time.</param>
+    /// <param name="quantityToSpawn">The total number of enemies to spawn.</param>
+    /// <param name="spawnPoint">The spawn point object used to determine a valid spawn location.</param>
+    public IEnumerator SpawnBurst(IEnumerable<GameObject> enemyPrefabs, int quantityToSpawn, GameObject spawnPoint)
+    {
+        return SpawnBurst(enemyPrefabs, quantityToSpawn, new[] { spawnPoint });
+    }
+    /// <summary>
+    /// Spawns a set number of enemies at specified spawn points immediately.
+    /// </summary>
+    /// <param name="enemyPrefabs">The list of possible enemy prefabs to spawn. One is chosen at random each time.</param>
+    /// <param name="quantityToSpawn">The total number of enemies to spawn.</param>
+    /// <param name="spawnPoints">The collection of spawn point objects used to determine valid spawn locations.</param>
+    public IEnumerator SpawnBurst(IEnumerable<GameObject> enemyPrefabs, int quantityToSpawn, IEnumerable<GameObject> spawnPoints)
+    {
+        // -- All kinds of error checking -- //
+        if (enemyPrefabs == null)
+        {
+            Debug.LogError("[SpawnManager] enemyPrefabs is null.");
+            yield break;
+        }
+
+        if (quantityToSpawn <= 0)
+        {
+            Debug.LogError("[SpawnManager] Spawn() tried to run with invalid quantity. Quantity to spawn must be greater than zero.");
+            yield break;
+        }
+
+        if (spawnPoints == null)
+        {
+            Debug.LogError("[SpawnManager] spawnPoints is null.");
+            yield break;
+        }
+
+        if (PoolManagerTest.Instance == null)
+        {
+            Debug.LogError("[SpawnManager] PoolManager.Instance is null.");
+            yield break;
+        }
+
+        // -- Prep work for the loop ahead -- //
+        var enemyPrefabsList = enemyPrefabs.ToList();
+        if (enemyPrefabsList.Count == 0)
+        {
+            Debug.LogError("[SpawnManager] enemyPrefabs is empty.");
+            yield break;
+        }
+
+        List<Bounds> boundsList = new();
+        GatherBounds(spawnPoints, boundsList);
+        if (boundsList.Count == 0)
+        {
+            Debug.LogWarning("[SpawnManager] No spawn bounds found. Aborting spawn.");
+            yield break;
+        }
+
+        List<int> validSpawnPointsList = new();
+        VerifyValidSpawnLocations(validSpawnPointsList, boundsList);
+        if (validSpawnPointsList.Count == 0)
+        {
+            Debug.LogWarning("[SpawnManager] No valid spawn point. Aborting spawn.");
+            yield break;
+        }
+        for (int j = 0; j < quantityToSpawn; j++)
+        {            
+            if (enemySpawnCount >= maxEnemies)
+            {
+                yield break;
+            }
+            GameObject enemy = PoolManagerTest.Instance.Rent(enemyPrefabsList[Random.Range(0, enemyPrefabsList.Count)]);
+            enemy.transform.position = GetRandomSpawnLocation(validSpawnPointsList, boundsList);
+            enemySpawnCount++;
+        }
     }
 
-    // -- Main Method -- //
+        // -- Spawn() -- //
+    /// <summary>
+    /// Spawns a set number of enemies at specified spawn points, using an amount we want to spawn each second.
+    /// </summary>
+    /// <param name="enemyPrefab">The prefab to spawn.</param>
+    /// <param name="quantityToSpawn">The total number of enemies to spawn.</param>
+    /// <param name="spawnPoint">The spawn point object used to determine a valid spawn location.</param>
+    /// <param name="spawnsPerSecond">The number of spawns we do each second.</param>
+    public IEnumerator Spawn(GameObject enemyPrefab, int quantityToSpawn, GameObject spawnPoint, float spawnsPerSecond)
+    {
+        return Spawn(new[] { enemyPrefab }, quantityToSpawn, new[] { spawnPoint }, spawnsPerSecond);
+    }
+    /// <summary>
+    /// Spawns a set number of enemies at specified spawn points, using an amount we want to spawn each second.
+    /// </summary>
+    /// <param name="enemyPrefab">The prefab to spawn.</param>
+    /// <param name="quantityToSpawn">The total number of enemies to spawn.</param>
+    /// <param name="spawnPoints">The collection of spawn point objects used to determine valid spawn locations.</param>
+    /// <param name="spawnsPerSecond">The number of spawns we do each second.</param>
+    public IEnumerator Spawn(GameObject enemyPrefab, int quantityToSpawn, IEnumerable<GameObject> spawnPoints, float spawnsPerSecond)
+    {
+        return Spawn(new[] { enemyPrefab }, quantityToSpawn, spawnPoints, spawnsPerSecond);
+    }
+    /// <summary>
+    /// Spawns a set number of enemies at specified spawn points, using an amount we want to spawn each second.
+    /// </summary>
+    /// <param name="enemyPrefabs">The list of possible enemy prefabs to spawn. One is chosen at random each time.</param>
+    /// <param name="quantityToSpawn">The total number of enemies to spawn.</param>
+    /// <param name="spawnPoint">The spawn point object used to determine a valid spawn location.</param>
+    /// <param name="spawnsPerSecond">The number of spawns we do each second.</param>
+    public IEnumerator Spawn(IEnumerable<GameObject> enemyPrefabs, int quantityToSpawn, GameObject spawnPoint, float spawnsPerSecond)
+    {
+        return Spawn(enemyPrefabs, quantityToSpawn, new[] { spawnPoint }, spawnsPerSecond);
+    }
+    /// <summary>
+    /// Spawns a set number of enemies at specified spawn points, using an amount we want to spawn each second.
+    /// </summary>
+    /// <param name="enemyPrefabs">The list of possible enemy prefabs to spawn. One is chosen at random each time.</param>
+    /// <param name="quantityToSpawn">The total number of enemies to spawn.</param>
+    /// <param name="spawnPoints">The collection of spawn point objects used to determine valid spawn locations.</param>
+    /// <param name="spawnsPerSecond">The number of spawns we do each second.</param>
+    public IEnumerator Spawn(IEnumerable<GameObject> enemyPrefabs, int quantityToSpawn, IEnumerable<GameObject> spawnPoints, float spawnsPerSecond)
+    {
+        // -- All kinds of error checking -- //
+        if (enemyPrefabs == null)
+        {
+            Debug.LogError("[SpawnManager] enemyPrefabs is null.");
+            yield break;
+        }
 
+        if (quantityToSpawn <= 0)
+        {
+            Debug.LogError("[SpawnManager] Spawn() tried to run with invalid quantity. Quantity to spawn must be greater than zero.");
+            yield break;
+        }
+
+        if (spawnPoints == null)
+        {
+            Debug.LogError("[SpawnManager] spawnPoints is null.");
+            yield break;
+        }
+
+        if (spawnsPerSecond <= 0)
+        {
+            Debug.LogError("[SpawnManager] spawnsPerSecond is an invalid number. It must be greater than 0");
+            yield break;
+        }
+
+        if (PoolManagerTest.Instance == null)
+        {
+            Debug.LogError("[SpawnManager] PoolManager.Instance is null.");
+            yield break;
+        }
+
+        // -- Prep work for the loop ahead -- //
+        var enemyPrefabsList = enemyPrefabs.ToList();
+        if (enemyPrefabsList.Count == 0)
+        {
+            Debug.LogError("[SpawnManager] enemyPrefabs is empty.");
+            yield break;
+        }
+
+        List<Bounds> boundsList = new();
+        GatherBounds(spawnPoints, boundsList);
+        if (boundsList.Count == 0)
+        {
+            Debug.LogWarning("[SpawnManager] No spawn bounds found. Aborting spawn.");
+            yield break;
+        }
+
+        List<int> validSpawnPointsList = new();
+
+        // -- Prep work for the loop ahead -- //
+        float spawnInterval = 1f / spawnsPerSecond;
+        int spawned = 0;
+        float accumulator = 0f;
+
+        while (spawned < quantityToSpawn)
+        {
+            // If the manager was destroyed or disabled, stop.
+            if (!isActiveAndEnabled) yield break;
+
+            accumulator += Time.deltaTime;
+            while (accumulator >= spawnInterval && spawned < quantityToSpawn)
+            {
+                VerifyValidSpawnLocations(validSpawnPointsList, boundsList);
+                if (validSpawnPointsList.Count == 0)
+                {
+                    Debug.LogWarning("[SpawnManager] No valid spawn point. Waiting to try and spawn.");
+                    yield return _WaitForSeconds;
+                    break;
+                }
+                if (enemySpawnCount >= maxEnemies)
+                {
+                    yield break; // stop spawning entirely when cap reached
+                }
+
+                GameObject enemy = PoolManagerTest.Instance.Rent(enemyPrefabsList[Random.Range(0, enemyPrefabsList.Count)]);
+                enemy.transform.position = GetRandomSpawnLocation(validSpawnPointsList, boundsList);
+
+                enemySpawnCount++;
+                spawned++;
+                accumulator -= spawnInterval;
+            }
+            yield return null;
+        }
+    }
+
+        // -- SpawnByDuration() -- //
+    /// <summary>
+    /// Spawns a set number of enemies at specified spawn points, using a fixed time interval between each spawn.
+    /// </summary>
+    /// <param name="enemyPrefab">The prefab to spawn.</param>
+    /// <param name="quantityToSpawn">The total number of enemies to spawn.</param>
+    /// <param name="spawnPoint">The spawn point object used to determine a valid spawn location.</param>
+    /// <param name="spawnInterval">The time (in seconds) to wait between each spawn attempt.</param>
+    public IEnumerator SpawnByDuration(GameObject enemyPrefab, int quantityToSpawn, GameObject spawnPoint, float spawnInterval)
+    {
+        return SpawnByDuration(new[] { enemyPrefab }, quantityToSpawn, new[] { spawnPoint }, spawnInterval);
+    }
+    /// <summary>
+    /// Spawns a set number of enemies at specified spawn points, using a fixed time interval between each spawn.
+    /// </summary>
+    /// <param name="enemyPrefab">The prefab to spawn.</param>
+    /// <param name="quantityToSpawn">The total number of enemies to spawn.</param>
+    /// <param name="spawnPoints">The collection of spawn point objects used to determine valid spawn locations.</param>
+    /// <param name="spawnInterval">The time (in seconds) to wait between each spawn attempt.</param>
+    public IEnumerator SpawnByDuration(GameObject enemyPrefab, int quantityToSpawn, IEnumerable<GameObject> spawnPoints, float spawnInterval)
+    {
+        return SpawnByDuration(new[] { enemyPrefab }, quantityToSpawn, spawnPoints, spawnInterval);
+    }
+    /// <summary>
+    /// Spawns a set number of enemies at specified spawn points, using a fixed time interval between each spawn.
+    /// </summary>
+    /// <param name="enemyPrefabs">The list of possible enemy prefabs to spawn. One is chosen at random each time.</param>
+    /// <param name="quantityToSpawn">The total number of enemies to spawn.</param>
+    /// <param name="spawnPoint">The spawn point object used to determine a valid spawn location.</param>
+    /// <param name="spawnInterval">The time (in seconds) to wait between each spawn attempt.</param>
+    public IEnumerator SpawnByDuration(IEnumerable<GameObject> enemyPrefabs, int quantityToSpawn, GameObject spawnPoint, float spawnInterval)
+    {
+        return SpawnByDuration(enemyPrefabs, quantityToSpawn, new[] { spawnPoint }, spawnInterval);
+    }
+    /// <summary>
+    /// Spawns a set number of enemies at specified spawn points, using a fixed time interval between each spawn.
+    /// </summary>
+    /// <param name="enemyPrefabs">The list of possible enemy prefabs to spawn. One is chosen at random each time.</param>
+    /// <param name="quantityToSpawn">The total number of enemies to spawn.</param>
+    /// <param name="spawnPoints">The collection of spawn point objects used to determine valid spawn locations.</param>
+    /// <param name="spawnInterval">The time (in seconds) to wait between each spawn attempt.</param>
+    public IEnumerator SpawnByDuration(IEnumerable<GameObject> enemyPrefabs, int quantityToSpawn, IEnumerable<GameObject> spawnPoints, float spawnInterval)
+    {
+        Debug.Log("Made it here");
+        // -- All kinds of error checking -- //
+        if (enemyPrefabs == null)
+        {
+            Debug.LogError("[SpawnManager] enemyPrefabs is null.");
+            yield break;
+        }
+
+        if (quantityToSpawn <= 0)
+        {
+            Debug.LogError("[SpawnManager] Spawn() tried to run with invalid quantity. Quantity to spawn must be greater than zero.");
+            yield break;
+        }
+
+        if (spawnPoints == null)
+        {
+            Debug.LogError("[SpawnManager] spawnPoints is null.");
+            yield break;
+        }
+
+        if (spawnInterval <= 0f)
+        {
+            Debug.LogError("[SpawnManager] spawnInterval must be > 0");
+            yield break;
+        }
+
+        if (PoolManagerTest.Instance == null)
+        {
+            Debug.LogError("[SpawnManager] PoolManagerTest.Instance is null.");
+            yield break;
+        }
+
+        // -- Prep work for the loop below -- //
+        List<int> validSpawnPointsList = new();
+        List<Bounds> boundsList = new();
+        GatherBounds(spawnPoints, boundsList);
+        if (boundsList.Count == 0)
+        {
+            Debug.LogWarning("[SpawnManager] No spawn bounds found. Aborting spawn.");
+            yield break;
+        }
+
+        List<GameObject> enemyPrefabsList = enemyPrefabs.ToList();
+        if (enemyPrefabsList.Count == 0)
+        {
+            Debug.LogError("[SpawnManager] enemyPrefabs is empty.");
+            yield break;
+        }
+
+        for (int i = 0; i < quantityToSpawn; i++)
+        {
+            if (!isActiveAndEnabled) yield break;
+            yield return new WaitForSeconds(spawnInterval);
+            VerifyValidSpawnLocations(validSpawnPointsList, boundsList);
+            if (enemySpawnCount >= maxEnemies)
+            {
+                break;
+            }
+            if (validSpawnPointsList.Count == 0)
+            {
+                Debug.LogWarning("[SpawnManager] No valid spawn point. Is that really what we want?");
+                break;
+            }
+
+            GameObject enemy = PoolManagerTest.Instance.Rent(enemyPrefabsList[Random.Range(0, enemyPrefabsList.Count)]);
+            enemy.transform.position = GetRandomSpawnLocation(validSpawnPointsList, boundsList);
+            enemySpawnCount++;
+        }
+    }
 
     // -- Supplemental Methods -- //
     /// <summary>
-    /// Determines if the player is too close to the spawn. If so, invalidates the spawn point.
+    /// This is to pass a single spawn point to get the bounds added to the list.
     /// </summary>
-    /// <param name="bounds">This is the bounds to check against the distance against.</param>
-    /// <param name="playerPosition">Object we are comparing the distance to--typically the player??</param>
-    /// <returns>Returns true if the bounds is too close to the object. Reutrns false if the object is NOT too close.</returns>
-    private bool AreWeTooCloseToSpawnPoint(Bounds bounds, Vector3 playerPosition)
+    /// <param name="spawnPoint">We use the box collider attached to an object to determine the spawn location.</param>
+    /// <param name="boundsList">This is the list to keep track of all possible spawn locations.</param>
+    /// <remarks>Technically we just funnel this into the other GatherBounds() method. This is stritctly for simplicity.</remarks>
+    private void GatherBounds(GameObject spawnPoint, List<Bounds> boundsList)
     {
-        float distance = Vector3.Distance(bounds.ClosestPoint(playerPosition), playerPosition);
-        if (distance > closestDistanceUntilWeStopSpawning)
-        {
-            return false;
-        }
-        else
-        {
-            return true;
-        }
+        GatherBounds(new[] { spawnPoint }, boundsList);
     }
-    private void GatherBoundsForList()
+    /// <summary>
+    /// Adds the spawn point locations to the bounds list.
+    /// </summary>
+    /// <param name="spawnPoints">We use the box collider attached to an object to determine the spawn location.</param>
+    /// <param name="boundsList">This is the list to keep track of all possible spawn locations.</param>
+    /// <remarks>This is intended to be as flexible with your system as possible</remarks>
+    private void GatherBounds(IEnumerable<GameObject> spawnPoints, List<Bounds> boundsList)
     {
-        foreach (GameObject genericObject in spawnPoints)
+        foreach (var obj in spawnPoints)
         {
-            if (genericObject.TryGetComponent<BoxCollider>(out var box))
+            if (obj.TryGetComponent<BoxCollider>(out var box))
             {
-                allBoundsList.Add(box.bounds);
+                boundsList.Add(box.bounds);
             }
             else
             {
-                Debug.LogError($"[SpawnManager] No Box Collider on {genericObject.name}");
+                Debug.LogError($"[SpawnManager] No Box Collider on {obj.name}");
             }
         }
     }
@@ -91,114 +411,28 @@ public class SpawnManagerTest : MonoBehaviour
     /// <remarks>
     /// Ultimately we are getting the X range, Y Value, and Z range. We use this box to determine potential spawn locations.
     /// </remarks>
-    private Vector3 GetRandomSpawnLocation()
+    private Vector3 GetRandomSpawnLocation(List<int> validSpawnPoints, List<Bounds> boundsList)
     {
-        GetValidSpawnLocations();
-        if (indexOfValidSpawnPoints.Count > 0)
-        {
-            Bounds randomBounds = allBoundsList[indexOfValidSpawnPoints[Random.Range(0, indexOfValidSpawnPoints.Count)]];
-            Vector3 spawnLocation = new Vector3(
-                Random.Range(randomBounds.min.x, randomBounds.max.x),
-                randomBounds.min.y,
-                Random.Range(randomBounds.min.z, randomBounds.max.z));
-            return spawnLocation;
-        }
-        else
-        {
-            Debug.LogWarning("[SpawnManager] We are returning Vector3.zero even though there's no valid spawn location. Why isn't there a valid spawn location?");
-            return Vector3.zero;
-        }
-
+        Bounds randomBounds = boundsList[validSpawnPoints[Random.Range(0, validSpawnPoints.Count)]];
+        Vector3 spawnLocation = new(
+            Random.Range(randomBounds.min.x, randomBounds.max.x),    // X
+            randomBounds.min.y,                                      // Y
+            Random.Range(randomBounds.min.z, randomBounds.max.z));   // Z
+        return spawnLocation;
     }
     /// <summary>
     /// This is a conditional check for spawn points we can spawn at.
     /// </summary>
-    private void GetValidSpawnLocations()
+    private void VerifyValidSpawnLocations(List<int> validSpawnPoints, List<Bounds> boundsList)
     {
-        indexOfValidSpawnPoints.Clear();
-        Vector3 playerPosition = playerTransform.position; // cache this becasue I don't want to run it for every single loop.
-        for (int i = 0; i < allBoundsList.Count; i++)
+        validSpawnPoints.Clear();
+        for (int i = 0; i < boundsList.Count; i++)
         {
-            // -- Conditional reasons to NOT spawn something.
-            if (
-                AreWeTooCloseToSpawnPoint(allBoundsList[i], playerPosition))
-            {
-                continue;
-            }
-            else
-            {
-                indexOfValidSpawnPoints.Add(i);
-            }
+            /// This is where you add conditional logic to determine if the point is valid. If not, continue.
+            /// 
+            /// 
+            /// if it is valid, add it to the validSpawnPoints list. By default, everything is valid.
+            validSpawnPoints.Add(i);
         }
-    }
-
-    public void UpdateMaxEnemies(int changeAmount)
-    {
-        maxEnemies += changeAmount;
-        if (maxEnemies < 0)
-        {
-            maxEnemies = 0;
-            Debug.LogWarning("[SpawnManager] Enemy Spawn Count went below zero. Resetting to zero.");
-        }
-        maxEnemiesText.text = maxEnemies.ToString();
-    }
-    public void UpdateSpawnsPerSecond(int changeAmount)
-    {
-        spawnsPerSecond += changeAmount;
-        if (spawnsPerSecond < 0)
-        {
-            spawnsPerSecond = 0;
-            Debug.LogWarning("[SpawnManager] Spawns Per Second went below zero. Resetting to zero.");
-        }
-        spawnsPerSecondText.text = spawnsPerSecond.ToString();
-    }
-
-    /// <summary>
-    /// The idea here is to toggle spawning on and off via a push of a button. We use a bool to request stopping of the coroutine.
-    /// This way we can exit gracefully instead of using StopCoroutine.
-    /// </summary>
-    public void ToggleSpawning()
-    { 
-        if(spawningIsActive)
-        {
-            stopSpawningRequested = true;
-            spawningIsActive = false;
-        }
-        else
-        {
-            StartCoroutine(Spawn());
-            spawningIsActive = true;
-        }
-    }
-
-    /// <summary>
-    /// Weak method and very basic. Maybe we will add more possibilities.
-    /// </summary>
-    IEnumerator Spawn()
-    {
-        GatherBoundsForList();
-        for (int i = 0; i < TotalEnemiesToSpawn; i++)
-        {
-            // Wait until there is room to spawn
-            while (enemySpawnCount >= maxEnemies)
-            {
-                if(stopSpawningRequested){ stopSpawningRequested = false; yield break; }
-                yield return null; // wait one frame, check again
-            }
-            spawnAccumulator += spawnsPerSecond * Time.deltaTime;
-            while(spawnAccumulator >= 1f)
-            {
-                GameObject winner = PoolManagerTest.Instance.Rent(prefab[Random.Range(0, prefab.Length)]);
-                winner.transform.position = GetRandomSpawnLocation();
-                if (indexOfValidSpawnPoints.Count > 0)
-                {
-                    enemySpawnCount++;
-                }
-                spawnAccumulator -= 1f;
-            }
-            if (stopSpawningRequested) { stopSpawningRequested = false; yield break; }
-            yield return null;
-        }
-        spawningIsActive = false;
     }
 }

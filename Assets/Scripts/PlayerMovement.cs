@@ -29,7 +29,7 @@ public class PlayerMovement : MonoBehaviour
     readonly float jumpHeight = 1f;
 
     //-- Movement Variables --//
-    private float baseMoveSpeed = 5f;
+    [SerializeField] float baseMoveSpeed = 15f;
     float currentMoveSpeed;
     Vector3 inputMove;
     bool isGrounded;
@@ -39,15 +39,15 @@ public class PlayerMovement : MonoBehaviour
     private float standingColliderHeight;
 
     //-- Crouching Variables --//
-    private float standHeight = 1f; // camera's perspective
-    private float crouchHeight = .65f; // camera's perspective
-    readonly private float crouchSpeed = .6f; // as in move at a rate of 60% of base move speed.
+    private float standHeight = .514f; // camera's perspective
+    private float crouchHeight = .33f; // camera's perspective
+    [SerializeField] float crouchSpeed = 5f; // as in move at a rate of 60% of base move speed.
     private bool isCrouched = false;
 
     //-- Prone Variables --//
     private bool isProne = false;
-    private float proneHeight = .3f;
-    private readonly float proneSpeed = .3f; // as in move at a rate of 30% of base move speed.
+    private float proneHeight = .1f;
+    [SerializeField] float proneSpeed = 1f; // as in move at a rate of 30% of base move speed.
 
     // -- Interaction Variables --//
     private float interactDistance = 3f;
