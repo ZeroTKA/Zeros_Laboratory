@@ -9,8 +9,9 @@ public static void ButtonPushedDoTheThing(int buttonID)
             case 0:
                 Debug.Log("ButtonID is 0. Did you forget to set the correct ButtonID?");
                 break;
-            case 13:
-                Debug.Log("Control Button 13 Pressed");
+            case 3:
+                Debug.Log("Go Time Baby");
+                WaveManagerTest.instance.Wave1();
                 break;
             case 14:
                 Debug.Log("Control Button 14 Pressed");

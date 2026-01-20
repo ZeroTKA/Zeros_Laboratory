@@ -39,8 +39,8 @@ public class PlayerMovement : MonoBehaviour
     private float standingColliderHeight;
 
     //-- Crouching Variables --//
-    private float standHeight = .514f; // camera's perspective
-    private float crouchHeight = .33f; // camera's perspective
+    [SerializeField] float standHeight = .4f; // camera's perspective
+    [SerializeField] float crouchHeight = .29f; // camera's perspective
     [SerializeField] float crouchSpeed = 5f; // as in move at a rate of 60% of base move speed.
     private bool isCrouched = false;
 
@@ -128,9 +128,11 @@ public class PlayerMovement : MonoBehaviour
     }
     private void Interact()
     {
+        
         if (interactAction == null) return;
         if (interactAction.triggered)
         {
+            Debug.Log("Interact button hit");
             Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
             if (Physics.Raycast(ray, out RaycastHit hit, interactDistance))
             {

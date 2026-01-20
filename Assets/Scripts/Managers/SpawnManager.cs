@@ -160,7 +160,7 @@ public class SpawnManager : MonoBehaviour
     /// Spawns a set number of enemies at specified spawn points, using an amount we want to spawn each second.
     /// </summary>
     /// <param name="enemyPrefab">The prefab to spawn.</param>
-    /// <param name="quantityToSpawn">The total number of enemies to spawn.</param>
+    /// <param name="quantityToSpawn">The grand total number of enemies to spawn.</param>
     /// <param name="spawnPoint">The spawn point object used to determine a valid spawn location.</param>
     /// <param name="spawnsPerSecond">The number of spawns we do each second.</param>
     public IEnumerator Spawn(GameObject enemyPrefab, int quantityToSpawn, GameObject spawnPoint, float spawnsPerSecond)
@@ -171,7 +171,7 @@ public class SpawnManager : MonoBehaviour
     /// Spawns a set number of enemies at specified spawn points, using an amount we want to spawn each second.
     /// </summary>
     /// <param name="enemyPrefab">The prefab to spawn.</param>
-    /// <param name="quantityToSpawn">The total number of enemies to spawn.</param>
+    /// <param name="quantityToSpawn">The grand total number of enemies to spawn.</param>
     /// <param name="spawnPoints">The collection of spawn point objects used to determine valid spawn locations.</param>
     /// <param name="spawnsPerSecond">The number of spawns we do each second.</param>
     public IEnumerator Spawn(GameObject enemyPrefab, int quantityToSpawn, IEnumerable<GameObject> spawnPoints, float spawnsPerSecond)
@@ -182,7 +182,7 @@ public class SpawnManager : MonoBehaviour
     /// Spawns a set number of enemies at specified spawn points, using an amount we want to spawn each second.
     /// </summary>
     /// <param name="enemyPrefabs">The list of possible enemy prefabs to spawn. One is chosen at random each time.</param>
-    /// <param name="quantityToSpawn">The total number of enemies to spawn.</param>
+    /// <param name="quantityToSpawn">The grand total number of enemies to spawn.</param>
     /// <param name="spawnPoint">The spawn point object used to determine a valid spawn location.</param>
     /// <param name="spawnsPerSecond">The number of spawns we do each second.</param>
     public IEnumerator Spawn(IEnumerable<GameObject> enemyPrefabs, int quantityToSpawn, GameObject spawnPoint, float spawnsPerSecond)
@@ -193,7 +193,7 @@ public class SpawnManager : MonoBehaviour
     /// Spawns a set number of enemies at specified spawn points, using an amount we want to spawn each second.
     /// </summary>
     /// <param name="enemyPrefabs">The list of possible enemy prefabs to spawn. One is chosen at random each time.</param>
-    /// <param name="quantityToSpawn">The total number of enemies to spawn.</param>
+    /// <param name="quantityToSpawn">The grand total number of enemies to spawn.</param>
     /// <param name="spawnPoints">The collection of spawn point objects used to determine valid spawn locations.</param>
     /// <param name="spawnsPerSecond">The number of spawns we do each second.</param>
     public IEnumerator Spawn(IEnumerable<GameObject> enemyPrefabs, int quantityToSpawn, IEnumerable<GameObject> spawnPoints, float spawnsPerSecond)
