@@ -11,7 +11,7 @@ public static void ButtonPushedDoTheThing(int buttonID)
                 break;
             case 3:
                 Debug.Log("Go Time Baby");
-                WaveManagerTest.instance.Wave1();
+                Spawn_PoolManagerTest.instance.LetTheShowBegin();
                 break;
             case 14:
                 Debug.Log("Control Button 14 Pressed");
