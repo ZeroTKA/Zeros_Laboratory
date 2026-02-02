@@ -1684,7 +1684,7 @@ MonoBehaviour:
   - 1.8
   - 1.8
   - 1.8
-  - 2.5
+  - 5
   audioClips:
   - {fileID: 8300000, guid: a36ff23951e4ef940acda77df5780bf9, type: 3}
   - {fileID: 8300000, guid: a251c2918c1b2dc4687b753971293d86, type: 3}
@@ -1692,6 +1692,8 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 57f7d091bba0a8048b5b845a906dec0c, type: 3}
   - {fileID: 8300000, guid: a36ff23951e4ef940acda77df5780bf9, type: 3}
   - {fileID: 8300000, guid: b4e7f9d47b83b2d4fb815f21efda8a54, type: 3}
+  - {fileID: 8300000, guid: 410d1376c6a498d47b909c4098969b83, type: 3}
+  - {fileID: 8300000, guid: 4c32b883a03e08e4b8f8b8e48fa40e49, type: 3}
   audioSources:
   - {fileID: 1549831874}
   - {fileID: 1984657503}
@@ -1699,7 +1701,7 @@ MonoBehaviour:
   - {fileID: 1094212198}
   - {fileID: 1518810310}
   - {fileID: 1523027280}
-  music: {fileID: 8300000, guid: 014cf4734f006b746acff8c25252304d, type: 3}
+  music: {fileID: 8300000, guid: 19cc344622a07604982714d5f5d7fb97, type: 3}
   musicSource: {fileID: 267076243}
 --- !u!1 &415805004
 GameObject:
