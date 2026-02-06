@@ -35,7 +35,7 @@ public class Spawn_PoolManagerTest : MonoBehaviour
     }
     private IEnumerator ShowTime()
     {
-        StartCoroutine(LoadingScreenAnimate());
+        StartCoroutine(AnimateLoadingTextEllipsis());
         // Turn on main lights
         musicSource.PlayOneShot(music);
         for (int i = 0; i < lightsList.Count - 1; i++)
@@ -66,25 +66,29 @@ public class Spawn_PoolManagerTest : MonoBehaviour
         WaveManagerTest.instance.Wave1();
     }
 
-    private IEnumerator LoadingScreenAnimate()
+    private IEnumerator AnimateLoadingTextEllipsis()
     {
         WaitForSeconds waiting = new(1.2f);
         loadingText.gameObject.SetActive(true);
 
         while(!stopLoading)
         {
-            for (int i = 0; i < 3; i++)
+            // we assume the text ends in . . .. This means we animate the '. . .' String can be any size.
+            for (int i = 0; i < 4; i++)
             {
                 switch(i)
                 {
                     case 0:
-                        loadingText.maxVisibleCharacters = 9;
+                        loadingText.maxVisibleCharacters = loadingText.text.Length - 6;
                         break;
                     case 1:
-                        loadingText.maxVisibleCharacters = 11;
+                        loadingText.maxVisibleCharacters = loadingText.text.Length - 4;
                         break;
                     case 2:
-                        loadingText.maxVisibleCharacters = 13;
+                        loadingText.maxVisibleCharacters = loadingText.text.Length - 2;
+                        break;
+                    case 3:
+                        loadingText.maxVisibleCharacters = loadingText.text.Length;
                         break;
                 }
                 yield return waiting;
