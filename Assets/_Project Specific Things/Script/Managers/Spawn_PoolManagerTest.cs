@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
 
 public class Spawn_PoolManagerTest : MonoBehaviour
@@ -15,6 +16,8 @@ public class Spawn_PoolManagerTest : MonoBehaviour
 
     [Header("Loading Screen")]
     [SerializeField] TextMeshProUGUI loadingText;
+    [SerializeField] GameObject loadingScreen;
+    [SerializeField] GameObject logo;
     private bool stopLoading = false;
 
     public static Spawn_PoolManagerTest instance;
@@ -35,7 +38,7 @@ public class Spawn_PoolManagerTest : MonoBehaviour
     }
     private IEnumerator ShowTime()
     {
-        StartCoroutine(AnimateLoadingTextEllipsis());
+        StartCoroutine(Logo());
         // Turn on main lights
         musicSource.PlayOneShot(music);
         for (int i = 0; i < lightsList.Count - 1; i++)
@@ -67,12 +70,11 @@ public class Spawn_PoolManagerTest : MonoBehaviour
     }
 
     private IEnumerator AnimateLoadingTextEllipsis()
-    {
-        WaitForSeconds waiting = new(1.2f);
-        loadingText.gameObject.SetActive(true);
-
+    {        
+        loadingScreen.SetActive(true);
         while(!stopLoading)
         {
+            WaitForSeconds waiting = new(1.2f);
             // we assume the text ends in . . .. This means we animate the '. . .' String can be any size.
             for (int i = 0; i < 4; i++)
             {
@@ -94,5 +96,15 @@ public class Spawn_PoolManagerTest : MonoBehaviour
                 yield return waiting;
             }
         }
+    }
+    private IEnumerator Logo()
+    {
+        yield return new WaitForSeconds(3.8f);
+        logo.SetActive(true);
+        yield return new WaitForSeconds(3f);
+        logo.SetActive(false);
+        StartCoroutine(AnimateLoadingTextEllipsis());
+       
+
     }
 }
