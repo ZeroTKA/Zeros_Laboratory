@@ -6,6 +6,12 @@ using TMPro;
 
 public class Spawn_PoolManagerTest : MonoBehaviour
 {
+    [Header("Color Lerping")]
+    [SerializeField] private Image img;
+    [SerializeField] private Color startColor;
+    [SerializeField] private Color endColor;
+    [SerializeField] private float lerpDuration;
+
     [Header("Sound Things")]
     [SerializeField] private List<GameObject> lightsList = new();
     [SerializeField] private List<float> durationBeforeLights = new();
@@ -13,6 +19,7 @@ public class Spawn_PoolManagerTest : MonoBehaviour
     [SerializeField] private List<AudioSource> audioSources = new();
     [SerializeField] private AudioClip music;
     [SerializeField] private AudioSource musicSource;
+    [SerializeField] private AudioClip pcPower;
 
     [Header("Loading Screen")]
     [SerializeField] TextMeshProUGUI loadingText;
@@ -38,6 +45,9 @@ public class Spawn_PoolManagerTest : MonoBehaviour
     }
     private IEnumerator ShowTime()
     {
+        audioSources[5].PlayOneShot(pcPower);
+        StartCoroutine(LerpColor());
+        yield return new WaitForSeconds(3f);
         StartCoroutine(Logo());
         // Turn on main lights
         musicSource.PlayOneShot(music);
@@ -98,8 +108,8 @@ public class Spawn_PoolManagerTest : MonoBehaviour
         }
     }
     private IEnumerator Logo()
-    {
-        yield return new WaitForSeconds(3.8f);
+    {        
+        yield return new WaitForSeconds(3.8f);        
         logo.SetActive(true);
         yield return new WaitForSeconds(3f);
         logo.SetActive(false);
@@ -107,4 +117,16 @@ public class Spawn_PoolManagerTest : MonoBehaviour
        
 
     }
+    private IEnumerator LerpColor()
+    {
+        float t = 0f;
+
+        while (t < 1f)
+        {
+            t += Time.deltaTime / lerpDuration;
+            img.color = Color.Lerp(startColor, endColor, t);
+            yield return null;
+        }
+    }
+
 }
