@@ -50,7 +50,7 @@ public class Spawn_PoolManagerTest : MonoBehaviour
         yield return new WaitForSeconds(3f);
         StartCoroutine(Logo());
         // Turn on main lights
-        musicSource.PlayOneShot(music);
+        musicSource.PlayOneShot(music,.4f);
         for (int i = 0; i < lightsList.Count - 1; i++)
         {
             yield return new WaitForSeconds(durationBeforeLights[i]);
