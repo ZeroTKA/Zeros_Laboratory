@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Threading;
 using UnityEngine;
 
 
@@ -18,9 +17,6 @@ public class PoolManager : MonoBehaviour
     ///   Resetting state is the responsibility of the object itself, not the PoolManager.
     /// - The PoolManager expects calling scripts to handle all positioning and movement.
     ///   Its only responsibility is to provide a valid pooled object.
-    ///   
-    /// 
-    ///   
     /// </summary>
 
     /// <summary>
