@@ -45,6 +45,7 @@ public class PoolManagerTest : MonoBehaviour
 
     // -- Transform References -- //
     [SerializeField] private Transform masterPool;
+    [SerializeField] private int maxPoolSize; // Logs warnings if a pool gets too big. This helps spot faulty logic with run-away pools.
 
     // -- Dictionary -- //
     private readonly Dictionary<PoolType, List<GameObject>> poolLists = new();
@@ -74,10 +75,6 @@ public class PoolManagerTest : MonoBehaviour
             poolTransforms[type] = poolTransform.transform;
         }
 
-
-    }
-    void Start()
-    {
 
     }
     private void OnDestroy()
@@ -122,6 +119,12 @@ public class PoolManagerTest : MonoBehaviour
                 poolStacks[poolable.typeOfPool].Push(index);
             }
             poolable.PoolIndex = index;
+#if UNITY_EDITOR // if there's a run away pool, make sure to log warnings like mad.
+            if (poolLists[poolable.typeOfPool].Count > maxPoolSize)
+            {
+                Debug.LogWarning($"[PoolManager] Pool '{poolable.typeOfPool}' has {poolLists[poolable.typeOfPool].Count} objects. Possible leak?");
+            }
+#endif
         }
         else
         {
@@ -182,10 +185,9 @@ public class PoolManagerTest : MonoBehaviour
     /// </example>
     public GameObject Rent(GameObject prefab)
     {
-
-
         if (prefab.TryGetComponent<PoolableTest>(out var poolable))
         {
+            // -- If we have something in the stack, use it. -- //
             if (poolStacks[poolable.typeOfPool].Count > 0)
             {
                 int index = poolStacks[poolable.typeOfPool].Pop();
@@ -193,7 +195,6 @@ public class PoolManagerTest : MonoBehaviour
                 reuseStopwatch.Start(); // DELETE STOP WATCH
                 genericObject.SetActive(true);
                 reuseStopwatch.Stop(); // DELETE STOP WATCH
-
                 // -- DELETE BETWEEN LINES (TESTING PURPOSES ONLY) -- //
                 totalSpawnCount++;
                 totalReusedCount++;
@@ -209,12 +210,35 @@ public class PoolManagerTest : MonoBehaviour
         }
         else
         {
-            Debug.LogError($"{prefab.name} is missing poolable. Huh?!");
+            Debug.LogError($"[PoolManager] {prefab.name} is missing the poolable script.");
             return null;
         }
     }
 
     // -- Supplemental Methods -- //
+    /// <summary>
+    /// This destroys all the objects in the pool, clears the list, and clears the stack. 
+    /// </summary>
+    /// <param name="type">The type of pool we are clearing.</param>
+    public void ClearPool(PoolType type)
+    {
+        foreach (var obj in poolLists[type])
+        {
+            if (obj != null) Destroy(obj);
+        }
+        poolLists[type].Clear();
+        poolStacks[type].Clear();
+    }
+    /// <summary>
+    /// ClearPools() big brother. It's a nuke to all pools.
+    /// </summary>
+    public void ClearAllPools()
+    {
+        foreach (PoolType type in System.Enum.GetValues(typeof(PoolType)))
+        {
+            ClearPool(type);
+        }
+    }
     /// <summary>
     /// During creation, figures out if the list / stack / transform exist for the PoolType. If not, create them.
     /// </summary>
@@ -241,6 +265,45 @@ public class PoolManagerTest : MonoBehaviour
             poolTransforms[type] = poolTransform.transform;
         }
     }
+    /// <summary>
+    /// This is used to preload at your time of choosing instead of during gameplay.
+    /// </summary>
+    /// <param name="prefab">GameObject we want to prewarm</param>
+    /// <param name="count">How many times are we insantiating the prefab?</param>
+    public void Prewarm(GameObject prefab, int count)
+    {
+        if (count < 0)
+        {
+            Debug.LogWarning($"[PoolManager] Prewarm() called with count: {count}. Must be positive!");
+        }
+        for (int i = 0; i < count; i++)
+        {
+            Create(prefab, false);
+        }
+    }
+    /// <summary>
+    /// Returns all active objects of the specified pool type to the pool.
+    /// </summary>
+    /// <remarks>Use this method to ensure that all currently active objects in the specified pool are
+    /// deactivated and made available for reuse. This can be useful for resetting the pool's state or preparing for a
+    /// new operation. The method does not affect inactive objects.</remarks>
+    /// <param name="type">The type of object pool whose active objects will be returned.</param>
+    public void ReturnAllActive(PoolType type)
+    {
+        for (int i = 0; i < poolLists[type].Count; i++)
+        {
+            GameObject obj = poolLists[type][i];
+            if (obj != null && obj.activeSelf)
+            {
+                PutBack(obj);
+            }
+        }
+    }
+
+    // -- Query Methods -- //
+    public int GetTotalCount(PoolType type) => poolLists[type].Count;
+    public int GetAvailableCount(PoolType type) => poolStacks[type].Count;
+    public int GetActiveCount(PoolType type) => GetTotalCount(type) - GetAvailableCount(type);
 
     public enum PoolType
     {
