@@ -18,6 +18,7 @@ public class WaveManagerTest : MonoBehaviour
         {
             Debug.LogWarning("[WaveManager] Multiple instances were created. Destroying duplicate instance.");
             Destroy(gameObject);
+            return;
         }
     }
 

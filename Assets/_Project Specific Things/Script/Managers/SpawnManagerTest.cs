@@ -12,7 +12,11 @@ public class SpawnManagerTest : MonoBehaviour
     public static SpawnManagerTest instance;
     [SerializeField] private WaitForSeconds _WaitForSeconds = new(.5f); // duration we wait incase there are no valid spawns.
     [SerializeField] int maxEnemies;
-    public int enemySpawnCount = 0;  // the idea is to allow a maximum spawn amount.
+    private int _enemySpawnCount = 0;
+    public int EnemySpawnCount => _enemySpawnCount;
+
+    public void RegisterSpawn() => _enemySpawnCount++;
+    public void UnregisterSpawn() => _enemySpawnCount = Mathf.Max(0, _enemySpawnCount - 1);
 
     // -- Specialty Methods -- //
     /// <summary>
@@ -123,13 +127,13 @@ public class SpawnManagerTest : MonoBehaviour
         }
         for (int j = 0; j < quantityToSpawn; j++)
         {            
-            if (enemySpawnCount >= maxEnemies)
+            if (_enemySpawnCount >= maxEnemies)
             {
                 yield break;
             }
             GameObject enemy = PoolManagerTest.Instance.Rent(enemyPrefabsList[Random.Range(0, enemyPrefabsList.Count)]);
             enemy.transform.position = GetRandomSpawnLocation(validSpawnPointsList, boundsList);
-            enemySpawnCount++;
+            RegisterSpawn();
         }
     }
 
@@ -245,7 +249,7 @@ public class SpawnManagerTest : MonoBehaviour
                     yield return _WaitForSeconds;
                     break;
                 }
-                if (enemySpawnCount >= maxEnemies)
+                if (_enemySpawnCount >= maxEnemies)
                 {
                     yield break; // stop spawning entirely when cap reached
                 }
@@ -253,7 +257,7 @@ public class SpawnManagerTest : MonoBehaviour
                 GameObject enemy = PoolManagerTest.Instance.Rent(enemyPrefabsList[Random.Range(0, enemyPrefabsList.Count)]);
                 enemy.transform.position = GetRandomSpawnLocation(validSpawnPointsList, boundsList);
 
-                enemySpawnCount++;
+                RegisterSpawn();
                 spawned++;
                 accumulator -= spawnInterval;
             }
@@ -358,7 +362,7 @@ public class SpawnManagerTest : MonoBehaviour
             if (!isActiveAndEnabled) yield break;
             yield return new WaitForSeconds(spawnInterval);
             VerifyValidSpawnLocations(validSpawnPointsList, boundsList);
-            if (enemySpawnCount >= maxEnemies)
+            if (_enemySpawnCount >= maxEnemies)
             {
                 break;
             }
@@ -370,7 +374,7 @@ public class SpawnManagerTest : MonoBehaviour
 
             GameObject enemy = PoolManagerTest.Instance.Rent(enemyPrefabsList[Random.Range(0, enemyPrefabsList.Count)]);
             enemy.transform.position = GetRandomSpawnLocation(validSpawnPointsList, boundsList);
-            enemySpawnCount++;
+            RegisterSpawn();
         }
     }
 

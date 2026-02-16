@@ -143,7 +143,7 @@ public class PoolManagerTest : MonoBehaviour
     {
         // -- DELETE BETWEEN LINES (TESTING PURPOSES ONLY) -- //
         totalReturnedCount++;
-        SpawnManagerTest.instance.enemySpawnCount--;
+        SpawnManagerTest.instance.UnregisterSpawn();
         UpdateUI();
         // -- DELETE BETWEEN LINES (TESTING PURPOSES ONLY) -- //
 
