@@ -26,9 +26,6 @@ public class SpawnManager : MonoBehaviour
     /// <summary>
     /// To Do List:
     /// • summary / how to use SpawnManager. / Directions
-    /// • Safe exit for spawn methods that can be called externally or if manager is disabled or destroyed. 
-    /// • Centralize decrement: make enemySpawnCount private and provide RegisterSpawn() / UnregisterSpawn(); 
-    /// have pooled enemy OnReleased call UnregisterSpawn.
     /// • 
     /// </summary>
     public static SpawnManager instance;
@@ -58,10 +55,14 @@ public class SpawnManager : MonoBehaviour
             return;
         }
     }
+    private void OnDisable()
+    {
+        DeadMansSwitch();
+    }
 
     // -- Main Methods -- //
 
-        // -- SpawnBurst() -- //
+    // -- SpawnBurst() -- //
     /// <summary>
     /// Spawns a set number of enemies at specified spawn points immediately.
     /// </summary>
@@ -464,4 +465,20 @@ public class SpawnManager : MonoBehaviour
             validSpawnPoints.Add(i);
         }
     }
+    /// <summary>
+    /// Stops all Coroutines created by the SpawnManager.    
+    /// </summary>
+    /// <remarks>I understand it's not a real 'Dead Man's Switch'. You can change the name if you'd like.</remarks>
+    private void DeadMansSwitch()
+    {
+        StopAllCoroutines();
+    }
+    /// <summary>
+    /// Stops all Coroutines created by the SpawnManager.    
+    /// </summary>
+    public void StopAllSpawning()
+    {
+        DeadMansSwitch();
+    }
+
 }

@@ -5,10 +5,23 @@ using UnityEngine;
 
 public class SpawnManagerTest : MonoBehaviour
 {
-    /// <summary>
-    /// To Do List:
-    /// summary / how to use SpawnManager.
+    ///<summary>
+    /// Feature List
+    /// •	SpawnBurst(...) overloads (immediate burst).
+    /// •	Spawn(...) overloads (pacing by spawns-per-second).
+    /// •	SpawnByDuration(...) overloads (fixed interval between spawns).
+    /// •	Uses object pool to Rent(GameObject) 
+    /// •	Stops early when enemySpawnCount >= maxEnemies.
+    /// •
     /// </summary>
+
+    /// <summary>
+    /// Directions
+    /// •	Hook up to your PoolManager.
+    /// •   Provide GameObjects with box colliders to use as spawn points
+    /// •   Make sure you decrement enemyspawncount.
+    /// </summary>
+    /// 
     public static SpawnManagerTest instance;
     [SerializeField] private WaitForSeconds _WaitForSeconds = new(.5f); // duration we wait incase there are no valid spawns.
     [SerializeField] int maxEnemies;
@@ -35,10 +48,14 @@ public class SpawnManagerTest : MonoBehaviour
             Destroy(gameObject);
         }
     }
+    private void OnDisable()
+    {
+        DeadMansSwitch();
+    }
 
     // -- Main Methods -- //
 
-        // -- SpawnBurst() -- //
+    // -- SpawnBurst() -- //
     /// <summary>
     /// Spawns a set number of enemies at specified spawn points immediately.
     /// </summary>
@@ -438,5 +455,9 @@ public class SpawnManagerTest : MonoBehaviour
             /// if it is valid, add it to the validSpawnPoints list. By default, everything is valid.
             validSpawnPoints.Add(i);
         }
+    }
+    public void DeadMansSwitch()
+    {
+        StopAllCoroutines();
     }
 }
