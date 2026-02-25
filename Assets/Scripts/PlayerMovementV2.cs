@@ -1,3 +1,4 @@
+using UnityEditor.Build;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -10,6 +11,7 @@ public class PlayerMovementV2 : MonoBehaviour
     //-- Input Actions --//  -- To add an action, make sure to add in OnDisable, OnEnable, and in StartErrorChecking.
     private InputAction lookAction;
     private InputAction moveAction;
+    private InputAction sprintAction;
     private InputAction jumpAction;
     private InputAction crouchAction;
     private InputAction proneAction;
@@ -20,7 +22,8 @@ public class PlayerMovementV2 : MonoBehaviour
     [SerializeField] private Transform cameraPivotTransform; // Drag your camera pivot here
 
     [Header("Movement Variables")]
-    [SerializeField] float currentMoveSpeed = 5f;
+    [SerializeField] float walkSpeed = 5f;
+    [SerializeField] float runSpeed = 9f;
     private Vector3 velocity; // used for gravity. Velocity.y persistant.
     // -- Specialty Methods -- //
 
@@ -37,6 +40,7 @@ public class PlayerMovementV2 : MonoBehaviour
     {
         lookAction?.Enable();
         moveAction?.Enable();
+        sprintAction?.Enable();
         jumpAction?.Enable();
         crouchAction?.Enable();
         proneAction?.Enable();
@@ -45,6 +49,7 @@ public class PlayerMovementV2 : MonoBehaviour
     {
         lookAction?.Disable();
         moveAction?.Disable();
+        sprintAction?.Disable();
         jumpAction?.Disable();
         crouchAction?.Disable();
         proneAction?.Disable();
@@ -83,7 +88,8 @@ public class PlayerMovementV2 : MonoBehaviour
         if (moveAction == null) return;
 
         Vector2 input = moveAction.ReadValue<Vector2>();
-        Vector3 inputMove = (transform.right * input.x + transform.forward * input.y) * currentMoveSpeed;
+        float speed = IsRunning() ? runSpeed : walkSpeed;
+        Vector3 inputMove = (transform.right * input.x + transform.forward * input.y) * speed;
         controller.Move((inputMove + velocity) * Time.deltaTime);
     }
     private void HandleProne()
@@ -116,12 +122,14 @@ public class PlayerMovementV2 : MonoBehaviour
         {
             moveAction = playerInput.actions["Move"];
             lookAction = playerInput.actions["Look"];
+            sprintAction = playerInput.actions["Sprint"];
             jumpAction = playerInput.actions["Jump"];
             crouchAction = playerInput.actions["Crouch"];
             proneAction = playerInput.actions["Prone"];
 
-            if (moveAction == null) Debug.LogError("[PlayerMovementV2] Move action not found.");
             if (lookAction == null) Debug.LogError("[PlayerMovementV2] Look action not found.");
+            if (moveAction == null) Debug.LogError("[PlayerMovementV2] Move action not found.");
+            if (sprintAction == null) Debug.LogError("[PlayerMovementV2] Sprint action not found.");
             if (jumpAction == null) Debug.LogError("[PlayerMovementV2] Jump action not found.");
             if (crouchAction == null) Debug.LogError("[PlayerMovementV2] Crouch action not found.");
             if (proneAction == null) Debug.LogError("[PlayerMovementV2] Prone action not found.");
@@ -130,5 +138,9 @@ public class PlayerMovementV2 : MonoBehaviour
         {
             Debug.LogError("[PlayerMovementV2] Unable to find PlayerInput.");
         }
+    }
+    private bool IsRunning()
+    {
+        return sprintAction.IsPressed() && moveAction.ReadValue<Vector2>().magnitude > 0.1f;
     }
 }
