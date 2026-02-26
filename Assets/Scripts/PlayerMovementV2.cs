@@ -1,4 +1,3 @@
-using UnityEditor.Build;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -24,6 +23,11 @@ public class PlayerMovementV2 : MonoBehaviour
     [Header("Movement Variables")]
     [SerializeField] float walkSpeed = 5f;
     [SerializeField] float runSpeed = 9f;
+
+    [Tooltip("This is movement speed while aireborn.")]
+    [SerializeField] float airSpeed = 5f;
+    [SerializeField] float gravity = -9.81f;
+    [SerializeField] float jumpHeight = 1f;
     private Vector3 velocity; // used for gravity. Velocity.y persistant.
     // -- Specialty Methods -- //
 
@@ -33,6 +37,7 @@ public class PlayerMovementV2 : MonoBehaviour
     }
     void Update()
     {
+        ApplyGravity();
         UpdateState();
         HandleState();
     }
@@ -56,10 +61,40 @@ public class PlayerMovementV2 : MonoBehaviour
     }
 
     // -- Main Methods -- //
+    private void HandleAirborne()
+    {
+        Vector2 input = moveAction.ReadValue<Vector2>();
+        Vector3 inputMove = (transform.right * input.x + transform.forward * input.y) * walkSpeed;
+        controller.Move((inputMove + velocity) * Time.deltaTime);
+    }
+    private void HandleCrouching()
+    {
 
+    }
+    private void HandleGrounded()
+    {
+        HandleJump();
+        Vector2 input = moveAction.ReadValue<Vector2>();
+        float speed = IsRunning() ? runSpeed : walkSpeed;
+        Vector3 inputMove = (transform.right * input.x + transform.forward * input.y) * speed;
+        controller.Move((inputMove + velocity) * Time.deltaTime);
+        
+    }
+    private void HandleJump()
+    {
+        if (jumpAction.WasPressedThisFrame()) // WasPressedThisFrame gets us a single press even if the button is held.
+        {
+            velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+            currentState = MovementState.Airborne;
+        }
+    }
+    private void HandleProne()
+    {
+
+    }
     private void HandleState()
     {
-        switch(currentState)
+        switch (currentState)
         {
             case MovementState.Airborne:
                 HandleAirborne();
@@ -74,27 +109,6 @@ public class PlayerMovementV2 : MonoBehaviour
                 HandleProne();
                 break;
         }
-    }
-    private void HandleAirborne()
-    {
-
-    }
-    private void HandleCrouching()
-    {
-
-    }
-    private void HandleGrounded()
-    {
-        if (moveAction == null) return;
-
-        Vector2 input = moveAction.ReadValue<Vector2>();
-        float speed = IsRunning() ? runSpeed : walkSpeed;
-        Vector3 inputMove = (transform.right * input.x + transform.forward * input.y) * speed;
-        controller.Move((inputMove + velocity) * Time.deltaTime);
-    }
-    private void HandleProne()
-    {
-
     }
     private void UpdateState()
     {
@@ -112,6 +126,18 @@ public class PlayerMovementV2 : MonoBehaviour
     }
 
     // -- Supplemental Methods -- //
+    private void ApplyGravity()
+    {
+        if (controller.isGrounded && velocity.y < 0)
+        {
+            velocity.y = -2f;
+        }                
+        velocity.y += gravity * Time.deltaTime;
+    }
+    private bool IsRunning()
+    {
+        return sprintAction.IsPressed() && moveAction.ReadValue<Vector2>().magnitude > 0.1f;
+    }
     private void StartErrorChecking()
     {
         if (controller == null) Debug.LogError("[PlayerMovementV2] CharacterController not assigned.");
@@ -139,8 +165,5 @@ public class PlayerMovementV2 : MonoBehaviour
             Debug.LogError("[PlayerMovementV2] Unable to find PlayerInput.");
         }
     }
-    private bool IsRunning()
-    {
-        return sprintAction.IsPressed() && moveAction.ReadValue<Vector2>().magnitude > 0.1f;
-    }
+
 }
