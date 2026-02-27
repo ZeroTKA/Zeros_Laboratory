@@ -4,8 +4,10 @@ using UnityEngine.InputSystem;
 
 public class PlayerMovementV2 : MonoBehaviour
 {
-    private enum MovementState { Grounded, Airborne, Crouching, Prone }
+    private enum MovementState { Grounded, Airborne }
+    private enum Stance { Standing, Crouching, Proning }
     private MovementState currentState;
+    private Stance currentStance;
 
     //-- Input Actions --//  -- To add an action, make sure to add in OnDisable, OnEnable, and in StartErrorChecking.
     private InputAction lookAction;
@@ -19,10 +21,18 @@ public class PlayerMovementV2 : MonoBehaviour
     [SerializeField] private CharacterController controller; // Drag your character controller here
     [SerializeField] private Camera playerCamera; // Drag your player camera here
     [SerializeField] private Transform cameraPivotTransform; // Drag your camera pivot here
+    private Vector3 standingColliderCenter;
+    private float standingColliderHeight;
+    [SerializeField] float standHeight = .4f; // camera's perspective
+    [SerializeField] float crouchHeight = .29f; // camera's perspective
+    [SerializeField] float proneHeight = .1f; // camera's perspective
 
     [Header("Movement Variables")]
     [SerializeField] float walkSpeed = 5f;
     [SerializeField] float runSpeed = 9f;
+    [SerializeField] float crouchSpeed = 4f;
+    [SerializeField] float proneSpeed = 2f;
+    float baseSpeed;
 
     [Tooltip("This is movement speed while aireborn.")]
     [SerializeField] float airSpeed = 5f;
@@ -34,6 +44,9 @@ public class PlayerMovementV2 : MonoBehaviour
     private void Awake()
     {
         StartErrorChecking();
+        standingColliderHeight = controller.height; // grabbing the initial height for the controller at a standing position. Assuming it starts standing.
+        standingColliderCenter = controller.center;
+        baseSpeed = walkSpeed;
     }
     void Update()
     {
@@ -64,21 +77,30 @@ public class PlayerMovementV2 : MonoBehaviour
     private void HandleAirborne()
     {
         Vector2 input = moveAction.ReadValue<Vector2>();
-        Vector3 inputMove = (transform.right * input.x + transform.forward * input.y) * walkSpeed;
+        Vector3 inputMove = (transform.right * input.x + transform.forward * input.y) * airSpeed;
         controller.Move((inputMove + velocity) * Time.deltaTime);
-    }
-    private void HandleCrouching()
-    {
-
     }
     private void HandleGrounded()
     {
-        HandleJump();
+        if (crouchAction.WasPressedThisFrame())
+        {
+            currentStance = currentStance == Stance.Crouching ? Stance.Standing : Stance.Crouching;
+            SetStance(currentStance);
+        }
+        if (proneAction.WasPressedThisFrame())
+        {
+            currentStance = currentStance == Stance.Proning ? Stance.Standing : Stance.Proning;
+            SetStance(currentStance);
+        }
+        if (currentStance == Stance.Standing) // only allow jumping and running while standing
+        {
+            HandleJump();
+            baseSpeed = IsRunning() ? runSpeed : walkSpeed;
+        }
         Vector2 input = moveAction.ReadValue<Vector2>();
-        float speed = IsRunning() ? runSpeed : walkSpeed;
-        Vector3 inputMove = (transform.right * input.x + transform.forward * input.y) * speed;
+        Vector3 inputMove = (transform.right * input.x + transform.forward * input.y) * baseSpeed;
         controller.Move((inputMove + velocity) * Time.deltaTime);
-        
+
     }
     private void HandleJump()
     {
@@ -88,10 +110,6 @@ public class PlayerMovementV2 : MonoBehaviour
             currentState = MovementState.Airborne;
         }
     }
-    private void HandleProne()
-    {
-
-    }
     private void HandleState()
     {
         switch (currentState)
@@ -99,14 +117,8 @@ public class PlayerMovementV2 : MonoBehaviour
             case MovementState.Airborne:
                 HandleAirborne();
                 break;
-            case MovementState.Crouching:
-                HandleCrouching();
-                break;
             case MovementState.Grounded:
                 HandleGrounded();
-                break;
-            case MovementState.Prone:
-                HandleProne();
                 break;
         }
     }
@@ -131,7 +143,7 @@ public class PlayerMovementV2 : MonoBehaviour
         if (controller.isGrounded && velocity.y < 0)
         {
             velocity.y = -2f;
-        }                
+        }
         velocity.y += gravity * Time.deltaTime;
     }
     private bool IsRunning()
@@ -163,6 +175,47 @@ public class PlayerMovementV2 : MonoBehaviour
         else
         {
             Debug.LogError("[PlayerMovementV2] Unable to find PlayerInput.");
+        }
+    }
+    private void SetStance(Stance stance)
+    {
+        if (controller == null) return;
+
+        switch (stance)
+        {
+            case Stance.Standing:
+
+                controller.height = standingColliderHeight;
+                controller.center = standingColliderCenter;
+                break;
+
+            case Stance.Crouching:
+                {
+                    float cameraDelta = standHeight - crouchHeight;
+                    float targetControllerHeight = standingColliderHeight - cameraDelta;
+                    Vector3 targetCenter = new(
+                        standingColliderCenter.x,
+                        standingColliderCenter.y - cameraDelta / 2f,
+                        standingColliderCenter.z);
+                    controller.height = targetControllerHeight;
+                    controller.center = targetCenter;
+                    baseSpeed = crouchSpeed;
+                }
+                break;
+
+            case Stance.Proning:
+                {
+                    float cameraDelta = standHeight - proneHeight;
+                    float targetControllerHeight = standingColliderHeight - cameraDelta;
+                    Vector3 targetCenter = new(
+                        standingColliderCenter.x,
+                        standingColliderCenter.y - cameraDelta / 2f,
+                        standingColliderCenter.z);
+                    controller.height = targetControllerHeight;
+                    controller.center = targetCenter;
+                    baseSpeed = proneSpeed;
+                }
+                break;
         }
     }
 
