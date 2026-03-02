@@ -1611,6 +1611,7 @@ GameObject:
   - component: {fileID: 345873196}
   - component: {fileID: 345873200}
   - component: {fileID: 345873201}
+  - component: {fileID: 345873202}
   m_Layer: 0
   m_Name: PlayerBody
   m_TagString: Player
@@ -1723,7 +1724,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 345873194}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0866847b9c4037c43b1ed4586d0b1d74, type: 3}
   m_Name: 
@@ -1766,6 +1767,31 @@ MonoBehaviour:
   m_DefaultActionMap: 
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
+--- !u!114 &345873202
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 345873194}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6ab022d461b112645a638911663c580b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerMovementV2
+  controller: {fileID: 345873196}
+  playerCamera: {fileID: 1823688466}
+  cameraPivotTransform: {fileID: 1468296295}
+  standHeight: 0.4
+  crouchHeight: 0.29
+  proneHeight: 0.1
+  walkSpeed: 5
+  runSpeed: 9
+  crouchSpeed: 4
+  proneSpeed: 2
+  airSpeed: 5
+  gravity: -9.81
+  jumpHeight: 1
 --- !u!1 &375541872
 GameObject:
   m_ObjectHideFlags: 0

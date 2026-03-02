@@ -6,8 +6,10 @@ public class PlayerMovementV2 : MonoBehaviour
 {
     private enum MovementState { Grounded, Airborne }
     private enum Stance { Standing, Crouching, Proning }
+    private enum Mobility { None, Sliding, Vaulting, WallRunning }
     private MovementState currentState;
     private Stance currentStance;
+    private Mobility mobility;
 
     //-- Input Actions --//  -- To add an action, make sure to add in OnDisable, OnEnable, and in StartErrorChecking.
     private InputAction lookAction;
@@ -26,6 +28,11 @@ public class PlayerMovementV2 : MonoBehaviour
     [SerializeField] float standHeight = .4f; // camera's perspective
     [SerializeField] float crouchHeight = .29f; // camera's perspective
     [SerializeField] float proneHeight = .1f; // camera's perspective
+
+    [Header("Look Variables")]
+    [SerializeField] float mouseSensitivity = 6f;
+    [SerializeField] float cameraLerpSpeed = 5f;
+    float xRotation = 0f;
 
     [Header("Movement Variables")]
     [SerializeField] float walkSpeed = 5f;
@@ -46,11 +53,14 @@ public class PlayerMovementV2 : MonoBehaviour
         StartErrorChecking();
         standingColliderHeight = controller.height; // grabbing the initial height for the controller at a standing position. Assuming it starts standing.
         standingColliderCenter = controller.center;
+        Cursor.lockState = CursorLockMode.Locked;
         baseSpeed = walkSpeed;
     }
     void Update()
     {
         ApplyGravity();
+        HandleLook();
+        ChangeCameraHeight();
         UpdateState();
         HandleState();
     }
@@ -110,6 +120,19 @@ public class PlayerMovementV2 : MonoBehaviour
             currentState = MovementState.Airborne;
         }
     }
+    private void HandleLook()
+    {
+        Vector2 mouseDelta = mouseSensitivity * Time.deltaTime * lookAction.ReadValue<Vector2>();
+
+        // Horizontal rotation (Y-axis)
+        transform.Rotate(Vector3.up * mouseDelta.x);
+
+        // Vertical rotation (X-axis)
+        
+        xRotation -= mouseDelta.y;
+        xRotation = Mathf.Clamp(xRotation, -80f, 80f);
+        cameraPivotTransform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
+    }
     private void HandleState()
     {
         switch (currentState)
@@ -145,6 +168,20 @@ public class PlayerMovementV2 : MonoBehaviour
             velocity.y = -2f;
         }
         velocity.y += gravity * Time.deltaTime;
+    }
+    private void ChangeCameraHeight()
+    {
+        float targetHeight;
+        if (currentStance == Stance.Proning) targetHeight = proneHeight;
+        else if (currentStance == Stance.Crouching) targetHeight = crouchHeight;
+        else targetHeight = standHeight;
+
+        Vector3 pos = cameraPivotTransform.localPosition;
+        if (Mathf.Abs(pos.y - targetHeight) > 0.001f)
+        {
+            pos.y = Mathf.Lerp(pos.y, targetHeight, Time.deltaTime * cameraLerpSpeed);
+            cameraPivotTransform.localPosition = pos;
+        }
     }
     private bool IsRunning()
     {
