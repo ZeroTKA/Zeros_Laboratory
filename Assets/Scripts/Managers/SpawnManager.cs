@@ -29,7 +29,9 @@ public class SpawnManager : MonoBehaviour
     /// • 
     /// </summary>
     public static SpawnManager instance;
-    [SerializeField] private WaitForSeconds _WaitForSeconds = new(.5f); // duration we wait incase there are no valid spawns.
+    [Tooltip("Duration we wait incase there are no valid spawns.")]
+    [SerializeField] private WaitForSeconds _WaitForSeconds = new(.5f);
+    [Tooltip("Maximum enemies allowed at once. Helps prevent too many things on screen at once.")]
     [SerializeField] int maxEnemies;
     private int _enemySpawnCount = 0;
     public int EnemySpawnCount => _enemySpawnCount;
@@ -57,7 +59,7 @@ public class SpawnManager : MonoBehaviour
     }
     private void OnDisable()
     {
-        DeadMansSwitch();
+        StopAllSpawning();
     }
 
     // -- Main Methods -- //
