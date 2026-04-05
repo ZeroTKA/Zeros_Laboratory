@@ -46,8 +46,10 @@ public class PoolManager : MonoBehaviour
     }
 
     // -- Transform References -- //
-    [SerializeField] private Transform masterPool; // this is the parent object that all pools go under.
-    [SerializeField] private int maxPoolSize; // Logs warnings if a pool gets too big. This helps spot faulty logic with run-away pools.
+    [Tooltip("The main parent object all pools go under.")]
+    [SerializeField] private Transform masterPool;
+    [Tooltip("Logs warnings if a pool gets too big. Helps prevent fault logic with run-away pools.")]
+    [SerializeField] private int maxPoolSize;
 
     // -- Dictionary -- //
     private readonly Dictionary<PoolType, List<GameObject>> poolLists = new(); // our list of all objects per pool.
