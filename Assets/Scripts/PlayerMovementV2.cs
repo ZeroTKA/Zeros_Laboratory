@@ -20,30 +20,50 @@ public class PlayerMovementV2 : MonoBehaviour
     private InputAction proneAction;
 
     [Header("Character Setup")]
-    [SerializeField] private CharacterController controller; // Drag your character controller here
-    [SerializeField] private Camera playerCamera; // Drag your player camera here
-    [SerializeField] private Transform cameraPivotTransform; // Drag your camera pivot here
+    ///<summary>
+    ///Idea for this character set up
+    /// |__ playerBody
+    ///    |__cameraPivotTransform
+    ///       |__playerCamera
+    /// </summary>
+    [Tooltip("The controller used for the character.")]
+    [SerializeField] private CharacterController controller; 
+    [Tooltip("Camera associated with the character.")]
+    [SerializeField] private Camera playerCamera;
+    [Tooltip("Parent transform of the camera pivot. Manipulated directly for camera behavior.")]
+    [SerializeField] private Transform cameraPivotTransform; 
     private Vector3 standingColliderCenter;
     private float standingColliderHeight;
+    [Tooltip("Local Y position of the camera pivot when standing.")]
     [SerializeField] float standHeight = .4f; // camera's perspective
+    [Tooltip("Local Y position of the camera pivot when crouching.")]
     [SerializeField] float crouchHeight = .29f; // camera's perspective
+    [Tooltip("Local Y position of the camera pivot when proning.")]
     [SerializeField] float proneHeight = .1f; // camera's perspective
 
     [Header("Look Variables")]
+    [Tooltip("Mouse sensitivity multiplier. Higher values move the camera faster.")]
     [SerializeField] float mouseSensitivity = 6f;
+    [Tooltip("How quickly the camera transitions between stances. Higher values snap faster.")]
     [SerializeField] float cameraLerpSpeed = 5f;
     float xRotation = 0f;
 
     [Header("Movement Variables")]
+    [Tooltip("Movement speed while walking, in meters per second")]
     [SerializeField] float walkSpeed = 5f;
+    [Tooltip("Movement speed while running, in meters per second")]
     [SerializeField] float runSpeed = 9f;
+    [Tooltip("Movement speed while crouching, in meters per second")]
     [SerializeField] float crouchSpeed = 4f;
+    [Tooltip("Movement speed while proning, in meters per second")]
     [SerializeField] float proneSpeed = 2f;
     float baseSpeed;
 
-    [Tooltip("This is movement speed while aireborn.")]
+    [Tooltip("Movement speed while airborne, in meters per second")]
     [SerializeField] float airSpeed = 5f;
+    [Tooltip("Gravity applied every frame (negative value pulls downward).")]
     [SerializeField] float gravity = -9.81f;
+    [Tooltip("How high the character can jump, in meters.")]
     [SerializeField] float jumpHeight = 1f;
     private Vector3 velocity; // used for gravity. Velocity.y persistant.
     // -- Specialty Methods -- //
