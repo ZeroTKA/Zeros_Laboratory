@@ -1612,6 +1612,7 @@ GameObject:
   - component: {fileID: 345873200}
   - component: {fileID: 345873201}
   - component: {fileID: 345873202}
+  - component: {fileID: 345873203}
   m_Layer: 0
   m_Name: PlayerBody
   m_TagString: Player
@@ -1785,6 +1786,8 @@ MonoBehaviour:
   standHeight: 0.4
   crouchHeight: 0.29
   proneHeight: 0.1
+  mouseSensitivity: 6
+  cameraLerpSpeed: 5
   walkSpeed: 5
   runSpeed: 9
   crouchSpeed: 4
@@ -1792,6 +1795,18 @@ MonoBehaviour:
   airSpeed: 5
   gravity: -9.81
   jumpHeight: 1
+--- !u!114 &345873203
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 345873194}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee70b73b04e7fc44aa8af5544f0d0b94, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Shooting
 --- !u!1 &375541872
 GameObject:
   m_ObjectHideFlags: 0

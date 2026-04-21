@@ -10,8 +10,21 @@ public class Shooting : MonoBehaviour
     {
         StartErrorChecking();
     }
+    // -- Main Methods -- //
+    void Shoot()
+    { 
     
+    }    
+    void Reload()
+    {
 
+    }
+
+    //-- Supplemental Methods --//
+    /// <summary>
+    /// Initializes error checking for the script.
+    /// </summary>
+    /// <remarks>We try to catch nulls when we start.</remarks>
     void StartErrorChecking()
     {
         if (TryGetComponent<PlayerInput>(out var playerInput))
