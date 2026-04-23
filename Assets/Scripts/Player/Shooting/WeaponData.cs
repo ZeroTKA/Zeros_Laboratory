@@ -23,15 +23,20 @@ public class WeaponData : ScriptableObject
         Projectile
     }
 
-    [SerializeField] private FireModes _availableFireModes;
+    [Header("Shoot Settings")]
     [SerializeField] private ShootTypes _shootType;
-    [SerializeField] private float _fireRate;
+    [SerializeField] private GameObject _projectilePrefab;
+
+    [Header("Fire Settings")]
+    [SerializeField] private FireModes _availableFireModes;
     [SerializeField] private int _burstCount;
     [SerializeField] private float _burstDelay;
+    [SerializeField] private float _fireRate;
+
+    [Header("Ammo Settings")]
     [SerializeField] private float _reloadTime;
     [SerializeField] private int _clipSize;
     [SerializeField] private int _totalAmmoCapacity;
-    [SerializeField] private GameObject _projectilePrefab;
 
     public FireModes AvailableFireModes => _availableFireModes;
     public ShootTypes ShootType => _shootType;
@@ -42,4 +47,9 @@ public class WeaponData : ScriptableObject
     public int ClipSize => _clipSize;
     public int TotalAmmoCapacity => _totalAmmoCapacity;
     public GameObject ProjectilePrefab => _projectilePrefab;
+
+    private void OnValidate()
+    {
+        
+    }
 }
