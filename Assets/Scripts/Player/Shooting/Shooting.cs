@@ -8,7 +8,7 @@ public class Shooting : MonoBehaviour
 
     [SerializeField] Camera mainCamera;
     [SerializeField] WeaponData weaponData; // Scriptable object for your weapon's data
-    [SerializeField] AmmoHandler ammoHandler;
+    [SerializeField] AmmoHandler AmmoHandler;
 
     WeaponData.FireModes currentFireMode = WeaponData.FireModes.Semi;
     float timeWhenWeCanShoot = 0f;
@@ -33,7 +33,7 @@ public class Shooting : MonoBehaviour
     // -- Main Methods -- //
     void HandleShooting()
     {
-        if (ammoHandler.AmmoInClip == 0) { return; }
+        if (AmmoHandler.AmmoInClip == 0) { return; }
         if (Time.time < timeWhenWeCanShoot) { return; }
 
         switch (currentFireMode)
@@ -66,10 +66,10 @@ public class Shooting : MonoBehaviour
             if (Physics.Raycast(ray, out RaycastHit hit, weaponData.Range))
             {
                 Debug.Log(hit.collider.gameObject.name);
+                // do something with what you hit.
             }
-
-
             timeWhenWeCanShoot = Time.time + (1f / weaponData.FireRate);
+            AmmoHandler.AShotWasFired();
         }
     }
     void ShootingBurst()
@@ -92,10 +92,6 @@ public class Shooting : MonoBehaviour
     }
 
     //-- Supplemental Methods --//
-    bool CanShoot()
-    {
-        return true;
-    }
     /// <summary>
     /// Initializes error checking for the script.
     /// </summary>
