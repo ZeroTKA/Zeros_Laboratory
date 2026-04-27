@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -18,10 +19,10 @@ public class Shooting : MonoBehaviour
 
     [SerializeField] Camera mainCamera;
     [SerializeField] WeaponData weaponData; // Scriptable object for your weapon's data
-    [SerializeField] AmmoHandler AmmoHandler;
+    [SerializeField] AmmoHandler ammoHandler;
 
     WeaponData.FireModes currentFireMode = WeaponData.FireModes.Semi;
-    float timeWhenWeCanShoot = 0f;
+    private float timeWhenWeCanShoot = 0f;
 
     // -- Specialty Methods -- //
     void Awake()
@@ -39,11 +40,15 @@ public class Shooting : MonoBehaviour
         shootAction?.Disable();
     }
 
+    private void Update()
+    {
+        HandleShooting();
+    }
 
     // -- Main Methods -- //
-    void HandleShooting()
+    private void HandleShooting()
     {
-        if (AmmoHandler.AmmoInClip == 0) { return; }
+        if (ammoHandler.AmmoInClip == 0) { return; }
         if (Time.time < timeWhenWeCanShoot) { return; }
 
         switch (currentFireMode)
@@ -53,60 +58,56 @@ public class Shooting : MonoBehaviour
                 break;
             case WeaponData.FireModes.Burst:
                 ShootingBurst();
-                break;
+                return; // Returning here prevents HandleShooting() from writing to timeWhenWeCanShoot prematurely.
             case WeaponData.FireModes.Auto:
                 ShootingAuto();
                 break;
         }
-    }
-    void Reload()
-    {
-
+        timeWhenWeCanShoot = Time.time + (1f / weaponData.FireRate);
     }
     /// <summary>
     /// Performs a single-shot firing action if the shoot input was pressed during the current frame.
     /// </summary>
     /// <remarks>This is a Raycasting method. Also note, if the player clicks faster than the fire rate, that click is disregarded completley. 
     /// This is intended to prevent semi-auto weapons being used as autos.</remarks>
-    void ShootingSemi()
+    private void ShootingSemi()
     {
         if (shootAction.WasPressedThisFrame())
         {
-            Ray ray = new(mainCamera.transform.position, mainCamera.transform.forward);
-            if (Physics.Raycast(ray, out RaycastHit hit, weaponData.Range))
-            {
-                Debug.Log(hit.collider.gameObject.name);
-                // do something with what you hit.
-            }
-            timeWhenWeCanShoot = Time.time + (1f / weaponData.FireRate);
-            OnShoot?.Invoke(); 
+            RaycastShot();
         }
     }
-    void ShootingBurst()
+    private void ShootingBurst()
+    {
+        if (shootAction.WasPressedThisFrame())
+        {
+            StartCoroutine(BurstShot());
+        }
+    }
+    private void ShootingAuto()
     {
         if (shootAction.IsPressed())
         {
-            // do burst things with coroutines?
-        }
-    }
-    void ShootingAuto()
-    {
-        if (shootAction.IsPressed())
-        {
-            Ray ray = new(mainCamera.transform.position, mainCamera.transform.forward);
-            if (Physics.Raycast(ray, out RaycastHit hit, weaponData.Range))
-            {
-                Debug.Log(hit.collider.gameObject.name);
-            }
+            RaycastShot();            
         }
     }
 
-    //-- Supplemental Methods --//
+    // -- Supplemental Methods -- //
+    private void RaycastShot()
+    {
+        Ray ray = new(mainCamera.transform.position, mainCamera.transform.forward);
+        if (Physics.Raycast(ray, out RaycastHit hit, weaponData.Range))
+        {
+            Debug.Log(hit.collider.gameObject.name);
+            // do something with what you hit.
+        }        
+        OnShoot?.Invoke();
+    }
     /// <summary>
     /// Initializes error checking for the script.
     /// </summary>
     /// <remarks>We try to catch nulls when we start.</remarks>
-    void StartErrorChecking()
+    private void StartErrorChecking()
     {
         if (TryGetComponent<PlayerInput>(out var playerInput))
         {
@@ -126,5 +127,24 @@ public class Shooting : MonoBehaviour
         {
             Debug.LogError("[Shooting] Weapon Data is null.");
         }
+        if (ammoHandler == null)
+        {
+            Debug.LogError("[Shooting] Ammo Handler is null.");
+        }
+    }
+
+    // -- Coroutines -- //
+    /// <summary>
+    /// Burst shot handles timeWhenWeCanShoot on its own. Otherwise HandleShooting() would prematurely write to it.
+    /// </summary>
+    private IEnumerator BurstShot()
+    {
+        float burstDelay = weaponData.BurstDelay;
+        for(int i = 0; i < weaponData.BurstCount; i++)
+        {
+            RaycastShot();
+            yield return new WaitForSeconds(burstDelay);
+        }
+        timeWhenWeCanShoot = Time.time + (1f / weaponData.FireRate);                                                                      
     }
 }

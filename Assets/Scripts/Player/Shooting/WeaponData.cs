@@ -28,9 +28,11 @@ public class WeaponData : ScriptableObject
     [Header("Fire Settings")]
     [SerializeField] private FireModes _availableFireModes;
     [SerializeField] private int _burstCount;
+    [Tooltip("In seconds")]
     [SerializeField] private float _burstDelay;
     [Tooltip("Shots per second")]
     [SerializeField] private float _fireRate;
+    [Tooltip("In meters")]
     [SerializeField] private int _range;
 
     [Header("Ammo Settings")]
