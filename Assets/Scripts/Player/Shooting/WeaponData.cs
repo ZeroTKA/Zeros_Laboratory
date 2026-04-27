@@ -1,7 +1,4 @@
 using UnityEngine;
-using UnityEngine.Rendering.HighDefinition;
-
-
 
 [CreateAssetMenu(fileName = "WeaponData", menuName = "Scriptable Objects/WeaponData")]
 public class WeaponData : ScriptableObject
@@ -32,6 +29,7 @@ public class WeaponData : ScriptableObject
     [SerializeField] private FireModes _availableFireModes;
     [SerializeField] private int _burstCount;
     [SerializeField] private float _burstDelay;
+    [Tooltip("Shots per second")]
     [SerializeField] private float _fireRate;
     [SerializeField] private int _range;
 

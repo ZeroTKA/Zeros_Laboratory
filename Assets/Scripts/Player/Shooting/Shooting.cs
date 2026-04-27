@@ -11,6 +11,7 @@ public class Shooting : MonoBehaviour
     [SerializeField] AmmoHandler ammoHandler;
 
     WeaponData.FireModes currentFireMode = WeaponData.FireModes.Semi;
+    float timeWhenWeCanShoot = 0f;
 
     // -- Specialty Methods -- //
     void Awake()
@@ -33,11 +34,12 @@ public class Shooting : MonoBehaviour
     void HandleShooting()
     {
         if (ammoHandler.AmmoInClip == 0) { return; }
+        if (Time.time < timeWhenWeCanShoot) { return; }
 
         switch (currentFireMode)
         {
             case WeaponData.FireModes.Semi:
-                ShootingSemi();
+                ShootingSemi(); // see summary about dropping clicks that are too fast
                 break;
             case WeaponData.FireModes.Burst:
                 ShootingBurst();
@@ -51,6 +53,11 @@ public class Shooting : MonoBehaviour
     {
 
     }
+    /// <summary>
+    /// Performs a single-shot firing action if the shoot input was pressed during the current frame.
+    /// </summary>
+    /// <remarks>This is a Raycasting method. Also note, if the player clicks faster than the fire rate, that click is disregarded completley. 
+    /// This is intended to prevent semi-auto weapons being used as autos.</remarks>
     void ShootingSemi()
     {
         if (shootAction.WasPressedThisFrame())
@@ -60,6 +67,9 @@ public class Shooting : MonoBehaviour
             {
                 Debug.Log(hit.collider.gameObject.name);
             }
+
+
+            timeWhenWeCanShoot = Time.time + (1f / weaponData.FireRate);
         }
     }
     void ShootingBurst()
@@ -82,7 +92,10 @@ public class Shooting : MonoBehaviour
     }
 
     //-- Supplemental Methods --//
-
+    bool CanShoot()
+    {
+        return true;
+    }
     /// <summary>
     /// Initializes error checking for the script.
     /// </summary>
