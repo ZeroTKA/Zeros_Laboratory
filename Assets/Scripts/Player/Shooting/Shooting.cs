@@ -25,6 +25,7 @@ public class Shooting : MonoBehaviour
 
     private WeaponData.FireModes currentFireMode;
     private float timeWhenWeCanShoot = 0f;
+    private bool isBursting = false;
 
     private List<WeaponData.FireModes> fireModeList = new();
 
@@ -66,8 +67,12 @@ public class Shooting : MonoBehaviour
                 ShootingSemi(); // see summary about dropping clicks that are too fast
                 break;
             case WeaponData.FireModes.Burst:
-                ShootingBurst();
-                return; // Returning here prevents HandleShooting() from writing to timeWhenWeCanShoot prematurely.
+                if(!isBursting)
+                {                    
+                    ShootingBurst();
+                    return; // Returning here prevents HandleShooting() from writing to timeWhenWeCanShoot prematurely.
+                }
+                break;
             case WeaponData.FireModes.Auto:
                 ShootingAuto();
                 break;
@@ -90,6 +95,7 @@ public class Shooting : MonoBehaviour
     {
         if (shootAction.WasPressedThisFrame())
         {
+            isBursting = true;
             StartCoroutine(BurstShot());
         }
     }
@@ -164,6 +170,7 @@ public class Shooting : MonoBehaviour
             RaycastShot();
             yield return new WaitForSeconds(burstDelay);
         }
-        timeWhenWeCanShoot = Time.time + (1f / weaponData.FireRate);                                                                      
+        timeWhenWeCanShoot = Time.time + (1f / weaponData.FireRate);
+        isBursting = false;
     }
 }
