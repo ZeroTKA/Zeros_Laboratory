@@ -1,8 +1,18 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class Shooting : MonoBehaviour
 {
+    /// <summary>
+    /// Fired every time a shot is taken.
+    /// Default subscriptions: 
+    /// AmmoHandler // I'm aware we have a reference already in script. The idea is to have AmmoHandler.AShotWasFired()
+    ///                be private to avoid accidentially being called and causing a rukus.
+    /// To subscribe: Shooting.OnShoot += YourMethod; // this goes in your script
+    /// To unsubscribe: Shooting.OnShoot -= YourMethod; // this goes in your script
+    /// </summary>
+    public event Action OnShoot;
     // -- Input Actions -- //  -- To add an action, make sure to add in OnDisable, OnEnable, and in StartErrorChecking.
     private InputAction shootAction;
 
@@ -69,7 +79,7 @@ public class Shooting : MonoBehaviour
                 // do something with what you hit.
             }
             timeWhenWeCanShoot = Time.time + (1f / weaponData.FireRate);
-            AmmoHandler.AShotWasFired();
+            OnShoot?.Invoke(); 
         }
     }
     void ShootingBurst()
