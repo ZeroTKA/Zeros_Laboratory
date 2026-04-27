@@ -8,6 +8,7 @@ public class Shooting : MonoBehaviour
 
     [SerializeField] Camera mainCamera;
     [SerializeField] WeaponData weaponData; // Scriptable object for your weapon's data
+    [SerializeField] AmmoHandler ammoHandler;
 
     WeaponData.FireModes currentFireMode = WeaponData.FireModes.Semi;
 
@@ -31,7 +32,9 @@ public class Shooting : MonoBehaviour
     // -- Main Methods -- //
     void HandleShooting()
     {
-        switch(currentFireMode)
+        if (ammoHandler.AmmoInClip == 0) { return; }
+
+        switch (currentFireMode)
         {
             case WeaponData.FireModes.Semi:
                 ShootingSemi();
@@ -42,17 +45,17 @@ public class Shooting : MonoBehaviour
             case WeaponData.FireModes.Auto:
                 ShootingAuto();
                 break;
-        }     
-    }    
+        }
+    }
     void Reload()
     {
 
     }
     void ShootingSemi()
     {
-        if(shootAction.WasPressedThisFrame())
+        if (shootAction.WasPressedThisFrame())
         {
-            Ray ray = new(Camera.main.transform.position, Camera.main.transform.forward);
+            Ray ray = new(mainCamera.transform.position, mainCamera.transform.forward);
             if (Physics.Raycast(ray, out RaycastHit hit, weaponData.Range))
             {
                 Debug.Log(hit.collider.gameObject.name);
@@ -61,16 +64,16 @@ public class Shooting : MonoBehaviour
     }
     void ShootingBurst()
     {
-        if(shootAction.IsPressed())
+        if (shootAction.IsPressed())
         {
             // do burst things with coroutines?
         }
     }
     void ShootingAuto()
     {
-        if(shootAction.IsPressed())
+        if (shootAction.IsPressed())
         {
-            Ray ray = new(Camera.main.transform.position, Camera.main.transform.forward);
+            Ray ray = new(mainCamera.transform.position, mainCamera.transform.forward);
             if (Physics.Raycast(ray, out RaycastHit hit, weaponData.Range))
             {
                 Debug.Log(hit.collider.gameObject.name);
@@ -93,13 +96,14 @@ public class Shooting : MonoBehaviour
         }
         else
         {
-            Debug.LogError("[Shootin] Unable to find PlayerInput.");
+            Debug.LogError("[Shooting] Unable to find PlayerInput attached to this object.");
         }
         if (mainCamera == null)
         {
             mainCamera = Camera.main;
+            Debug.LogWarning("[Shooting] Main camera not set, setting to camera.main");
         }
-        if(weaponData == null)
+        if (weaponData == null)
         {
             Debug.LogError("[Shooting] Weapon Data is null.");
         }

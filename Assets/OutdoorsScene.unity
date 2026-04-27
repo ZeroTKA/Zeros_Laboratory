@@ -1612,6 +1612,7 @@ GameObject:
   - component: {fileID: 345873200}
   - component: {fileID: 345873201}
   - component: {fileID: 345873202}
+  - component: {fileID: 345873204}
   - component: {fileID: 345873203}
   m_Layer: 0
   m_Name: PlayerBody
@@ -1807,8 +1808,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ee70b73b04e7fc44aa8af5544f0d0b94, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Shooting
-  mainCamera: {fileID: 0}
+  mainCamera: {fileID: 1823688466}
   weaponData: {fileID: 11400000, guid: e0d279c915da0be42ad14280764476ba, type: 2}
+  ammoHandler: {fileID: 345873204}
+--- !u!114 &345873204
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 345873194}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 531beb8d300207a4785b035167b0e91b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AmmoHandler
 --- !u!1 &375541872
 GameObject:
   m_ObjectHideFlags: 0
