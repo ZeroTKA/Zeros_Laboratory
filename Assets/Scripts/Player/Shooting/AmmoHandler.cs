@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class AmmoHandler : MonoBehaviour
 {
@@ -33,7 +32,7 @@ public class AmmoHandler : MonoBehaviour
         _ammoInClip -= 1;
         if(_ammoInClip < 0)
         {
-            Debug.LogWarning("[AmmoHandler] You can't have a negative number in a clip");
+            Debug.LogWarning("[AmmoHandler] You can't have a negative number in a clip.");
         }
     }
 }

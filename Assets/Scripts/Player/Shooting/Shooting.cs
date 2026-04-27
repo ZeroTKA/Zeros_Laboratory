@@ -1,10 +1,15 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class Shooting : MonoBehaviour
 {
+    [SerializeField] Camera mainCamera;
+    [SerializeField] WeaponData weaponData; // Scriptable object for your weapon's data
+    [SerializeField] AmmoHandler ammoHandler;
+
     /// <summary>
     /// Fired every time a shot is taken.
     /// Default subscriptions: 
@@ -14,15 +19,14 @@ public class Shooting : MonoBehaviour
     /// To unsubscribe: Shooting.OnShoot -= YourMethod; // this goes in your script
     /// </summary>
     public event Action OnShoot;
+
     // -- Input Actions -- //  -- To add an action, make sure to add in OnDisable, OnEnable, and in StartErrorChecking.
     private InputAction shootAction;
 
-    [SerializeField] Camera mainCamera;
-    [SerializeField] WeaponData weaponData; // Scriptable object for your weapon's data
-    [SerializeField] AmmoHandler ammoHandler;
-
-    WeaponData.FireModes currentFireMode = WeaponData.FireModes.Semi;
+    private WeaponData.FireModes currentFireMode;
     private float timeWhenWeCanShoot = 0f;
+
+    private List<WeaponData.FireModes> fireModeList = new();
 
     // -- Specialty Methods -- //
     void Awake()
@@ -38,6 +42,11 @@ public class Shooting : MonoBehaviour
     private void OnDisable()
     {
         shootAction?.Disable();
+    }
+
+    private void Start()
+    {
+        CacheFireModes();
     }
 
     private void Update()
@@ -93,6 +102,16 @@ public class Shooting : MonoBehaviour
     }
 
     // -- Supplemental Methods -- //
+    private void CacheFireModes()
+    {
+            fireModeList.Clear();
+            foreach (WeaponData.FireModes mode in System.Enum.GetValues(typeof(WeaponData.FireModes)))
+            {
+                if (weaponData.AvailableFireModes.HasFlag(mode))
+                    fireModeList.Add(mode);
+            }
+            currentFireMode = fireModeList[0];        
+    }
     private void RaycastShot()
     {
         Ray ray = new(mainCamera.transform.position, mainCamera.transform.forward);
