@@ -1807,6 +1807,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ee70b73b04e7fc44aa8af5544f0d0b94, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Shooting
+  mainCamera: {fileID: 0}
+  weaponData: {fileID: 11400000, guid: e0d279c915da0be42ad14280764476ba, type: 2}
 --- !u!1 &375541872
 GameObject:
   m_ObjectHideFlags: 0

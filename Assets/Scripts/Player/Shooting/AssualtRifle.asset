@@ -18,6 +18,7 @@ MonoBehaviour:
   _burstCount: 3
   _burstDelay: 1
   _fireRate: 30
+  _range: 30
   _reloadTime: 2
   _clipSize: 20
   _totalAmmoCapacity: 100

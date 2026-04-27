@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Rendering.HighDefinition;
 
 
 
@@ -32,6 +33,7 @@ public class WeaponData : ScriptableObject
     [SerializeField] private int _burstCount;
     [SerializeField] private float _burstDelay;
     [SerializeField] private float _fireRate;
+    [SerializeField] private int _range;
 
     [Header("Ammo Settings")]
     [SerializeField] private float _reloadTime;
@@ -43,7 +45,8 @@ public class WeaponData : ScriptableObject
     public FireModes AvailableFireModes => _availableFireModes;
     public int BurstCount => _burstCount;
     public float BurstDelay => _burstDelay;
-    public float FireRate => _fireRate; 
+    public float FireRate => _fireRate;
+    public float Range => _range;
     public float ReloadTime => _reloadTime;
     public int ClipSize => _clipSize;
     public int TotalAmmoCapacity => _totalAmmoCapacity;
@@ -57,6 +60,7 @@ public class WeaponData : ScriptableObject
         if (_availableFireModes.HasFlag(FireModes.Burst) && _burstCount < 2) { Debug.LogWarning("[WeaponData] Burst Count must be greater than 1 with fire mode Burst. If you want 1, pick Semi."); return; }
         if (_availableFireModes.HasFlag(FireModes.Burst) && _burstDelay < 0) { Debug.LogWarning("[WeaponData] Burst Delay can not be a negative number with fire mode Burst."); return; }
         if (_fireRate <= 0) { Debug.LogWarning("[WeaponData] Fire Rate must be greater than 0."); return; }
+        if (_range <= 0) { Debug.LogWarning("[WeaponData] Range must be greater than 0"); return; }
         if (_reloadTime < 0) { Debug.LogWarning("[WeaponData] Reload Time can not be a negative number."); return; }
         if (_clipSize <= 0) { Debug.LogWarning("[WeaponData] Clip Size must be greater than 0"); return; }
         if (_totalAmmoCapacity < _clipSize) { Debug.LogWarning("[WeaponData] Total AmmoCapacity must be greater than Clip Size."); return; }
