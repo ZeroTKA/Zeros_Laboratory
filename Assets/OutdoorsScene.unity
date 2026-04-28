@@ -1810,7 +1810,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Shooting
   mainCamera: {fileID: 1823688466}
   weaponData: {fileID: 11400000, guid: e0d279c915da0be42ad14280764476ba, type: 2}
-  ammoHandler: {fileID: 345873204}
+  ammoHandler: {fileID: 0}
 --- !u!114 &345873204
 MonoBehaviour:
   m_ObjectHideFlags: 0

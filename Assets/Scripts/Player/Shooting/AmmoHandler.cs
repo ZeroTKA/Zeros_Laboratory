@@ -24,7 +24,7 @@ public class AmmoHandler : MonoBehaviour
     }
     private void OnEnable()
     {
-        shooting.OnShoot -= AShotWasFired;
+        shooting.OnShoot += AShotWasFired;
     }
     // -- Main Methods -- //
     private void AShotWasFired()
