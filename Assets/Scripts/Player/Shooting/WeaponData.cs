@@ -15,14 +15,14 @@ public class WeaponData : ScriptableObject
         Auto = 4
     }
 
-    public enum ShootTypes
+    public enum ShotTypes
     {
         Raycast,
         Projectile
     }
 
     [Header("Shoot Settings")]
-    [SerializeField] private ShootTypes _shootType;
+    [SerializeField] private ShotTypes _shotType;
     [SerializeField] private GameObject _projectilePrefab;
 
     [Header("Fire Settings")]
@@ -40,7 +40,7 @@ public class WeaponData : ScriptableObject
     [SerializeField] private int _clipSize;
     [SerializeField] private int _totalAmmoCapacity;
 
-    public ShootTypes ShootType => _shootType;
+    public ShotTypes ShootType => _shotType;
     public GameObject ProjectilePrefab => _projectilePrefab;
     public FireModes AvailableFireModes => _availableFireModes;
     public int BurstCount => _burstCount;
@@ -50,12 +50,9 @@ public class WeaponData : ScriptableObject
     public float ReloadTime => _reloadTime;
     public int ClipSize => _clipSize;
     public int TotalAmmoCapacity => _totalAmmoCapacity;
-
-
-#if UNITY_EDITOR
     private void OnValidate()
     {
-        if (_shootType == ShootTypes.Projectile && _projectilePrefab == null) { Debug.LogWarning("[WeaponData] No prefab selected with projectile shooting. Select raycast or pick a prefab."); return; }
+        if (_shotType == ShotTypes.Projectile && _projectilePrefab == null) { Debug.LogWarning("[WeaponData] No prefab selected with projectile shooting. Select raycast or pick a prefab."); return; }
         if (_availableFireModes == 0) { Debug.LogWarning("[WeaponData] Fire Mode can not be nothing. It must be something."); return; }
         if (_availableFireModes.HasFlag(FireModes.Burst) && _burstCount < 2) { Debug.LogWarning("[WeaponData] Burst Count must be greater than 1 with fire mode Burst. If you want 1, pick Semi."); return; }
         if (_availableFireModes.HasFlag(FireModes.Burst) && _burstDelay < 0) { Debug.LogWarning("[WeaponData] Burst Delay can not be a negative number with fire mode Burst."); return; }
@@ -65,5 +62,5 @@ public class WeaponData : ScriptableObject
         if (_clipSize <= 0) { Debug.LogWarning("[WeaponData] Clip Size must be greater than 0"); return; }
         if (_totalAmmoCapacity < _clipSize) { Debug.LogWarning("[WeaponData] Total AmmoCapacity must be greater than Clip Size."); return; }
     }
-#endif
+
 }

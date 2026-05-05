@@ -9,6 +9,7 @@ public class Shooting : MonoBehaviour
     [SerializeField] Camera mainCamera;
     [SerializeField] WeaponData weaponData; // Scriptable object for your weapon's data
     [SerializeField] AmmoHandler ammoHandler;
+    [SerializeField] Transform gunNozzle;
 
     /// <summary>
     /// Fired every time a shot is taken.
@@ -25,6 +26,9 @@ public class Shooting : MonoBehaviour
     private InputAction reloadAction;
 
     private WeaponData.FireModes currentFireMode;
+    private WeaponData.ShotTypes currentShotType;
+    private GameObject weaponProjectilePrefab;
+    private GameObject weaponProjectile;
     private float timeWhenWeCanShoot = 0f;
     private bool isBursting = false;
     private bool isReloading = false;
@@ -69,9 +73,7 @@ public class Shooting : MonoBehaviour
 
         switch (currentFireMode)
         {
-            case WeaponData.FireModes.Semi:
-                ShootingSemi(); // see summary about dropping clicks that are too fast
-                break;
+            case WeaponData.FireModes.Semi: ShootingSemi(); break;
             case WeaponData.FireModes.Burst:
                 if (!isBursting)
                 {
@@ -79,9 +81,7 @@ public class Shooting : MonoBehaviour
                     return; // Returning here prevents HandleShooting() from writing to timeWhenWeCanShoot prematurely.
                 }
                 break;
-            case WeaponData.FireModes.Auto:
-                ShootingAuto();
-                break;
+            case WeaponData.FireModes.Auto: ShootingAuto(); break;
         }
         timeWhenWeCanShoot = Time.time + (1f / weaponData.FireRate);
     }
@@ -102,7 +102,7 @@ public class Shooting : MonoBehaviour
     {
         if (shootAction.WasPressedThisFrame())
         {
-            RaycastShot();
+            PickShotAndShoot();
         }
     }
     private void ShootingBurst()
@@ -117,7 +117,7 @@ public class Shooting : MonoBehaviour
     {
         if (shootAction.IsPressed())
         {
-            RaycastShot();
+            PickShotAndShoot();
         }
     }
 
@@ -132,9 +132,20 @@ public class Shooting : MonoBehaviour
         }
         currentFireMode = fireModeList[0];
     }
-    private void ParticleShot()
+    private void PickShotAndShoot()
     {
-
+        switch (currentShotType)
+        {
+            case WeaponData.ShotTypes.Projectile: ProjectileShot(); break;
+            case WeaponData.ShotTypes.Raycast: RaycastShot(); break;
+        }
+        OnShoot?.Invoke();
+    }
+    private void ProjectileShot()
+    {
+        weaponProjectile = PoolManager.Instance.Rent(weaponProjectilePrefab);
+        weaponProjectile.transform.position = gunNozzle.transform.position;
+        weaponProjectile.transform.rotation = gunNozzle.transform.rotation;
     }
     private void RaycastShot()
     {
@@ -144,7 +155,6 @@ public class Shooting : MonoBehaviour
             Debug.Log(hit.collider.gameObject.name);
             // do something with what you hit.
         }
-        OnShoot?.Invoke();
     }
     /// <summary>
     /// Initializes error checking for the script.
@@ -187,7 +197,7 @@ public class Shooting : MonoBehaviour
         float burstDelay = weaponData.BurstDelay;
         for (int i = 0; i < weaponData.BurstCount; i++)
         {
-            RaycastShot();
+            PickShotAndShoot();
             yield return new WaitForSeconds(burstDelay);
         }
         timeWhenWeCanShoot = Time.time + (1f / weaponData.FireRate);
