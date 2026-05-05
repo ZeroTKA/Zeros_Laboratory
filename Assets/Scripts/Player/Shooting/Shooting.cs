@@ -63,8 +63,9 @@ public class Shooting : MonoBehaviour
     // -- Main Methods -- //
     private void HandleShooting()
     {
-        if (ammoHandler.AmmoInClip == 0) { return; }
+        if (ammoHandler.ClipAmmo == 0) { return; }
         if (Time.time < timeWhenWeCanShoot) { return; }
+        if (isReloading == true) { return; }
 
         switch (currentFireMode)
         {
@@ -72,8 +73,8 @@ public class Shooting : MonoBehaviour
                 ShootingSemi(); // see summary about dropping clicks that are too fast
                 break;
             case WeaponData.FireModes.Burst:
-                if(!isBursting)
-                {                    
+                if (!isBursting)
+                {
                     ShootingBurst();
                     return; // Returning here prevents HandleShooting() from writing to timeWhenWeCanShoot prematurely.
                 }
@@ -84,12 +85,13 @@ public class Shooting : MonoBehaviour
         }
         timeWhenWeCanShoot = Time.time + (1f / weaponData.FireRate);
     }
-    /// <summary>
-    /// Passes responsibility to ammo handler. We then listen for if reloading is happening or not.
-    /// </summary>
     private void HandleReloading()
     {
-        ammoHandler.TryReload();
+        if (reloadAction.WasPressedThisFrame() && !isReloading && ammoHandler.CanWeReload())
+        {
+            isReloading = true;
+            StartCoroutine(ReloadTimer()); //after we wait a duration we set isReloading = false.
+        }
     }
     /// <summary>
     /// Performs a single-shot firing action if the shoot input was pressed during the current frame.
@@ -115,20 +117,20 @@ public class Shooting : MonoBehaviour
     {
         if (shootAction.IsPressed())
         {
-            RaycastShot();            
+            RaycastShot();
         }
     }
 
     // -- Supplemental Methods -- //
     private void CacheFireModes()
     {
-            fireModeList.Clear();
-            foreach (WeaponData.FireModes mode in System.Enum.GetValues(typeof(WeaponData.FireModes)))
-            {
-                if (weaponData.AvailableFireModes.HasFlag(mode))
-                    fireModeList.Add(mode);
-            }
-            currentFireMode = fireModeList[0];        
+        fireModeList.Clear();
+        foreach (WeaponData.FireModes mode in System.Enum.GetValues(typeof(WeaponData.FireModes)))
+        {
+            if (weaponData.AvailableFireModes.HasFlag(mode))
+                fireModeList.Add(mode);
+        }
+        currentFireMode = fireModeList[0];
     }
     private void ParticleShot()
     {
@@ -141,7 +143,7 @@ public class Shooting : MonoBehaviour
         {
             Debug.Log(hit.collider.gameObject.name);
             // do something with what you hit.
-        }        
+        }
         OnShoot?.Invoke();
     }
     /// <summary>
@@ -183,12 +185,17 @@ public class Shooting : MonoBehaviour
     private IEnumerator BurstShot()
     {
         float burstDelay = weaponData.BurstDelay;
-        for(int i = 0; i < weaponData.BurstCount; i++)
+        for (int i = 0; i < weaponData.BurstCount; i++)
         {
             RaycastShot();
             yield return new WaitForSeconds(burstDelay);
         }
         timeWhenWeCanShoot = Time.time + (1f / weaponData.FireRate);
         isBursting = false;
+    }
+    private IEnumerator ReloadTimer()
+    {
+        yield return new WaitForSeconds(weaponData.ReloadTime);
+        isReloading = false;
     }
 }
