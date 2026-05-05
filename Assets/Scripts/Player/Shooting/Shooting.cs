@@ -87,7 +87,7 @@ public class Shooting : MonoBehaviour
     }
     private void HandleReloading()
     {
-        if (reloadAction.WasPressedThisFrame() && !isReloading && ammoHandler.CanWeReload())
+        if (reloadAction.WasPressedThisFrame() && !isReloading && !isBursting && ammoHandler.CanWeReload())
         {
             isReloading = true;
             StartCoroutine(ReloadTimer()); //after we wait a duration we set isReloading = false.

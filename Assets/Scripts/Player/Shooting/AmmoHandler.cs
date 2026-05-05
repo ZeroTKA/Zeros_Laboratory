@@ -1,8 +1,11 @@
 using System;
+using System.Collections;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class AmmoHandler : MonoBehaviour
 {
+    [SerializeField] WeaponData weaponData;
     private Shooting shooting;
     private int _clipAmmo;
     private int maxClipAmmo;
@@ -14,16 +17,9 @@ public class AmmoHandler : MonoBehaviour
     public event Action ReloadFail;
 
     // -- Specialty Methods -- //
-    private void Start()
+    void Awake()
     {
-        if (TryGetComponent<Shooting>(out var shootComponent))
-        {
-            shooting = shootComponent;
-        }
-        else
-        {
-            Debug.LogError("[AmmoHandler] Unable to find Shooting Component.");
-        }
+        StartErrorChecking();
     }
     private void OnDisable()
     {
@@ -31,7 +27,10 @@ public class AmmoHandler : MonoBehaviour
     }
     private void OnEnable()
     {
-        shooting.OnShoot += AShotWasFired;
+        if (shooting != null)
+        {
+            shooting.OnShoot += AShotWasFired; 
+        }
     }
     // -- Main Methods -- //
     private void AShotWasFired()
@@ -46,11 +45,25 @@ public class AmmoHandler : MonoBehaviour
     {
         if (_clipAmmo == maxClipAmmo) { return false; }
         if (reserveAmmo == 0) { return false; }
-        Reload();
+        StartCoroutine(Reload());
         return true;
     }
-    private void Reload()
+
+    // -- Supplemental Methods -- //
+    private void StartErrorChecking()
     {
+        if (TryGetComponent<Shooting>(out var shootComponent))
+        {
+            shooting = shootComponent;
+        }
+        else
+        {
+            Debug.LogError("[AmmoHandler] Unable to find Shooting Component.");
+        }
+    }
+    private IEnumerator Reload()
+    {
+        yield return new WaitForSeconds(weaponData.ReloadTime);
         if(maxClipAmmo - _clipAmmo <= reserveAmmo)
         {
             reserveAmmo -= maxClipAmmo - _clipAmmo;
