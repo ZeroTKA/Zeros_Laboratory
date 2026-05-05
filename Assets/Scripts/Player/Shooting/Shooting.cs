@@ -22,10 +22,12 @@ public class Shooting : MonoBehaviour
 
     // -- Input Actions -- //  -- To add an action, make sure to add in OnDisable, OnEnable, and in StartErrorChecking.
     private InputAction shootAction;
+    private InputAction reloadAction;
 
     private WeaponData.FireModes currentFireMode;
     private float timeWhenWeCanShoot = 0f;
     private bool isBursting = false;
+    private bool isReloading = false;
 
     private List<WeaponData.FireModes> fireModeList = new();
 
@@ -38,11 +40,13 @@ public class Shooting : MonoBehaviour
     private void OnEnable()
     {
         shootAction?.Enable();
+        reloadAction?.Enable();
     }
 
     private void OnDisable()
     {
         shootAction?.Disable();
+        reloadAction?.Disable();
     }
 
     private void Start()
@@ -53,6 +57,7 @@ public class Shooting : MonoBehaviour
     private void Update()
     {
         HandleShooting();
+        HandleReloading();
     }
 
     // -- Main Methods -- //
@@ -78,6 +83,13 @@ public class Shooting : MonoBehaviour
                 break;
         }
         timeWhenWeCanShoot = Time.time + (1f / weaponData.FireRate);
+    }
+    /// <summary>
+    /// Passes responsibility to ammo handler. We then listen for if reloading is happening or not.
+    /// </summary>
+    private void HandleReloading()
+    {
+        ammoHandler.TryReload();
     }
     /// <summary>
     /// Performs a single-shot firing action if the shoot input was pressed during the current frame.
@@ -118,6 +130,10 @@ public class Shooting : MonoBehaviour
             }
             currentFireMode = fireModeList[0];        
     }
+    private void ParticleShot()
+    {
+
+    }
     private void RaycastShot()
     {
         Ray ray = new(mainCamera.transform.position, mainCamera.transform.forward);
@@ -137,7 +153,9 @@ public class Shooting : MonoBehaviour
         if (TryGetComponent<PlayerInput>(out var playerInput))
         {
             shootAction = playerInput.actions["Shoot"];
+            reloadAction = playerInput.actions["Reload"];
             if (shootAction == null) Debug.LogError("[Shooting] shootAction not found.");
+            if (reloadAction == null) Debug.LogError("[Shooting] reloadAction not found.");
         }
         else
         {

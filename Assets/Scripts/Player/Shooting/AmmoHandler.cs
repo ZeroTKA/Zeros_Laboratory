@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class AmmoHandler : MonoBehaviour
@@ -5,6 +6,8 @@ public class AmmoHandler : MonoBehaviour
     private Shooting shooting;
     private int _ammoInClip;
     public int AmmoInClip => _ammoInClip;
+    public event Action ReloadSuccess;
+    public event Action ReloadFail;
 
     // -- Specialty Methods -- //
     private void Start()
@@ -35,4 +38,9 @@ public class AmmoHandler : MonoBehaviour
             Debug.LogWarning("[AmmoHandler] You can't have a negative number in a clip.");
         }
     }
+    public void TryReload()
+    {
+
+    }
+    
 }
