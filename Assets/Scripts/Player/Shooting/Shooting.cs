@@ -56,6 +56,7 @@ public class Shooting : MonoBehaviour
     private void Start()
     {
         CacheFireModes();
+        weaponProjectilePrefab = weaponData.ProjectilePrefab;
     }
 
     private void Update()
@@ -69,7 +70,7 @@ public class Shooting : MonoBehaviour
     {
         if (ammoHandler.ClipAmmo == 0) { return; }
         if (Time.time < timeWhenWeCanShoot) { return; }
-        if (isReloading == true) { return; }
+        if (isReloading) { return; }
 
         switch (currentFireMode)
         {
@@ -144,8 +145,7 @@ public class Shooting : MonoBehaviour
     private void ProjectileShot()
     {
         weaponProjectile = PoolManager.Instance.Rent(weaponProjectilePrefab);
-        weaponProjectile.transform.position = gunNozzle.transform.position;
-        weaponProjectile.transform.rotation = gunNozzle.transform.rotation;
+        weaponProjectile.transform.SetPositionAndRotation(gunNozzle.transform.position, gunNozzle.transform.rotation);
     }
     private void RaycastShot()
     {
@@ -197,6 +197,7 @@ public class Shooting : MonoBehaviour
         float burstDelay = weaponData.BurstDelay;
         for (int i = 0; i < weaponData.BurstCount; i++)
         {
+            if(ammoHandler.ClipAmmo == 0) { break; }
             PickShotAndShoot();
             yield return new WaitForSeconds(burstDelay);
         }
