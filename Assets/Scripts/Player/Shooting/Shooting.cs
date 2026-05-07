@@ -57,6 +57,7 @@ public class Shooting : MonoBehaviour
     {
         CacheFireModes();
         weaponProjectilePrefab = weaponData.ProjectilePrefab;
+        currentShotType = weaponData.ShootType;
     }
 
     private void Update()
@@ -145,7 +146,7 @@ public class Shooting : MonoBehaviour
     private void ProjectileShot()
     {
         weaponProjectile = PoolManager.Instance.Rent(weaponProjectilePrefab);
-        weaponProjectile.transform.SetPositionAndRotation(gunNozzle.transform.position, gunNozzle.transform.rotation);
+        weaponProjectile.transform.SetPositionAndRotation(gunNozzle.position, gunNozzle.rotation);
     }
     private void RaycastShot()
     {
