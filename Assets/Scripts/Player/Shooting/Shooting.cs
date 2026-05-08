@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.InputSystem;
 
 public class Shooting : MonoBehaviour
@@ -11,19 +12,11 @@ public class Shooting : MonoBehaviour
     [SerializeField] AmmoHandler ammoHandler;
     [SerializeField] Transform gunNozzle;
 
-    /// <summary>
-    /// Fired every time a shot is taken.
-    /// Default subscriptions: 
-    /// AmmoHandler // I'm aware we have a reference already in script. The idea is to have AmmoHandler.AShotWasFired()
-    ///                be private to avoid accidentially being called and causing a rukus.
-    /// To subscribe: Shooting.OnShoot += YourMethod; // this goes in your script
-    /// To unsubscribe: Shooting.OnShoot -= YourMethod; // this goes in your script
-    /// </summary>
-    public event Action OnShoot;
+    public UnityEvent OnGunShot;
 
     // -- Input Actions -- //  -- To add an action, make sure to add in OnDisable, OnEnable, and in StartErrorChecking.
     private InputAction shootAction;
-    private InputAction reloadAction;
+
 
     private WeaponData.FireModes currentFireMode;
     private WeaponData.ShotTypes currentShotType;
@@ -44,13 +37,11 @@ public class Shooting : MonoBehaviour
     private void OnEnable()
     {
         shootAction?.Enable();
-        reloadAction?.Enable();
     }
 
     private void OnDisable()
     {
         shootAction?.Disable();
-        reloadAction?.Disable();
     }
 
     private void Start()
@@ -63,7 +54,6 @@ public class Shooting : MonoBehaviour
     private void Update()
     {
         HandleShooting();
-        HandleReloading();
     }
 
     // -- Main Methods -- //
@@ -87,14 +77,7 @@ public class Shooting : MonoBehaviour
         }
         timeWhenWeCanShoot = Time.time + (1f / weaponData.FireRate);
     }
-    private void HandleReloading()
-    {
-        if (reloadAction.WasPressedThisFrame() && !isReloading && !isBursting && ammoHandler.CanWeReload())
-        {
-            isReloading = true;
-            StartCoroutine(ReloadTimer()); //after we wait a duration we set isReloading = false.
-        }
-    }
+
     /// <summary>
     /// Performs a single-shot firing action if the shoot input was pressed during the current frame.
     /// </summary>
@@ -141,7 +124,7 @@ public class Shooting : MonoBehaviour
             case WeaponData.ShotTypes.Projectile: ProjectileShot(); break;
             case WeaponData.ShotTypes.Raycast: RaycastShot(); break;
         }
-        OnShoot?.Invoke();
+        OnGunShot?.Invoke();
     }
     private void ProjectileShot()
     {
@@ -166,9 +149,9 @@ public class Shooting : MonoBehaviour
         if (TryGetComponent<PlayerInput>(out var playerInput))
         {
             shootAction = playerInput.actions["Shoot"];
-            reloadAction = playerInput.actions["Reload"];
+
             if (shootAction == null) Debug.LogError("[Shooting] shootAction not found.");
-            if (reloadAction == null) Debug.LogError("[Shooting] reloadAction not found.");
+
         }
         else
         {
@@ -205,9 +188,12 @@ public class Shooting : MonoBehaviour
         timeWhenWeCanShoot = Time.time + (1f / weaponData.FireRate);
         isBursting = false;
     }
-    private IEnumerator ReloadTimer()
+    public void SetIsReloadingTrue()
     {
-        yield return new WaitForSeconds(weaponData.ReloadTime);
+        isReloading = true;
+    }    
+    public void SetIsReloadingFalse()
+    {
         isReloading = false;
     }
 }

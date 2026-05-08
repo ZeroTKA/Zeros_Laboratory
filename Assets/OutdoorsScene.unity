@@ -1812,7 +1812,22 @@ MonoBehaviour:
   mainCamera: {fileID: 1823688466}
   weaponData: {fileID: 11400000, guid: e0d279c915da0be42ad14280764476ba, type: 2}
   ammoHandler: {fileID: 345873204}
-  gunNozzle: {fileID: 0}
+  gunNozzle: {fileID: 1791622189}
+  OnGunShot:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 345873204}
+        m_TargetAssemblyTypeName: AmmoHandler, Assembly-CSharp
+        m_MethodName: AShotWasFired
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &345873204
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1825,6 +1840,36 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 531beb8d300207a4785b035167b0e91b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AmmoHandler
+  OnReloading:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 345873203}
+        m_TargetAssemblyTypeName: Shooting, Assembly-CSharp
+        m_MethodName: SetIsReloadingTrue
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  OnReloadingFinished:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 345873203}
+        m_TargetAssemblyTypeName: Shooting, Assembly-CSharp
+        m_MethodName: SetIsReloadingFalse
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   weaponData: {fileID: 11400000, guid: e0d279c915da0be42ad14280764476ba, type: 2}
 --- !u!1 &375541872
 GameObject:
