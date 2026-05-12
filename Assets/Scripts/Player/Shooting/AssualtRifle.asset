@@ -12,13 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e0ba08ca4bd17454b89d983467198faf, type: 3}
   m_Name: AssualtRifle
   m_EditorClassIdentifier: Assembly-CSharp::WeaponData
-  _shootType: 0
+  _shotType: 0
   _projectilePrefab: {fileID: 0}
-  _availableFireModes: 1
+  _availableFireModes: -1
   _burstCount: 3
   _burstDelay: 1
   _fireRate: 30
   _range: 30
   _reloadTime: 2
-  _clipSize: 20
-  _totalAmmoCapacity: 100
+  _maxClipAmmo: 20
+  _maxReserveAmmo: 200
+  _reserveAmmo: 200

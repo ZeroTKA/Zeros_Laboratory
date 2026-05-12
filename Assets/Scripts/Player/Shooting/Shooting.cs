@@ -14,10 +14,6 @@ public class Shooting : MonoBehaviour
 
     public UnityEvent OnGunShot;
 
-    // -- Input Actions -- //  -- To add an action, make sure to add in OnDisable, OnEnable, and in StartErrorChecking.
-    private InputAction shootAction;
-
-
     private WeaponData.FireModes currentFireMode;
     private WeaponData.ShotTypes currentShotType;
     private GameObject weaponProjectilePrefab;
@@ -26,22 +22,12 @@ public class Shooting : MonoBehaviour
     private bool isBursting = false;
     private bool isReloading = false;
 
-    private List<WeaponData.FireModes> fireModeList = new();
+    readonly private List<WeaponData.FireModes> fireModeList = new();
 
     // -- Specialty Methods -- //
     void Awake()
     {
         StartErrorChecking();
-    }
-
-    private void OnEnable()
-    {
-        shootAction?.Enable();
-    }
-
-    private void OnDisable()
-    {
-        shootAction?.Disable();
     }
 
     private void Start()
@@ -59,9 +45,10 @@ public class Shooting : MonoBehaviour
     // -- Main Methods -- //
     private void HandleShooting()
     {
-        if (ammoHandler.ClipAmmo == 0) { return; }
         if (Time.time < timeWhenWeCanShoot) { return; }
         if (isReloading) { return; }
+        if (ammoHandler.ClipAmmo == 0) { return; }
+
 
         switch (currentFireMode)
         {
@@ -195,5 +182,10 @@ public class Shooting : MonoBehaviour
     public void SetIsReloadingFalse()
     {
         isReloading = false;
+    }
+    public void WeaponSwapped(WeaponData swappedWeapon)
+    {
+        weaponData = swappedWeapon;
+        CacheFireModes();
     }
 }

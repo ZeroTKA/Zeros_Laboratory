@@ -37,8 +37,9 @@ public class WeaponData : ScriptableObject
 
     [Header("Ammo Settings")]
     [SerializeField] private float _reloadTime;
-    [SerializeField] private int _clipSize;
-    [SerializeField] private int _totalAmmoCapacity;
+    [SerializeField] private int _maxClipAmmo;
+    [SerializeField] private int _maxReserveAmmo;
+    [SerializeField] private int _reserveAmmo;
 
     public ShotTypes ShootType => _shotType;
     public GameObject ProjectilePrefab => _projectilePrefab;
@@ -48,8 +49,9 @@ public class WeaponData : ScriptableObject
     public float FireRate => _fireRate;
     public float Range => _range;
     public float ReloadTime => _reloadTime;
-    public int ClipSize => _clipSize;
-    public int TotalAmmoCapacity => _totalAmmoCapacity;
+    public int ClipSize => _maxClipAmmo;
+    public int MaxReserveAmmo => _maxReserveAmmo;
+    public int ReserveAmmo => _reserveAmmo;
     private void OnValidate()
     {
         if (_shotType == ShotTypes.Projectile && _projectilePrefab == null) { Debug.LogWarning("[WeaponData] No prefab selected with projectile shooting. Select raycast or pick a prefab."); return; }
@@ -59,8 +61,9 @@ public class WeaponData : ScriptableObject
         if (_fireRate <= 0) { Debug.LogWarning("[WeaponData] Fire Rate must be greater than 0."); return; }
         if (_range <= 0) { Debug.LogWarning("[WeaponData] Range must be greater than 0"); return; }
         if (_reloadTime < 0) { Debug.LogWarning("[WeaponData] Reload Time can not be a negative number."); return; }
-        if (_clipSize <= 0) { Debug.LogWarning("[WeaponData] Clip Size must be greater than 0"); return; }
-        if (_totalAmmoCapacity < _clipSize) { Debug.LogWarning("[WeaponData] Total AmmoCapacity must be greater than Clip Size."); return; }
+        if (_maxClipAmmo <= 0) { Debug.LogWarning("[WeaponData] Clip Size must be greater than 0"); return; }
+        if (_maxReserveAmmo < _maxClipAmmo) { Debug.LogWarning("[WeaponData] Total AmmoCapacity must be greater than Clip Size."); return; }
+        if (_reserveAmmo < 0 ) { Debug.LogWarning("[WeaponData] Reserve Ammo can not be less than 0"); }
     }
 
 }
