@@ -18,8 +18,10 @@ MonoBehaviour:
   _burstCount: 3
   _burstDelay: 1
   _fireRate: 30
-  _range: 30
+  _effectiveRange: 30
   _reloadTime: 2
   _maxClipAmmo: 20
   _maxReserveAmmo: 200
   _reserveAmmo: 200
+  _minBaseDamage: 5
+  _maxBaseDamage: 100

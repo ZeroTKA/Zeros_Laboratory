@@ -43,7 +43,7 @@ public class Shooting : MonoBehaviour
     {
         CacheFireModes();
         weaponProjectilePrefab = weaponData.ProjectilePrefab;
-        currentShotType = weaponData.ShootType;
+        currentShotType = weaponData.ShotType;
     }
 
     private void Update()
@@ -130,7 +130,7 @@ public class Shooting : MonoBehaviour
     private void RaycastShot()
     {
         Ray ray = new(mainCamera.transform.position, mainCamera.transform.forward);
-        if (Physics.Raycast(ray, out RaycastHit hit, weaponData.Range))
+        if (Physics.Raycast(ray, out RaycastHit hit, weaponData.EffectiveRange))
         {
             Debug.Log(hit.collider.gameObject.name);
             // do something with what you hit.
