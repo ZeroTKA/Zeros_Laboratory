@@ -61,8 +61,8 @@ public class WeaponData : ScriptableObject
         if (_fireRate <= 0) { Debug.LogWarning("[WeaponData] Fire Rate must be greater than 0."); return; }
         if (_range <= 0) { Debug.LogWarning("[WeaponData] Range must be greater than 0"); return; }
         if (_reloadTime < 0) { Debug.LogWarning("[WeaponData] Reload Time can not be a negative number."); return; }
-        if (_maxClipAmmo <= 0) { Debug.LogWarning("[WeaponData] Clip Size must be greater than 0"); return; }
-        if (_maxReserveAmmo < _maxClipAmmo) { Debug.LogWarning("[WeaponData] Total AmmoCapacity must be greater than Clip Size."); return; }
+        if (_maxClipAmmo <= 0) { Debug.LogWarning("[WeaponData] Maximum Clip Ammo must be greater than 0"); return; }
+        if (_maxReserveAmmo < _maxClipAmmo) { Debug.LogWarning("[WeaponData] Maximum Reserve Ammo must be greater than Clip Size."); return; }
         if (_reserveAmmo < 0 ) { Debug.LogWarning("[WeaponData] Reserve Ammo can not be less than 0"); }
     }
 

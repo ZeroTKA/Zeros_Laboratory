@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,7 +10,7 @@ public class AmmoHandler : MonoBehaviour
     /// Fires when reloading begins.
     /// Wire up: Shooting.SetIsReloadingTrue
     /// </summary>
-    public UnityEvent OnReloading;
+    public UnityEvent OnReloadingStarting;
 
     /// <summary>
     /// Fires when reloading is complete.
@@ -42,6 +41,14 @@ public class AmmoHandler : MonoBehaviour
     {
         StartErrorChecking();
     }
+    private void OnDisable()
+    {
+        reloadAction?.Disable();
+    }
+    private void OnEnable()
+    {
+        reloadAction?.Enable();
+    }
     private void Start()
     {
         RegisterFirstWeapon();
@@ -55,6 +62,8 @@ public class AmmoHandler : MonoBehaviour
             StartCoroutine(Reload());
         }
     }
+
+
 
     // -- Main Methods -- //
     public void AShotWasFired()
@@ -97,7 +106,7 @@ public class AmmoHandler : MonoBehaviour
     private IEnumerator Reload()
     {
         isReloading = true;
-        OnReloading?.Invoke();
+        OnReloadingStarting?.Invoke();
         yield return new WaitForSeconds(weaponData.ReloadTime);
         if (_maxClipAmmo - _clipAmmo <= _reserveAmmo)
         {

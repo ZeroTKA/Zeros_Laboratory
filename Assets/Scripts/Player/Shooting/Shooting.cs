@@ -21,6 +21,7 @@ public class Shooting : MonoBehaviour
     private float timeWhenWeCanShoot = 0f;
     private bool isBursting = false;
     private bool isReloading = false;
+    private InputAction shootAction;
 
     readonly private List<WeaponData.FireModes> fireModeList = new();
 
@@ -28,6 +29,14 @@ public class Shooting : MonoBehaviour
     void Awake()
     {
         StartErrorChecking();
+    }
+    private void OnDisable()
+    {
+        shootAction?.Disable();
+    }
+    private void OnEnable()
+    {
+        shootAction?.Enable();
     }
 
     private void Start()
