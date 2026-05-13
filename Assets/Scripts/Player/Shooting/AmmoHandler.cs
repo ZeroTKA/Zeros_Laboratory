@@ -63,63 +63,17 @@ public class AmmoHandler : MonoBehaviour
         }
     }
 
-
-
     // -- Main Methods -- //
+    /// <summary>
+    /// Decreases the ammo count by one. Triggered by OnShoot?.Invoke().
+    /// </summary>
     public void AShotWasFired()
     {
         _clipAmmo -= 1;
         if (_clipAmmo < 0)
         {
-            Debug.LogWarning("[AmmoHandler] You can't have a negative number in a clip.");
+            Debug.LogWarning("[AmmoHandler] You can't have a negative number in a clip but it happened. Are you calling this multiple times per shot?");
         }
-    }
-
-    // -- Supplemental Methods -- //
-    private void RegisterFirstWeapon()
-    {
-        int ammoTemp = weaponData.ClipSize;
-        int reserveTemp = weaponData.MaxReserveAmmo;
-        _clipAmmo = ammoTemp;
-        _maxClipAmmo = ammoTemp;
-        _reserveAmmo = reserveTemp - ammoTemp;
-        _maxReserveAmmo = reserveTemp;
-        ammoDict.Add(weaponData, new AmmoState
-        {
-            ammoInClip = _clipAmmo,
-            reserveAmmo = _reserveAmmo
-        });
-    }
-    private void StartErrorChecking()
-    {
-        if (TryGetComponent<PlayerInput>(out var playerInput))
-        {
-            reloadAction = playerInput.actions["Reload"];
-            if (reloadAction == null) Debug.LogError("[AmmoHandler] reloadAction not found.");
-
-        }
-        else
-        {
-            Debug.LogError("[AmmoHandler] Unable to find PlayerInput attached to this object.");
-        }
-    }
-    private IEnumerator Reload()
-    {
-        isReloading = true;
-        OnReloadingStarting?.Invoke();
-        yield return new WaitForSeconds(weaponData.ReloadTime);
-        if (_maxClipAmmo - _clipAmmo <= _reserveAmmo)
-        {
-            _reserveAmmo -= _maxClipAmmo - _clipAmmo;
-            _clipAmmo = _maxClipAmmo;
-        }
-        else if (_maxClipAmmo - _clipAmmo > _reserveAmmo)
-        {
-            _clipAmmo += _reserveAmmo;
-            _reserveAmmo = 0;
-        }
-        OnReloadingFinished?.Invoke();
-        isReloading = false;
     }
     public void WeaponSwapped(WeaponData swappedWeaponData)
     {
@@ -158,4 +112,54 @@ public class AmmoHandler : MonoBehaviour
             );
         }
     }
+
+    // -- Supplemental Methods -- //
+    private void RegisterFirstWeapon()
+    {
+        int ammoTemp = weaponData.ClipSize;
+        int reserveTemp = weaponData.MaxReserveAmmo;
+        _clipAmmo = ammoTemp;
+        _maxClipAmmo = ammoTemp;
+        _reserveAmmo = reserveTemp - ammoTemp;
+        _maxReserveAmmo = reserveTemp;
+        ammoDict.Add(weaponData, new AmmoState
+        {
+            ammoInClip = _clipAmmo,
+            reserveAmmo = _reserveAmmo
+        });
+    }
+    private void StartErrorChecking()
+    {
+        if (TryGetComponent<PlayerInput>(out var playerInput))
+        {
+            reloadAction = playerInput.actions["Reload"];
+            if (reloadAction == null) Debug.LogError("[AmmoHandler] reloadAction not found.");
+
+        }
+        else
+        {
+            Debug.LogError("[AmmoHandler] Unable to find PlayerInput attached to this object.");
+        }
+    }
+
+    // -- Coroutine -- //
+    private IEnumerator Reload()
+    {
+        isReloading = true;
+        OnReloadingStarting?.Invoke();
+        yield return new WaitForSeconds(weaponData.ReloadTime);
+        if (_maxClipAmmo - _clipAmmo <= _reserveAmmo)
+        {
+            _reserveAmmo -= _maxClipAmmo - _clipAmmo;
+            _clipAmmo = _maxClipAmmo;
+        }
+        else if (_maxClipAmmo - _clipAmmo > _reserveAmmo)
+        {
+            _clipAmmo += _reserveAmmo;
+            _reserveAmmo = 0;
+        }
+        OnReloadingFinished?.Invoke();
+        isReloading = false;
+    }
+
 }
