@@ -24,7 +24,7 @@ public class AmmoHandler : MonoBehaviour
     }
 
     [SerializeField] WeaponData weaponData;
-    readonly private Dictionary<WeaponData, AmmoState> ammoDict = new();
+    readonly private Dictionary<WeaponData, AmmoState> ammoStateDictionary = new();
     private int _clipAmmo;
     private int _maxClipAmmo;
     private int _reserveAmmo;
@@ -75,21 +75,30 @@ public class AmmoHandler : MonoBehaviour
             Debug.LogWarning("[AmmoHandler] You can't have a negative number in a clip but it happened. Are you calling this multiple times per shot?");
         }
     }
+    /// <summary>
+    /// Updates the state of ammo for the current weapon and sets corresponding variables for the new weapon.
+    /// </summary>    
+    /// <param name="swappedWeaponData">The scriptable object to switch to.</param>
     public void WeaponSwapped(WeaponData swappedWeaponData)
     {
         // Save data for the current weapon
-        if (ammoDict.TryGetValue(weaponData, out AmmoState currentState))
+        if (ammoStateDictionary.TryGetValue(weaponData, out AmmoState currentState))
         {
             currentState.ammoInClip = _clipAmmo;
             currentState.reserveAmmo = _reserveAmmo;
-            ammoDict[weaponData] = currentState;
+            ammoStateDictionary[weaponData] = currentState;
+        }
+        else
+        {
+            Debug.LogError("[AmmoHandler] Hmm. This shouldn't ever happen. " +
+                "We should RegisterFirstWeapon() in start() and therefore always always have data registered. What happened??");
         }
 
         // Swap
         weaponData = swappedWeaponData;
 
         // Load data for the swapped weapon.
-        if (ammoDict.TryGetValue(weaponData, out AmmoState newState))
+        if (ammoStateDictionary.TryGetValue(weaponData, out AmmoState newState))
         {
             _clipAmmo = newState.ammoInClip;
             _maxClipAmmo = weaponData.ClipSize;
@@ -104,16 +113,25 @@ public class AmmoHandler : MonoBehaviour
             _maxClipAmmo = ammoTemp;
             _reserveAmmo = reserveTemp - ammoTemp;
             _maxReserveAmmo = reserveTemp;
-            ammoDict.Add(weaponData, new AmmoState
-            {
-                ammoInClip = _clipAmmo,
-                reserveAmmo = _reserveAmmo
-            }
+
+            ammoStateDictionary.Add(weaponData, 
+                new AmmoState
+                {
+                    ammoInClip = _clipAmmo,
+                    reserveAmmo = _reserveAmmo
+                }
             );
         }
     }
 
     // -- Supplemental Methods -- //
+    /// <summary>
+    /// Designed specifically to register the first weapon. This way there is always data for WeaponSwapped to utilize when switching weapons.
+    /// Otherwise there are weird side cases we have to account for in WeaponSwapped().
+    /// </summary>
+    /// <remarks>This method should be called when a weapon is first equipped or initialized to ensure that
+    /// ammunition counts are set correctly. It updates both the internal ammo fields and the ammo state tracking
+    /// dictionary.</remarks>
     private void RegisterFirstWeapon()
     {
         int ammoTemp = weaponData.ClipSize;
@@ -122,12 +140,16 @@ public class AmmoHandler : MonoBehaviour
         _maxClipAmmo = ammoTemp;
         _reserveAmmo = reserveTemp - ammoTemp;
         _maxReserveAmmo = reserveTemp;
-        ammoDict.Add(weaponData, new AmmoState
+        ammoStateDictionary.Add(weaponData, new AmmoState
         {
             ammoInClip = _clipAmmo,
             reserveAmmo = _reserveAmmo
         });
     }
+    /// <summary>
+    /// Initializes error checking for the script.
+    /// </summary>
+    /// <remarks>We try to catch nulls when we start.</remarks>
     private void StartErrorChecking()
     {
         if (TryGetComponent<PlayerInput>(out var playerInput))
