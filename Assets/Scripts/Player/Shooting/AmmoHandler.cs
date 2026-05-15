@@ -44,6 +44,10 @@ public class AmmoHandler : MonoBehaviour
     private void OnDisable()
     {
         reloadAction?.Disable();
+
+        // Hopefully stops the Reload routine and resets isReloading if this gets disabled.
+        StopAllCoroutines();
+        isReloading = false;
     }
     private void OnEnable()
     {
@@ -81,6 +85,18 @@ public class AmmoHandler : MonoBehaviour
     /// <param name="swappedWeaponData">The scriptable object to switch to.</param>
     public void WeaponSwapped(WeaponData swappedWeaponData)
     {
+        // Error checking.
+        if(swappedWeaponData == null)
+        {
+            Debug.LogError("[AmmoHandler] We can't pass a null WeaponData during a swap. Returning.");
+            return;
+        }
+        if (swappedWeaponData == weaponData)
+        {
+            Debug.LogWarning("[AmmoHandler] The new WeaponData is already the current WeaponData. Did we pass the wrong one?");
+            return;
+        } 
+            
         // Save data for the current weapon
         if (ammoStateDictionary.TryGetValue(weaponData, out AmmoState currentState))
         {
@@ -108,11 +124,10 @@ public class AmmoHandler : MonoBehaviour
         else // register new weapon
         {
             int ammoTemp = weaponData.ClipSize;
-            int reserveTemp = weaponData.MaxReserveAmmo;
             _clipAmmo = ammoTemp;
             _maxClipAmmo = ammoTemp;
-            _reserveAmmo = reserveTemp - ammoTemp;
-            _maxReserveAmmo = reserveTemp;
+            _reserveAmmo = weaponData.ReserveAmmo;
+            _maxReserveAmmo = weaponData.MaxReserveAmmo;
 
             ammoStateDictionary.Add(weaponData, 
                 new AmmoState
@@ -135,11 +150,11 @@ public class AmmoHandler : MonoBehaviour
     private void RegisterFirstWeapon()
     {
         int ammoTemp = weaponData.ClipSize;
-        int reserveTemp = weaponData.MaxReserveAmmo;
         _clipAmmo = ammoTemp;
         _maxClipAmmo = ammoTemp;
-        _reserveAmmo = reserveTemp - ammoTemp;
-        _maxReserveAmmo = reserveTemp;
+        _reserveAmmo = weaponData.ReserveAmmo;
+        _maxReserveAmmo = weaponData.MaxReserveAmmo;
+
         ammoStateDictionary.Add(weaponData, new AmmoState
         {
             ammoInClip = _clipAmmo,
@@ -162,26 +177,35 @@ public class AmmoHandler : MonoBehaviour
         {
             Debug.LogError("[AmmoHandler] Unable to find PlayerInput attached to this object.");
         }
+        if(weaponData == null)
+        {
+            Debug.LogError("[AmmoHandler] weaponData is empty. It should be something at least.");
+        }
     }
 
     // -- Coroutine -- //
+
+    /// <summary>
+    /// Reloads the current gun. Fires off two Unity Events.
+    /// </summary>
     private IEnumerator Reload()
     {
         isReloading = true;
         OnReloadingStarting?.Invoke();
         yield return new WaitForSeconds(weaponData.ReloadTime);
+        // if we have enough reserve ammo then just fill the clip.
         if (_maxClipAmmo - _clipAmmo <= _reserveAmmo)
         {
             _reserveAmmo -= _maxClipAmmo - _clipAmmo;
             _clipAmmo = _maxClipAmmo;
         }
-        else if (_maxClipAmmo - _clipAmmo > _reserveAmmo)
+        // if we don't have enough reserve ammo, use it all.
+        else 
         {
             _clipAmmo += _reserveAmmo;
             _reserveAmmo = 0;
         }
-        OnReloadingFinished?.Invoke();
         isReloading = false;
+        OnReloadingFinished?.Invoke();
     }
-
 }
