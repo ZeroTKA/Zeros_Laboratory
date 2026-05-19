@@ -74,10 +74,14 @@ public class AmmoHandler : MonoBehaviour
     public void AShotWasFired()
     {
         _clipAmmo -= 1;
+#if UNITY_EDITOR
         if (_clipAmmo < 0)
         {
+
             Debug.LogWarning("[AmmoHandler] You can't have a negative number in a clip but it happened. Are you calling this multiple times per shot?");
+
         }
+#endif
     }
     /// <summary>
     /// Updates the state of ammo for the current weapon and sets corresponding variables for the new weapon.
@@ -86,17 +90,21 @@ public class AmmoHandler : MonoBehaviour
     public void WeaponSwapped(WeaponData swappedWeaponData)
     {
         // Error checking.
-        if(swappedWeaponData == null)
+        if (swappedWeaponData == null)
         {
+#if UNITY_EDITOR
             Debug.LogError("[AmmoHandler] We can't pass a null WeaponData during a swap. Returning.");
+#endif
             return;
         }
         if (swappedWeaponData == weaponData)
         {
+#if UNITY_EDITOR
             Debug.LogWarning("[AmmoHandler] The new WeaponData is already the current WeaponData. Did we pass the wrong one?");
+#endif
             return;
-        } 
-            
+        }
+
         // Save data for the current weapon
         if (ammoStateDictionary.TryGetValue(weaponData, out AmmoState currentState))
         {
@@ -104,12 +112,13 @@ public class AmmoHandler : MonoBehaviour
             currentState.reserveAmmo = _reserveAmmo;
             ammoStateDictionary[weaponData] = currentState;
         }
+#if UNITY_EDITOR
         else
         {
             Debug.LogError("[AmmoHandler] Hmm. This shouldn't ever happen. " +
                 "We should RegisterFirstWeapon() in start() and therefore always always have data registered. What happened??");
         }
-
+#endif
         // Swap
         weaponData = swappedWeaponData;
 
@@ -129,7 +138,7 @@ public class AmmoHandler : MonoBehaviour
             _reserveAmmo = weaponData.ReserveAmmo;
             _maxReserveAmmo = weaponData.MaxReserveAmmo;
 
-            ammoStateDictionary.Add(weaponData, 
+            ammoStateDictionary.Add(weaponData,
                 new AmmoState
                 {
                     ammoInClip = _clipAmmo,
@@ -170,17 +179,20 @@ public class AmmoHandler : MonoBehaviour
         if (TryGetComponent<PlayerInput>(out var playerInput))
         {
             reloadAction = playerInput.actions["Reload"];
+#if UNITY_EDITOR
             if (reloadAction == null) Debug.LogError("[AmmoHandler] reloadAction not found.");
-
+#endif
         }
+#if UNITY_EDITOR
         else
         {
             Debug.LogError("[AmmoHandler] Unable to find PlayerInput attached to this object.");
         }
-        if(weaponData == null)
+        if (weaponData == null)
         {
             Debug.LogError("[AmmoHandler] weaponData is empty. It should be something at least.");
         }
+#endif
     }
 
     // -- Coroutine -- //
@@ -200,7 +212,7 @@ public class AmmoHandler : MonoBehaviour
             _clipAmmo = _maxClipAmmo;
         }
         // if we don't have enough reserve ammo, use it all.
-        else 
+        else
         {
             _clipAmmo += _reserveAmmo;
             _reserveAmmo = 0;
