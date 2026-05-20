@@ -12,18 +12,24 @@ public class Shooting : MonoBehaviour
     [SerializeField] AmmoHandler ammoHandler;
     [SerializeField] Transform gunNozzle;
 
+    /// <summary>
+    /// Fires an event for a gun shot.
+    /// Wire up: AmmoHandler.AShotWasFired
+    /// </summary>
     public UnityEvent OnGunShot;
+
+    readonly private List<WeaponData.FireModes> fireModeList = new();
 
     private WeaponData.FireModes currentFireMode;
     private WeaponData.ShotTypes currentShotType;
     private GameObject weaponProjectilePrefab;
     private GameObject weaponProjectile;
+    private InputAction shootAction;
     private float timeWhenWeCanShoot = 0f;
     private bool isBursting = false;
     private bool isReloading = false;
-    private InputAction shootAction;
-
-    readonly private List<WeaponData.FireModes> fireModeList = new();
+    private bool isTriggerPressed = false;
+    private bool isTriggerJustPressed = false;
 
     // -- Specialty Methods -- //
     void Awake()
@@ -33,10 +39,20 @@ public class Shooting : MonoBehaviour
     private void OnDisable()
     {
         shootAction?.Disable();
+        shootAction.performed -= OnShootPerformed; // unsubscribing to Input event for when the shoot button is pressed.
+        shootAction.canceled -= OnShootCanceled; // unsubscribing to the Input event for when the shoot button is released.
+        StopAllCoroutines();
+        isBursting = false;
+        isReloading = false;
+        isTriggerPressed = false;
+        isTriggerJustPressed = false;
     }
     private void OnEnable()
     {
         shootAction?.Enable();
+        shootAction.performed += OnShootPerformed; // Subscribing to the Input event for when the shoot button is pressed.
+        shootAction.canceled += OnShootCanceled; // Subscribing to the Input event for when the shoot button is released.
+
     }
 
     private void Start()
@@ -47,28 +63,24 @@ public class Shooting : MonoBehaviour
     }
 
     private void Update()
-    {
+    {        
         HandleShooting();
     }
 
     // -- Main Methods -- //
     private void HandleShooting()
     {
-        if (Time.time < timeWhenWeCanShoot) { return; }
+        // Trying to short-circuit HandleShooting as much as possible.
+        if (!isTriggerPressed) { return; }
         if (isReloading) { return; }
+        if (isBursting) { return; }
+        if (Time.time < timeWhenWeCanShoot) { return; }
         if (ammoHandler.ClipAmmo == 0) { return; }
-
 
         switch (currentFireMode)
         {
             case WeaponData.FireModes.Semi: ShootingSemi(); break;
-            case WeaponData.FireModes.Burst:
-                if (!isBursting)
-                {
-                    ShootingBurst();
-                    return; // Returning here prevents HandleShooting() from writing to timeWhenWeCanShoot prematurely.
-                }
-                break;
+            case WeaponData.FireModes.Burst:ShootingBurst(); return; // Returning here prevents HandleShooting() from writing to timeWhenWeCanShoot prematurely on the next line.
             case WeaponData.FireModes.Auto: ShootingAuto(); break;
         }
         timeWhenWeCanShoot = Time.time + (1f / weaponData.FireRate);
@@ -81,22 +93,24 @@ public class Shooting : MonoBehaviour
     /// This is intended to prevent semi-auto weapons being used as autos.</remarks>
     private void ShootingSemi()
     {
-        if (shootAction.WasPressedThisFrame())
+        if (isTriggerJustPressed)
         {
+            isTriggerJustPressed = false;
             PickShotAndShoot();
         }
     }
     private void ShootingBurst()
     {
-        if (shootAction.WasPressedThisFrame())
+        if (isTriggerJustPressed)
         {
+            isTriggerJustPressed = false;
             isBursting = true;
             StartCoroutine(BurstShot());
         }
     }
     private void ShootingAuto()
     {
-        if (shootAction.IsPressed())
+        if (isTriggerPressed) // held, not just pressed
         {
             PickShotAndShoot();
         }
@@ -167,6 +181,8 @@ public class Shooting : MonoBehaviour
             Debug.LogError("[Shooting] Ammo Handler is null.");
         }
     }
+    private void OnShootPerformed(InputAction.CallbackContext _) { isTriggerPressed = true; isTriggerJustPressed = true; }
+    private void OnShootCanceled(InputAction.CallbackContext _) { isTriggerPressed = false; }
 
     // -- Coroutines -- //
     /// <summary>
@@ -195,6 +211,8 @@ public class Shooting : MonoBehaviour
     public void WeaponSwapped(WeaponData swappedWeapon)
     {
         weaponData = swappedWeapon;
+        weaponProjectilePrefab = weaponData.ProjectilePrefab;
+        currentShotType = weaponData.ShotType;
         CacheFireModes();
     }
 }
