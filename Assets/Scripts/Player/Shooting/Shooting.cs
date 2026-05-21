@@ -41,6 +41,7 @@ public class Shooting : MonoBehaviour
         shootAction?.Disable();
         shootAction.performed -= OnShootPerformed; // unsubscribing to Input event for when the shoot button is pressed.
         shootAction.canceled -= OnShootCanceled; // unsubscribing to the Input event for when the shoot button is released.
+
         StopAllCoroutines();
         isBursting = false;
         isReloading = false;
@@ -52,7 +53,6 @@ public class Shooting : MonoBehaviour
         shootAction?.Enable();
         shootAction.performed += OnShootPerformed; // Subscribing to the Input event for when the shoot button is pressed.
         shootAction.canceled += OnShootCanceled; // Subscribing to the Input event for when the shoot button is released.
-
     }
 
     private void Start()
@@ -63,7 +63,7 @@ public class Shooting : MonoBehaviour
     }
 
     private void Update()
-    {        
+    {
         HandleShooting();
     }
 
@@ -80,7 +80,7 @@ public class Shooting : MonoBehaviour
         switch (currentFireMode)
         {
             case WeaponData.FireModes.Semi: ShootingSemi(); break;
-            case WeaponData.FireModes.Burst:ShootingBurst(); return; // Returning here prevents HandleShooting() from writing to timeWhenWeCanShoot prematurely on the next line.
+            case WeaponData.FireModes.Burst: ShootingBurst(); return; // Returning here prevents HandleShooting() from writing to timeWhenWeCanShoot prematurely on the next line.
             case WeaponData.FireModes.Auto: ShootingAuto(); break;
         }
         timeWhenWeCanShoot = Time.time + (1f / weaponData.FireRate);
@@ -159,19 +159,25 @@ public class Shooting : MonoBehaviour
         if (TryGetComponent<PlayerInput>(out var playerInput))
         {
             shootAction = playerInput.actions["Shoot"];
-
+#if UNITY_EDITOR
             if (shootAction == null) Debug.LogError("[Shooting] shootAction not found.");
+#endif
 
         }
+#if UNITY_EDITOR
         else
         {
             Debug.LogError("[Shooting] Unable to find PlayerInput attached to this object.");
         }
+#endif
         if (mainCamera == null)
         {
             mainCamera = Camera.main;
+#if UNITY_EDITOR
             Debug.LogWarning("[Shooting] Main camera not set, setting to camera.main");
+#endif
         }
+#if UNITY_EDITOR
         if (weaponData == null)
         {
             Debug.LogError("[Shooting] Weapon Data is null.");
@@ -180,6 +186,8 @@ public class Shooting : MonoBehaviour
         {
             Debug.LogError("[Shooting] Ammo Handler is null.");
         }
+#endif
+
     }
     private void OnShootPerformed(InputAction.CallbackContext _) { isTriggerPressed = true; isTriggerJustPressed = true; }
     private void OnShootCanceled(InputAction.CallbackContext _) { isTriggerPressed = false; }
@@ -193,9 +201,13 @@ public class Shooting : MonoBehaviour
         float burstDelay = weaponData.BurstDelay;
         for (int i = 0; i < weaponData.BurstCount; i++)
         {
-            if(ammoHandler.ClipAmmo == 0) { break; }
+            if (ammoHandler.ClipAmmo == 0) { break; }
             PickShotAndShoot();
-            yield return new WaitForSeconds(burstDelay);
+            if (i < weaponData.BurstCount - 1) // If it's the last shot, skip the burstDelay and move straight into timeWhenWeCanShoot.
+            {
+                yield return new WaitForSeconds(burstDelay);
+            }
+
         }
         timeWhenWeCanShoot = Time.time + (1f / weaponData.FireRate);
         isBursting = false;
@@ -203,7 +215,7 @@ public class Shooting : MonoBehaviour
     public void SetIsReloadingTrue()
     {
         isReloading = true;
-    }    
+    }
     public void SetIsReloadingFalse()
     {
         isReloading = false;
