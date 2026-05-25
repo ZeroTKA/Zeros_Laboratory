@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponData
   _shotType: 0
   _projectilePrefab: {fileID: 0}
-  _availableFireModes: -1
+  _availableFireModes: 4
   _burstCount: 3
   _burstDelay: 1
   _fireRate: 30
