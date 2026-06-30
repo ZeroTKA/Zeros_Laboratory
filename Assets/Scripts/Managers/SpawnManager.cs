@@ -30,7 +30,8 @@ public class SpawnManager : MonoBehaviour
     /// </summary>
     public static SpawnManager instance;
     [Tooltip("Duration we wait incase there are no valid spawns.")]
-    [SerializeField] private WaitForSeconds _WaitForSeconds = new(.5f);
+    [SerializeField] private float _waitForSeconds = .5f;
+    private WaitForSeconds _cachedWaitForSeconds;
     [Tooltip("Maximum enemies allowed at once. Helps prevent too many things on screen at once.")]
     [SerializeField] int maxEnemies;
     private int _enemySpawnCount = 0;
@@ -56,6 +57,7 @@ public class SpawnManager : MonoBehaviour
             Destroy(gameObject);
             return;
         }
+        _cachedWaitForSeconds = new WaitForSeconds(_waitForSeconds);
     }
     private void OnDisable()
     {
@@ -273,7 +275,7 @@ public class SpawnManager : MonoBehaviour
                 {
                     Debug.LogWarning("[SpawnManager] No valid spawn point. Waiting to try and spawn.");
                     // this basically means the accumlator will continue to build and it will catch-up when it can spawn.
-                    yield return _WaitForSeconds;
+                    yield return _cachedWaitForSeconds;
                     break;
                 }
                 if (_enemySpawnCount >= maxEnemies)
@@ -396,7 +398,7 @@ public class SpawnManager : MonoBehaviour
             {
                 Debug.LogWarning("[SpawnManager] No valid spawn point. Waiting to retry.");
                 i--; // Don't consume this spawn attempt
-                yield return _WaitForSeconds;
+                yield return _cachedWaitForSeconds;
                 continue;
             }
 
