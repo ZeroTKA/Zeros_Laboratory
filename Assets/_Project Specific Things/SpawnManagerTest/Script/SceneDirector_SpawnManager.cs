@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class SceneDirector_SpawnManager : MonoBehaviour
 {
+    public static SceneDirector_SpawnManager Instance { get; private set; }
+
     [Header("Enemy Prefabs")]
     [SerializeField] GameObject enemeyBurst;
     [SerializeField] GameObject enemeyBurstDual;
@@ -18,7 +20,26 @@ public class SceneDirector_SpawnManager : MonoBehaviour
     [SerializeField] GameObject spawnDuration;
     [SerializeField] GameObject[] spawnDurationDual;
 
-    
+    public int enemyBurstQTY = 0;
+    public int enemyBurstDualQTY = 0;
+    public int enemySpawnQTY = 0;
+    public int enemySpawnDualQTY = 0;
+    public int enemyDurationQTY = 0;
+    public int enemyDurationDualQTY = 0;
+
+    private void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Debug.LogWarning("[SceneDirector_SpawnManager] Multiple instances were created. Destroying duplicate instance.");
+            Destroy(gameObject);
+            return;
+        }
+    }
 
     private void Start()
     {

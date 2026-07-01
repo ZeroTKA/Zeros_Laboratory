@@ -227,6 +227,12 @@ MonoBehaviour:
   spawnDurationDual:
   - {fileID: 265470300}
   - {fileID: 123495387}
+  enemyBurstQTY: 0
+  enemyBurstDualQTY: 0
+  enemySpawnQTY: 0
+  enemySpawnDualQTY: 0
+  enemyDurationQTY: 0
+  enemyDurationDualQTY: 0
 --- !u!1 &51595713
 GameObject:
   m_ObjectHideFlags: 0
@@ -537,7 +543,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PoolManager
   masterPool: {fileID: 1324381587}
-  maxPoolSize: 100
+  maxPoolSize: 1000
 --- !u!1 &474232591
 GameObject:
   m_ObjectHideFlags: 0

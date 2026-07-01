@@ -2,8 +2,7 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
-    string name;
-    int i = 0;
+    string objectName;
     // Update is called once per frame
     void Update()
     {
@@ -11,10 +10,29 @@ public class Enemy : MonoBehaviour
     }
     private void OnEnable()
     {
-        name = gameObject.name;
-        switch(name)
+        objectName = gameObject.name;
+        switch(objectName)
         {
-            case "":
+            case "EnemyBurst(Clone)":
+                SceneDirector_SpawnManager.Instance.enemyBurstQTY++;
+                break;
+            case "EnemyBurstDual(Clone)":
+                SceneDirector_SpawnManager.Instance.enemyBurstDualQTY++;
+                break;
+            case "EnemySpawn(Clone)":
+                SceneDirector_SpawnManager.Instance.enemySpawnQTY++;
+                break;
+            case "EnemySpawnDual(Clone)":
+                SceneDirector_SpawnManager.Instance.enemySpawnDualQTY++;
+                break;
+            case "EnemyDuration(Clone)":
+                SceneDirector_SpawnManager.Instance.enemyDurationQTY++;
+                break;
+            case "EnemyDurationDual(Clone)":
+                SceneDirector_SpawnManager.Instance.enemyDurationDualQTY++;
+                break;
+            default:
+                Debug.LogWarning("Didn't find a suitable name. That's bad");
                 break;
         }
     }
