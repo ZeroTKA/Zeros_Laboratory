@@ -164,7 +164,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SpawnManager
   _waitForSeconds: 0.5
-  maxEnemies: 50000
+  maxEnemies: 500000
 --- !u!1 &27263713
 GameObject:
   m_ObjectHideFlags: 0
@@ -209,12 +209,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 72054de6900b93a4eab2f1a3a8768f01, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SceneDirector_SpawnManager
-  spawnBurstQTY: 100
-  spawnBurstDualQTY: 100
-  spawnQTY: 200
-  spawnDualQTY: 200
-  spawnDurationQTY: 200
-  spawnDurationDualQTY: 200
+  spawnBurstQTY: 50
+  spawnBurstDualQTY: 50
+  spawnQTY: 2000
+  spawnDualQTY: 2000
+  spawnDurationQTY: 2000
+  spawnDurationDualQTY: 2000
+  spawnPerSecond: 96
+  spawnDualPerSecond: 75
+  spawnDurationEveryX: 0.01
+  spawnDurationDualEveryX: 0.01
   enemeyBurst: {fileID: 4484953881029864801, guid: 2876effbc38f8584ca304f9c87f798fe, type: 3}
   enemeyBurstDual: {fileID: 4484953881029864801, guid: 5f63de17707a59143a3bcf3682d59b35, type: 3}
   enemeySpawn: {fileID: 4484953881029864801, guid: ff517214425612746a451d1c21c5aa36, type: 3}

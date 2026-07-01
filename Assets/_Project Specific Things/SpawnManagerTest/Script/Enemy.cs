@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
+    
+
     string objectName;
     // Update is called once per frame
     void Update()
@@ -10,8 +12,18 @@ public class Enemy : MonoBehaviour
     }
     private void OnEnable()
     {
+        AddToQTY();
+    }
+    private void OnDisable()
+    {
+        SpawnManager.Instance.UnregisterSpawn();
+    }
+
+    // -- Supplement Methods -- //
+    private void AddToQTY()
+    {
         objectName = gameObject.name;
-        switch(objectName)
+        switch (objectName)
         {
             case "EnemyBurst(Clone)":
                 SceneDirector_SpawnManager.Instance.enemyBurstQTY++;
@@ -36,8 +48,5 @@ public class Enemy : MonoBehaviour
                 break;
         }
     }
-    private void OnDisable()
-    {
-        SpawnManager.Instance.UnregisterSpawn();
-    }
+    private void 
 }
