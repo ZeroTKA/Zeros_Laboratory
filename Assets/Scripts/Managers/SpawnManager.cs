@@ -28,7 +28,7 @@ public class SpawnManager : MonoBehaviour
     /// • summary / how to use SpawnManager. / Directions
     /// • 
     /// </summary>
-    public static SpawnManager instance;
+    public static SpawnManager Instance { get; private set; }
     [Tooltip("Duration we wait incase there are no valid spawns.")]
     [SerializeField] private float _waitForSeconds = .5f;
     private WaitForSeconds _cachedWaitForSeconds;
@@ -47,9 +47,9 @@ public class SpawnManager : MonoBehaviour
     /// </summary>
     private void Awake()
     {
-        if (instance == null)
+        if (Instance == null)
         {
-            instance = this;
+            Instance = this;
         }
         else
         {

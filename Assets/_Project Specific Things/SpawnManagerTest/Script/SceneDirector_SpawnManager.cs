@@ -1,16 +1,13 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class SceneDirector_SpawnManager : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+    [SerializeField] GameObject enemeyPrefab;
+    [SerializeField] GameObject spawnPoint;
 
-    // Update is called once per frame
-    void Update()
+    private void Start()
     {
-        
+        StartCoroutine(SpawnManager.Instance.SpawnBurst(enemeyPrefab, 1, spawnPoint));
     }
 }
