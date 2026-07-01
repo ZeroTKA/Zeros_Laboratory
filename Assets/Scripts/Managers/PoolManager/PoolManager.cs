@@ -42,7 +42,12 @@ public class PoolManager : MonoBehaviour
     // -- Enums -- //
     public enum PoolType
     {
-        Enemy
+        EnemyBurst,
+        EnemyBurstDual,
+        EnemySpawn,
+        EnemySpawnDual,
+        EnemyDuration,
+        EnemyDurationDual
     }
 
     // -- Transform References -- //

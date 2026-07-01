@@ -164,7 +164,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SpawnManager
   _waitForSeconds: 0.5
-  maxEnemies: 500
+  maxEnemies: 50000
 --- !u!1 &27263713
 GameObject:
   m_ObjectHideFlags: 0
@@ -209,12 +209,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 72054de6900b93a4eab2f1a3a8768f01, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SceneDirector_SpawnManager
+  spawnBurstQTY: 100
+  spawnBurstDualQTY: 100
+  spawnQTY: 200
+  spawnDualQTY: 200
+  spawnDurationQTY: 200
+  spawnDurationDualQTY: 200
   enemeyBurst: {fileID: 4484953881029864801, guid: 2876effbc38f8584ca304f9c87f798fe, type: 3}
   enemeyBurstDual: {fileID: 4484953881029864801, guid: 5f63de17707a59143a3bcf3682d59b35, type: 3}
   enemeySpawn: {fileID: 4484953881029864801, guid: ff517214425612746a451d1c21c5aa36, type: 3}
   enemeySpawnDual: {fileID: 4484953881029864801, guid: 2d5a2f10c7674ab46a3e09766c59c2af, type: 3}
   enemeyDuration: {fileID: 4484953881029864801, guid: ec95e7e5bbf5a2c4c8ae2e1c0e09b77a, type: 3}
-  enemeyDurationDual: {fileID: 4484953881029864801, guid: 2d5a2f10c7674ab46a3e09766c59c2af, type: 3}
+  enemeyDurationDual: {fileID: 4484953881029864801, guid: aa1a9d5100bcb8646adc1805bbdd1327, type: 3}
   spawnBurst: {fileID: 704115190}
   spawnBurstDual:
   - {fileID: 1446848179}

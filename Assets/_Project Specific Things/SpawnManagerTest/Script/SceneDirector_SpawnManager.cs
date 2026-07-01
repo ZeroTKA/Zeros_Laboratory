@@ -4,6 +4,20 @@ public class SceneDirector_SpawnManager : MonoBehaviour
 {
     public static SceneDirector_SpawnManager Instance { get; private set; }
 
+    [Header("Spawn Quantity Configuration")]
+    [SerializeField] int spawnBurstQTY = 100;
+    [SerializeField] int spawnBurstDualQTY = 100;
+    [SerializeField] int spawnQTY = 200;
+    [SerializeField] int spawnDualQTY = 200;
+    [SerializeField] int spawnDurationQTY = 200;
+    [SerializeField] int spawnDurationDualQTY = 200;
+
+    [Header("Spawn Timing Configuration")]
+    [SerializeField] float spawnPerSecond = 15;
+    [SerializeField] float spawnDualPerSecond = 15;
+    [SerializeField] float spawnDurationEveryX = .06f;
+    [SerializeField] float spawnDurationDualEveryX = .06f;
+
     [Header("Enemy Prefabs")]
     [SerializeField] GameObject enemeyBurst;
     [SerializeField] GameObject enemeyBurstDual;
@@ -20,6 +34,7 @@ public class SceneDirector_SpawnManager : MonoBehaviour
     [SerializeField] GameObject spawnDuration;
     [SerializeField] GameObject[] spawnDurationDual;
 
+    [Header("Actual QTY")]
     public int enemyBurstQTY = 0;
     public int enemyBurstDualQTY = 0;
     public int enemySpawnQTY = 0;
@@ -43,13 +58,13 @@ public class SceneDirector_SpawnManager : MonoBehaviour
 
     private void Start()
     {
-        StartCoroutine(SpawnManager.Instance.SpawnBurst(enemeyBurst, 100, spawnBurst));
-        StartCoroutine(SpawnManager.Instance.SpawnBurst(enemeyBurstDual, 100, spawnBurstDual));
+        StartCoroutine(SpawnManager.Instance.SpawnBurst(enemeyBurst, spawnBurstQTY, spawnBurst));
+        StartCoroutine(SpawnManager.Instance.SpawnBurst(enemeyBurstDual, spawnBurstDualQTY, spawnBurstDual));
 
-        StartCoroutine(SpawnManager.Instance.Spawn(enemeySpawn, 100, spawn, 15));
-        StartCoroutine(SpawnManager.Instance.Spawn(enemeySpawnDual, 100, spawnDual, 15));
+        StartCoroutine(SpawnManager.Instance.Spawn(enemeySpawn, spawnQTY, spawn, 15));
+        StartCoroutine(SpawnManager.Instance.Spawn(enemeySpawnDual, spawnDualQTY, spawnDual, 15));
 
-        StartCoroutine(SpawnManager.Instance.SpawnByDuration(enemeyDuration, 100, spawnDuration, .2f));
-        StartCoroutine(SpawnManager.Instance.SpawnByDuration(enemeyDurationDual, 100, spawnDurationDual, .2f));
+        StartCoroutine(SpawnManager.Instance.SpawnByDuration(enemeyDuration, spawnDurationQTY, spawnDuration, .06f));
+        StartCoroutine(SpawnManager.Instance.SpawnByDuration(enemeyDurationDual, spawnDurationDualQTY, spawnDurationDual, .06f));
     }
 }
