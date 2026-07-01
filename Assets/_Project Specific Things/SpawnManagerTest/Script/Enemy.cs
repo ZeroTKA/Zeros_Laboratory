@@ -1,9 +1,22 @@
+using System.Diagnostics;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 public class Enemy : MonoBehaviour
 {
-    
 
+    /// <summary>
+    /// 
+    /// Left over from 6.30
+    /// time to get the Min / Max / average amount of the time between spawns.
+    /// 
+    /// 
+    /// 
+    /// 
+    /// 
+    /// 
+    /// 
+    /// </summary>
     string objectName;
     // Update is called once per frame
     void Update()
@@ -12,7 +25,7 @@ public class Enemy : MonoBehaviour
     }
     private void OnEnable()
     {
-        AddToQTY();
+        GatherOnEnableData();
     }
     private void OnDisable()
     {
@@ -20,7 +33,7 @@ public class Enemy : MonoBehaviour
     }
 
     // -- Supplement Methods -- //
-    private void AddToQTY()
+    private void GatherOnEnableData()
     {
         objectName = gameObject.name;
         switch (objectName)
@@ -32,15 +45,19 @@ public class Enemy : MonoBehaviour
                 SceneDirector_SpawnManager.Instance.enemyBurstDualQTY++;
                 break;
             case "EnemySpawn(Clone)":
+                SceneDirector_SpawnManager.Instance.spawnTotalGap += TakeTime(SceneDirector_SpawnManager.Instance.watchSpawn);
                 SceneDirector_SpawnManager.Instance.enemySpawnQTY++;
                 break;
             case "EnemySpawnDual(Clone)":
+                SceneDirector_SpawnManager.Instance.spawnDualTotalGap += TakeTime(SceneDirector_SpawnManager.Instance.watchSpawnDual);
                 SceneDirector_SpawnManager.Instance.enemySpawnDualQTY++;
                 break;
             case "EnemyDuration(Clone)":
+                SceneDirector_SpawnManager.Instance.spawnDurationTotalGap += TakeTime(SceneDirector_SpawnManager.Instance.watchDuration);
                 SceneDirector_SpawnManager.Instance.enemyDurationQTY++;
                 break;
             case "EnemyDurationDual(Clone)":
+                SceneDirector_SpawnManager.Instance.spawnDurationDualTotalGap += TakeTime(SceneDirector_SpawnManager.Instance.watchDurationDual);
                 SceneDirector_SpawnManager.Instance.enemyDurationDualQTY++;
                 break;
             default:
@@ -48,5 +65,14 @@ public class Enemy : MonoBehaviour
                 break;
         }
     }
-    private void 
+    private double TakeTime(Stopwatch watch)
+    {
+        double gap = 0;
+        if (watch.IsRunning)
+        {
+            gap += watch.Elapsed.TotalSeconds;
+        }
+        watch.Restart();
+        return gap;
+    }
 }

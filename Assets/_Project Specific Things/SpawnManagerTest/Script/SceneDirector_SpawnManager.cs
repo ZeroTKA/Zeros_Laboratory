@@ -38,17 +38,22 @@ public class SceneDirector_SpawnManager : MonoBehaviour
     [SerializeField] GameObject[] spawnDurationDual;
 
     [Header("Stopwatches")]
-    static Stopwatch watchSpawn;
-    static Stopwatch watchSpawnDual;
-    static Stopwatch watchDuration;
-    static Stopwatch watchDurationDual;
+    [System.NonSerialized] public Stopwatch watchSpawn;
+    [System.NonSerialized] public Stopwatch watchSpawnDual;
+    [System.NonSerialized] public Stopwatch watchDuration;
+    [System.NonSerialized] public Stopwatch watchDurationDual;
 
     [Header("StopWatch Lists")]
     public List<double> listSpawn = new();
     public List<double> listSpawnDual = new();
     public List<double> listDuration = new();
     public List<double> listDurationDual = new();
-   
+
+    [Header("Total Time Between Spawns")]
+    public double spawnTotalGap = 0;
+    public double spawnDualTotalGap = 0;
+    public double spawnDurationTotalGap = 0;
+    public double spawnDurationDualTotalGap = 0;   
 
     [Header("Actual QTY")]
     public int enemyBurstQTY = 0;
