@@ -7,4 +7,8 @@ public class MoveEnemy : MonoBehaviour
     {
         gameObject.transform.position += new Vector3(0, 0, 4) * Time.deltaTime;
     }
+    private void OnDisable()
+    {
+        SpawnManager.Instance.UnregisterSpawn();
+    }
 }

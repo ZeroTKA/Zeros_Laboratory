@@ -8,6 +8,6 @@ public class SceneDirector_SpawnManager : MonoBehaviour
 
     private void Start()
     {
-        StartCoroutine(SpawnManager.Instance.SpawnBurst(enemeyPrefab, 1, spawnPoint));
+        StartCoroutine(SpawnManager.Instance.SpawnBurst(enemeyPrefab, 3, spawnPoint));
     }
 }
