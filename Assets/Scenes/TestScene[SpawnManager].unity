@@ -210,7 +210,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SceneDirector_SpawnManager
   enemeyPrefab: {fileID: 4484953881029864801, guid: 2876effbc38f8584ca304f9c87f798fe, type: 3}
-  spawnPoint: {fileID: 704115190}
+  spawnBurst: {fileID: 704115190}
+  spawnBurstDual:
+  - {fileID: 1446848179}
+  - {fileID: 1333339100}
+  spawn: {fileID: 2129941832}
+  spawnDual:
+  - {fileID: 1739956419}
+  - {fileID: 51595713}
+  spawnDuration: {fileID: 818949535}
+  spawnDurationDual:
+  - {fileID: 265470300}
+  - {fileID: 123495387}
 --- !u!1 &51595713
 GameObject:
   m_ObjectHideFlags: 0
