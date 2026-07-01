@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 6716536888097896593}
   - component: {fileID: 7456515762487984823}
   m_Layer: 0
-  m_Name: Enemy
+  m_Name: EnemySpawnDual
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
