@@ -211,14 +211,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SceneDirector_SpawnManager
   spawnBurstQTY: 50
   spawnBurstDualQTY: 50
-  spawnQTY: 2000
-  spawnDualQTY: 2000
-  spawnDurationQTY: 2000
-  spawnDurationDualQTY: 2000
-  spawnPerSecond: 96
-  spawnDualPerSecond: 75
-  spawnDurationEveryX: 0.01
-  spawnDurationDualEveryX: 0.01
+  spawnQTY: 100
+  spawnDualQTY: 100
+  spawnDurationQTY: 100
+  spawnDurationDualQTY: 100
+  spawnPerSecond: 10
+  spawnDualPerSecond: 10
+  spawnDurationEveryX: 0.1
+  spawnDurationDualEveryX: 0.1
   enemeyBurst: {fileID: 4484953881029864801, guid: 2876effbc38f8584ca304f9c87f798fe, type: 3}
   enemeyBurstDual: {fileID: 4484953881029864801, guid: 5f63de17707a59143a3bcf3682d59b35, type: 3}
   enemeySpawn: {fileID: 4484953881029864801, guid: ff517214425612746a451d1c21c5aa36, type: 3}
@@ -237,6 +237,14 @@ MonoBehaviour:
   spawnDurationDual:
   - {fileID: 265470300}
   - {fileID: 123495387}
+  listSpawn: []
+  listSpawnDual: []
+  listDuration: []
+  listDurationDual: []
+  spawnTotalGap: 0
+  spawnDualTotalGap: 0
+  durationTotalGap: 0
+  durationDualTotalGap: 0
   enemyBurstQTY: 0
   enemyBurstDualQTY: 0
   enemySpawnQTY: 0

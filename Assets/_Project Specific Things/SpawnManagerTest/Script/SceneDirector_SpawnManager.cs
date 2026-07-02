@@ -2,6 +2,7 @@ using System.Diagnostics;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 using System.Collections.Generic;
+using System.Collections;
 
 public class SceneDirector_SpawnManager : MonoBehaviour
 {
@@ -38,10 +39,10 @@ public class SceneDirector_SpawnManager : MonoBehaviour
     [SerializeField] GameObject[] spawnDurationDual;
 
     [Header("Stopwatches")]
-    [System.NonSerialized] public Stopwatch watchSpawn;
-    [System.NonSerialized] public Stopwatch watchSpawnDual;
-    [System.NonSerialized] public Stopwatch watchDuration;
-    [System.NonSerialized] public Stopwatch watchDurationDual;
+    [System.NonSerialized] public Stopwatch watchSpawn = new();
+    [System.NonSerialized] public Stopwatch watchSpawnDual = new();
+    [System.NonSerialized] public Stopwatch watchDuration = new();
+    [System.NonSerialized] public Stopwatch watchDurationDual = new();
 
     [Header("StopWatch Lists")]
     public List<double> listSpawn = new();
@@ -52,8 +53,14 @@ public class SceneDirector_SpawnManager : MonoBehaviour
     [Header("Total Time Between Spawns")]
     public double spawnTotalGap = 0;
     public double spawnDualTotalGap = 0;
-    public double spawnDurationTotalGap = 0;
-    public double spawnDurationDualTotalGap = 0;   
+    public double durationTotalGap = 0;
+    public double durationDualTotalGap = 0;   
+
+    private double calculatedGapSpawn;
+    private double calculatedGapSpawnDual;
+    private double calculatedGapDuration;
+    private double calculatedGapDurationDual;
+
 
     [Header("Actual QTY")]
     public int enemyBurstQTY = 0;
@@ -81,6 +88,7 @@ public class SceneDirector_SpawnManager : MonoBehaviour
 
     private void Start()
     {
+        DoMath();
         StartCoroutine(SpawnManager.Instance.SpawnBurst(enemeyBurst, spawnBurstQTY, spawnBurst));
         StartCoroutine(SpawnManager.Instance.SpawnBurst(enemeyBurstDual, spawnBurstDualQTY, spawnBurstDual));
 
@@ -89,5 +97,46 @@ public class SceneDirector_SpawnManager : MonoBehaviour
 
         StartCoroutine(SpawnManager.Instance.SpawnByDuration(enemeyDuration, spawnDurationQTY, spawnDuration, spawnDurationEveryX));
         StartCoroutine(SpawnManager.Instance.SpawnByDuration(enemeyDurationDual, spawnDurationDualQTY, spawnDurationDual, spawnDurationDualEveryX));
+
+        StartCoroutine(WaitThenGiveStats());
+    }
+
+    private void DoMath()
+    {
+        calculatedGapSpawn = spawnTotalGap / listSpawn.Count;
+        calculatedGapSpawnDual = spawnDualTotalGap / listSpawnDual.Count;
+        calculatedGapDuration = durationTotalGap / listDuration.Count;
+        calculatedGapDurationDual = durationDualTotalGap / listDurationDual.Count;
+
+        if(calculatedGapSpawn == spawnPerSecond){ Debug.Log($"Spawn Per Second {calculatedGapSpawn} = Passed");} else { Debug.Log($"Spawn Per Second {calculatedGapSpawn} = Failed"); }
+        if (calculatedGapSpawnDual == spawnDualPerSecond){ Debug.Log($"Spawn Per Second Dual {calculatedGapSpawnDual} = Passed");} else { Debug.Log($"Spawn Per Second Dual {calculatedGapSpawnDual} = Failed"); }
+        if (calculatedGapDuration == spawnDurationEveryX){ Debug.Log($"Duration Every X {calculatedGapDuration} = Passed"); } else { Debug.Log($"Duration Every X {calculatedGapDuration} = Failed"); }
+        if (calculatedGapDurationDual == spawnDurationDualEveryX){ Debug.Log($"Duration Every X Dual {calculatedGapDurationDual} = Passed"); } else { Debug.Log($"Duration Every X Dual {calculatedGapDurationDual} = Failed"); }
+
+    }
+
+    private float FindDurationOfTest()
+    {
+        
+        float temp1 = spawnQTY / spawnPerSecond;
+        float temp2 = spawnDualQTY / spawnDualPerSecond;
+        float temp3 = spawnDurationQTY * spawnDurationEveryX;
+        float temp4 = spawnDurationDualQTY * spawnDurationDualEveryX;
+
+        Debug.Log($"spawnQTY = {spawnQTY}, spawnPerSecond = {spawnPerSecond} which = {temp1}");
+        Debug.Log($"spawnDualQTY = {spawnDualQTY}, spawnDualPerSecond = {spawnDualPerSecond} which = {temp2}");
+        Debug.Log($"spawnDurationQTY = {spawnDurationQTY}, spawnDurationEveryX = {spawnDurationEveryX} which = {temp3}");
+        Debug.Log($"spawnDurationDualQTY = {spawnDurationDualQTY}, spawnPerSecond = {spawnDurationDualEveryX} which = {temp4}");
+
+
+        float maxvalue = Mathf.Max(temp1,temp2,temp3,temp4);
+        return maxvalue;
+    }
+
+    IEnumerator WaitThenGiveStats()
+    {
+        Debug.Log($"waiting for {FindDurationOfTest() + 2} seconds");
+        yield return new WaitForSeconds(FindDurationOfTest() + 2);
+        DoMath();
     }
 }
