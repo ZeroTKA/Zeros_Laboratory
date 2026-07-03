@@ -3,6 +3,8 @@ using UnityEngine;
 using Debug = UnityEngine.Debug;
 using System.Collections.Generic;
 using System.Collections;
+using UnityEditor.ShaderGraph.Internal;
+using System;
 
 public class SceneDirector_SpawnManager : MonoBehaviour
 {
@@ -56,10 +58,10 @@ public class SceneDirector_SpawnManager : MonoBehaviour
     public double durationTotalGap = 0;
     public double durationDualTotalGap = 0;   
 
-    private double calculatedGapSpawn;
-    private double calculatedGapSpawnDual;
-    private double calculatedGapDuration;
-    private double calculatedGapDurationDual;
+    private double calculatedAverageGapSpawn;
+    private double calculatedAverageGapSpawnDual;
+    private double calculatedAverageGapDuration;
+    private double calculatedAverageGapDurationDual;
 
 
     [Header("Actual QTY")]
@@ -103,16 +105,26 @@ public class SceneDirector_SpawnManager : MonoBehaviour
 
     private void DoMath()
     {
-        calculatedGapSpawn = spawnTotalGap / listSpawn.Count;
-        calculatedGapSpawnDual = spawnDualTotalGap / listSpawnDual.Count;
-        calculatedGapDuration = durationTotalGap / listDuration.Count;
-        calculatedGapDurationDual = durationDualTotalGap / listDurationDual.Count;
+        calculatedAverageGapSpawn = spawnTotalGap / listSpawn.Count;
+        calculatedAverageGapSpawnDual = spawnDualTotalGap / listSpawnDual.Count;
+        calculatedAverageGapDuration = durationTotalGap / listDuration.Count;
+        calculatedAverageGapDurationDual = durationDualTotalGap / listDurationDual.Count;
 
-        if(calculatedGapSpawn == spawnPerSecond){ Debug.Log($"Spawn Per Second {calculatedGapSpawn} = Passed");} else { Debug.Log($"Spawn Per Second {calculatedGapSpawn} = Failed"); }
-        if (calculatedGapSpawnDual == spawnDualPerSecond){ Debug.Log($"Spawn Per Second Dual {calculatedGapSpawnDual} = Passed");} else { Debug.Log($"Spawn Per Second Dual {calculatedGapSpawnDual} = Failed"); }
-        if (calculatedGapDuration == spawnDurationEveryX){ Debug.Log($"Duration Every X {calculatedGapDuration} = Passed"); } else { Debug.Log($"Duration Every X {calculatedGapDuration} = Failed"); }
-        if (calculatedGapDurationDual == spawnDurationDualEveryX){ Debug.Log($"Duration Every X Dual {calculatedGapDurationDual} = Passed"); } else { Debug.Log($"Duration Every X Dual {calculatedGapDurationDual} = Failed"); }
+        if (!double.IsNaN(calculatedAverageGapDuration))
+        {
+            float expectedIntervalSpawn = 1f / spawnPerSecond;
+            float expectedIntervalSpawnDual = 1f / spawnDualPerSecond;
 
+            if (isWithinTolerance(calculatedAverageGapSpawn, 3, expectedIntervalSpawn)) { Debug.Log($"Spawn Per Second {calculatedAverageGapSpawn} = Passed"); } else { Debug.Log($"Spawn Per Second {calculatedAverageGapSpawn} = Failed"); }
+            if (isWithinTolerance(calculatedAverageGapSpawnDual, 3, expectedIntervalSpawnDual)) { Debug.Log($"Spawn Per Second Dual {calculatedAverageGapSpawnDual} = Passed"); } else { Debug.Log($"Spawn Per Second Dual {calculatedAverageGapSpawnDual} = Failed"); }
+            if (isWithinTolerance(calculatedAverageGapDuration, 3, spawnDurationEveryX)) { Debug.Log($"Duration Every X {calculatedAverageGapDuration} = Passed"); } else { Debug.Log($"Duration Every X {calculatedAverageGapDuration} = Failed"); }
+            if (isWithinTolerance(calculatedAverageGapDurationDual, 3, spawnDurationDualEveryX)) { Debug.Log($"Duration Every X Dual {calculatedAverageGapDurationDual} = Passed"); } else { Debug.Log($"Duration Every X Dual {calculatedAverageGapDurationDual} = Failed"); }
+        }
+    }
+
+    private bool isWithinTolerance(double averageGap, float tolerancePercentage, float expectedValue)
+    {
+        if (Mathf.Abs((float)averageGap - expectedValue) <= tolerancePercentage/100*expectedValue){return true;} else { return false; }
     }
 
     private float FindDurationOfTest()
@@ -122,13 +134,6 @@ public class SceneDirector_SpawnManager : MonoBehaviour
         float temp2 = spawnDualQTY / spawnDualPerSecond;
         float temp3 = spawnDurationQTY * spawnDurationEveryX;
         float temp4 = spawnDurationDualQTY * spawnDurationDualEveryX;
-
-        Debug.Log($"spawnQTY = {spawnQTY}, spawnPerSecond = {spawnPerSecond} which = {temp1}");
-        Debug.Log($"spawnDualQTY = {spawnDualQTY}, spawnDualPerSecond = {spawnDualPerSecond} which = {temp2}");
-        Debug.Log($"spawnDurationQTY = {spawnDurationQTY}, spawnDurationEveryX = {spawnDurationEveryX} which = {temp3}");
-        Debug.Log($"spawnDurationDualQTY = {spawnDurationDualQTY}, spawnPerSecond = {spawnDurationDualEveryX} which = {temp4}");
-
-
         float maxvalue = Mathf.Max(temp1,temp2,temp3,temp4);
         return maxvalue;
     }

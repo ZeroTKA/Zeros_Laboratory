@@ -211,14 +211,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SceneDirector_SpawnManager
   spawnBurstQTY: 50
   spawnBurstDualQTY: 50
-  spawnQTY: 100
-  spawnDualQTY: 100
-  spawnDurationQTY: 100
-  spawnDurationDualQTY: 100
-  spawnPerSecond: 10
-  spawnDualPerSecond: 10
-  spawnDurationEveryX: 0.1
-  spawnDurationDualEveryX: 0.1
+  spawnQTY: 10000
+  spawnDualQTY: 10000
+  spawnDurationQTY: 10000
+  spawnDurationDualQTY: 10000
+  spawnPerSecond: 100
+  spawnDualPerSecond: 100
+  spawnDurationEveryX: 0.01
+  spawnDurationDualEveryX: 0.01
   enemeyBurst: {fileID: 4484953881029864801, guid: 2876effbc38f8584ca304f9c87f798fe, type: 3}
   enemeyBurstDual: {fileID: 4484953881029864801, guid: 5f63de17707a59143a3bcf3682d59b35, type: 3}
   enemeySpawn: {fileID: 4484953881029864801, guid: ff517214425612746a451d1c21c5aa36, type: 3}
@@ -561,7 +561,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PoolManager
   masterPool: {fileID: 1324381587}
-  maxPoolSize: 1000
+  maxPoolSize: 100000
 --- !u!1 &474232591
 GameObject:
   m_ObjectHideFlags: 0

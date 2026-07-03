@@ -20,6 +20,7 @@ public class SpawnManager : MonoBehaviour
     /// •	Hook up to your PoolManager.
     /// •   Provide GameObjects with box colliders to use as spawn points
     /// •   Make sure you decrement enemyspawncount.
+    /// •   Capped at 1 spawn per frame.    /// 
     /// </summary>
 
 
