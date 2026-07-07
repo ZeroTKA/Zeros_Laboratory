@@ -3,8 +3,6 @@ using UnityEngine;
 using Debug = UnityEngine.Debug;
 using System.Collections.Generic;
 using System.Collections;
-using UnityEditor.ShaderGraph.Internal;
-using System;
 
 public class SceneDirector_SpawnManager : MonoBehaviour
 {

@@ -47,7 +47,8 @@ public class PoolManager : MonoBehaviour
         EnemySpawn,
         EnemySpawnDual,
         EnemyDuration,
-        EnemyDurationDual
+        EnemyDurationDual,
+        PoolManagerTestOne
     }
 
     // -- Transform References -- //
