@@ -3,21 +3,9 @@ using System.Diagnostics;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
-public class Enemy : MonoBehaviour
+public class Enemy_SpawnManager : MonoBehaviour
 {
 
-    /// <summary>
-    /// 
-    /// Left over from 6.30
-    /// time to get the Min / Max / average amount of the time between spawns.
-    /// 
-    /// 
-    /// 
-    /// 
-    /// 
-    /// 
-    /// 
-    /// </summary>
     string objectName;
     // Update is called once per frame
     void Update()

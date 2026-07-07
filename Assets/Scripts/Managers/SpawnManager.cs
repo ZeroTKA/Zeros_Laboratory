@@ -12,7 +12,7 @@ public class SpawnManager : MonoBehaviour
     /// •	SpawnByDuration(...) overloads (fixed interval between spawns).
     /// •	Uses object pool to Rent(GameObject) 
     /// •	Stops early when enemySpawnCount >= maxEnemies.
-    /// •
+    /// •   Capped at 1 spawn per frame.   
     /// </summary>
 
     /// <summary>
@@ -20,7 +20,7 @@ public class SpawnManager : MonoBehaviour
     /// •	Hook up to your PoolManager.
     /// •   Provide GameObjects with box colliders to use as spawn points
     /// •   Make sure you decrement enemyspawncount.
-    /// •   Capped at 1 spawn per frame.    /// 
+    /// •   
     /// </summary>
 
 
