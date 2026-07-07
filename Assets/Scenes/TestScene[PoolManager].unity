@@ -214,8 +214,10 @@ MonoBehaviour:
   TestOneInactiveCount: {fileID: 403933778}
   testOneObject: {fileID: 4484953881029864801, guid: 9e38c86757f27974294f10604bdfe31b, type: 3}
   testOneSpawnPoint: {fileID: 54597694}
-  testOneQTY: 50
+  testOneQTY: 1000
   testOneSpawnsPerSecond: 6
+  testOnePrewarm: 0
+  testOnePrewarmQTY: 30
 --- !u!1 &54597694
 GameObject:
   m_ObjectHideFlags: 0

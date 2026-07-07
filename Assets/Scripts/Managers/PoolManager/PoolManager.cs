@@ -263,7 +263,7 @@ public class PoolManager : MonoBehaviour
     /// <summary>
     /// This is used to preload at your time of choosing instead of during gameplay.
     /// </summary>
-    /// <param name="prefab">GameObject we want to prewarm</param>
+    /// <param name="prefab">GameObject we want to testOnePrewarm</param>
     /// <param name="count">How many times are we insantiating the prefab?</param>
     public void Prewarm(GameObject prefab, int count)
     {

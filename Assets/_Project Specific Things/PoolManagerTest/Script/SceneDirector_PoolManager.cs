@@ -14,16 +14,22 @@ public class SceneDirector_PoolManager : MonoBehaviour
     [SerializeField] GameObject testOneSpawnPoint;
     [SerializeField] int testOneQTY = 10;
     [SerializeField] float testOneSpawnsPerSecond = 5;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    [SerializeField] bool testOnePrewarm = false;
+    [SerializeField] int testOnePrewarmQTY = 10;
+
     void Start()
     {
-        for (int i = 0; i <= 1; i++)
+        if (testOnePrewarm) { PrewarmPool(testOneObject, testOnePrewarmQTY); }
+        for (int i = 0; i <= 4; i++)
         {
             SpawningSoManyThings();
         }
         StartCoroutine(UpdateUICounts());
     }
-
+    void PrewarmPool(GameObject prefab, int Qty)
+    {
+        PoolManager.Instance.Prewarm(prefab, Qty);
+    }
     void SpawningSoManyThings()
     {
         StartCoroutine(SpawnManager.Instance.Spawn(testOneObject, testOneQTY, testOneSpawnPoint, testOneSpawnsPerSecond));
