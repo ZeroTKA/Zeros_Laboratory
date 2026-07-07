@@ -27,7 +27,7 @@ public class PoolManager : MonoBehaviour
     /// 4. Call PoolManager.Instance.Rent(prefab) to retrieve an object from the pool (returned object is active).
     /// 5. Call PoolManager.Instance.PutBack(obj) to return the object to the pool when you're finished with it.
     /// 6. (Optional) Call PoolManager.Instance.Prewarm(prefab, count) at scene start to pre-populate pools.
-    /// 7. (Optional) Use GetTotalCount/GetAvailableCount/GetActiveCount for debugging pool state.
+    /// 7. (Optional) Use GetPoolSize/GetInactiveCount/GetActiveCount for debugging pool state.
     /// 8. (Optional) Call ClearPool(type) or ClearAllPools() when transitioning scenes or resetting game state.
     /// </summary>
     
@@ -296,7 +296,7 @@ public class PoolManager : MonoBehaviour
     }
 
     // -- Query Methods -- //
-    public int GetTotalCount(PoolType type) => poolLists[type].Count;
-    public int GetAvailableCount(PoolType type) => poolStacks[type].Count;
-    public int GetActiveCount(PoolType type) => GetTotalCount(type) - GetAvailableCount(type);
+    public int GetPoolSize(PoolType type) => poolLists[type].Count;
+    public int GetInactiveCount(PoolType type) => poolStacks[type].Count;
+    public int GetActiveCount(PoolType type) => GetPoolSize(type) - GetInactiveCount(type);
 }
