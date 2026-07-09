@@ -25,6 +25,7 @@ public class SceneDirector_PoolManager : MonoBehaviour
             SpawningSoManyThings();
         }
         StartCoroutine(UpdateUICounts());
+        StartCoroutine(ClearPools());
     }
     void PrewarmPool(GameObject prefab, int Qty)
     {
@@ -41,7 +42,16 @@ public class SceneDirector_PoolManager : MonoBehaviour
         TestOneActiveCount.text = $"Total Active: {PoolManager.Instance.GetActiveCount(Pool)}";    
         TestOneInactiveCount.text = $"Total Inactive: {PoolManager.Instance.GetInactiveCount(Pool)}";
     }
-
+    IEnumerator ClearPools()
+    {
+        yield return new WaitForSeconds(5);
+        PoolManager.Instance.ClearAllPools();
+        if (testOnePrewarm) { PrewarmPool(testOneObject, 10); }
+        for (int i = 0; i <= 1; i++)
+        {
+            SpawningSoManyThings();
+        }
+    }
     IEnumerator UpdateUICounts()
     {
         WaitForSeconds wait = new(.25f);
