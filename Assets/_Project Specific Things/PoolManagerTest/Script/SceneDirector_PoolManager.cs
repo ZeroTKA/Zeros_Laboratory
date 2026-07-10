@@ -7,6 +7,9 @@ public class SceneDirector_PoolManager : MonoBehaviour
 {
     /// <summary>
     /// Test 1: Prewarming and if the pools are being created
+    /// Test 2: ClearPool
+    /// Test 3: ClearAllPools
+    /// Test 4: ReturnAllActive.
     /// </summary>
 
     [Header("UI for Pools")]
@@ -59,7 +62,6 @@ public class SceneDirector_PoolManager : MonoBehaviour
     }
     IEnumerator TestThree()
     {
-        if (testOnePrewarm) { PrewarmPool(testOneObject, 10); }
         for (int i = 0; i <= 2; i++)
         {
             SpawningSoManyThings();
@@ -67,6 +69,18 @@ public class SceneDirector_PoolManager : MonoBehaviour
         }
         yield return new WaitForSeconds(testOneQTY / testOneSpawnsPerSecond + 3);
         PoolManager.Instance.ClearAllPools();
+        yield return new WaitForSeconds(2);
+        StartCoroutine(TestFour());
+    }
+    IEnumerator TestFour()
+    {
+        for (int i = 0; i <= 2; i++)
+        {
+            SpawningSoManyThings();
+            StartCoroutine(SpawnManager.Instance.SpawnBurst(testThreeObject, 50, testOneSpawnPoint));
+        }
+        yield return new WaitForSeconds(1);
+        PoolManager.Instance.ReturnAllActive(PoolManager.PoolType.EnemySpawn);
     }
     IEnumerator UpdateUICounts()
     {
