@@ -1,9 +1,14 @@
 using UnityEngine;
 using TMPro;
 using System.Collections;
+using Unity.VisualScripting;
 
 public class SceneDirector_PoolManager : MonoBehaviour
 {
+    /// <summary>
+    /// Test 1: Prewarming and if the pools are being created
+    /// </summary>
+
     [Header("UI for Pools")]
     [SerializeField] TextMeshProUGUI TestOnePoolSize;
     [SerializeField] TextMeshProUGUI TestOneActiveCount;
@@ -17,15 +22,19 @@ public class SceneDirector_PoolManager : MonoBehaviour
     [SerializeField] bool testOnePrewarm = false;
     [SerializeField] int testOnePrewarmQTY = 10;
 
+    [Header("TestThree Information")]
+    [SerializeField] GameObject testThreeObject;
+
     void Start()
     {
         if (testOnePrewarm) { PrewarmPool(testOneObject, testOnePrewarmQTY); }
-        for (int i = 0; i <= 4; i++)
+        for (int i = 0; i <= 2; i++)
         {
             SpawningSoManyThings();
+            StartCoroutine(SpawnManager.Instance.Spawn(testThreeObject, testOneQTY, testOneSpawnPoint, testOneSpawnsPerSecond));
         }
         StartCoroutine(UpdateUICounts());
-        StartCoroutine(ClearPools());
+        StartCoroutine(TestTwo());
     }
     void PrewarmPool(GameObject prefab, int Qty)
     {
@@ -42,15 +51,22 @@ public class SceneDirector_PoolManager : MonoBehaviour
         TestOneActiveCount.text = $"Total Active: {PoolManager.Instance.GetActiveCount(Pool)}";    
         TestOneInactiveCount.text = $"Total Inactive: {PoolManager.Instance.GetInactiveCount(Pool)}";
     }
-    IEnumerator ClearPools()
+    IEnumerator TestTwo()
     {
-        yield return new WaitForSeconds(5);
-        PoolManager.Instance.ClearAllPools();
+        yield return new WaitForSeconds(testOneQTY/testOneSpawnsPerSecond + 3);
+        PoolManager.Instance.ClearPool(PoolManager.PoolType.PoolManagerTestOne);
+        StartCoroutine(TestThree());
+    }
+    IEnumerator TestThree()
+    {
         if (testOnePrewarm) { PrewarmPool(testOneObject, 10); }
-        for (int i = 0; i <= 1; i++)
+        for (int i = 0; i <= 2; i++)
         {
             SpawningSoManyThings();
+            StartCoroutine(SpawnManager.Instance.Spawn(testThreeObject, testOneQTY, testOneSpawnPoint, testOneSpawnsPerSecond));
         }
+        yield return new WaitForSeconds(testOneQTY / testOneSpawnsPerSecond + 3);
+        PoolManager.Instance.ClearAllPools();
     }
     IEnumerator UpdateUICounts()
     {

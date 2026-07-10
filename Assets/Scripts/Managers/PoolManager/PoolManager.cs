@@ -225,7 +225,7 @@ public class PoolManager : MonoBehaviour
         poolStacks[type].Clear();
     }
     /// <summary>
-    /// ClearPools() big brother. It's a nuke to all pools.
+    /// TestTwo() big brother. It's a nuke to all pools.
     /// </summary>
     public void ClearAllPools()
     {
