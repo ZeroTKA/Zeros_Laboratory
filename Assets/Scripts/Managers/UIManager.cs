@@ -1,16 +1,27 @@
 using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
 
 public class UIManager : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+    [Header("Escape Menu")]
+    [SerializeField] GameObject escMenu;
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    [SerializeField] Button exitButton;
+    [SerializeField] Button resumeButton;
+    [SerializeField] Button settingsButton;
+
+    [Header("Settings Menu")]
+    [SerializeField] GameObject settingsMenu;
+
+    [SerializeField] Button audioButton;
+    [SerializeField] Button backButton;
+    [SerializeField] Button displayButton;
+    [SerializeField] Button gameButton;
+    [SerializeField] Button graphicsButton;
+    [SerializeField] Button saveButton;
+    [SerializeField] Button discardButton;
+
+    [Header("Audio Menu")]
+    [SerializeField] GameObject audioMenu;
 }
