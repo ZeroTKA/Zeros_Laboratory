@@ -26,19 +26,19 @@ public class UIManager : MonoBehaviour
     [SerializeField] GameObject audioMenu;
 
     // -- Escape Menu Functions -- //
-    void EscapeMenuButtonPressed()
+    public void EscapeMenuButtonPressed()
     {
         escMenu.SetActive(!escMenu.activeSelf);
     }
-    void ResumeWasClicked()
+    public void ResumeWasClicked()
     {
 
     }
-    void SettingsWasClicked()
+    public void SettingsWasClicked()
     {
 
     }
-    void QiitWasClicked()
+    public void QiitWasClicked()
     {
 
     }
