@@ -1,16 +1,24 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
+
 
 public class PlayerMenuInput : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+    //-- Input Actions --//  -- To add an action, make sure to add in OnDisable, OnEnable, and in StartErrorChecking.
+    private InputAction escAction;
 
-    // Update is called once per frame
-    void Update()
+    private void StartErrorChecking()
     {
-        
+        if (TryGetComponent<PlayerInput>(out var playerInput))
+        {
+            escAction = playerInput.actions["Escape"];
+            if (escAction == null) Debug.LogError("[PlayerMenuInput] Escape action not found.");
+
+        }
+        else
+        {
+            Debug.LogError("[PlayerMenuInput] Unable to find PlayerInput.");
+        }
+
     }
 }
