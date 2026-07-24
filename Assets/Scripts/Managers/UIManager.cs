@@ -7,7 +7,7 @@ public class UIManager : MonoBehaviour
     [Header("Escape Menu")]
     [SerializeField] GameObject escMenu;
 
-    [SerializeField] Button exitButton;
+    [SerializeField] Button quitButton;
     [SerializeField] Button resumeButton;
     [SerializeField] Button settingsButton;
 
@@ -24,4 +24,22 @@ public class UIManager : MonoBehaviour
 
     [Header("Audio Menu")]
     [SerializeField] GameObject audioMenu;
+
+    // -- Escape Menu Functions -- //
+    void EscapeMenuButtonPressed()
+    {
+        escMenu.SetActive(!escMenu.activeSelf);
+    }
+    void ResumeWasClicked()
+    {
+
+    }
+    void SettingsWasClicked()
+    {
+
+    }
+    void QiitWasClicked()
+    {
+
+    }
 }
