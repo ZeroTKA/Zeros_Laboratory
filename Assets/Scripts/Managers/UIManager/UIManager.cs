@@ -29,17 +29,24 @@ public class UIManager : MonoBehaviour
     public void EscapeMenuButtonPressed()
     {
         escMenu.SetActive(!escMenu.activeSelf);
+        Cursor.lockState = escMenu.activeSelf ? CursorLockMode.Confined : CursorLockMode.None;
     }
     public void ResumeWasClicked()
     {
-
+        Debug.Log("Resume Clicked");
+        EscapeMenuButtonPressed();
     }
     public void SettingsWasClicked()
     {
-
+        Debug.Log("Settings Clicked");
     }
-    public void QiitWasClicked()
+    public void QuitWasClicked()
     {
-
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+    Application.Quit();
+#endif
+        Debug.Log("Quit Clicked");
     }
 }
