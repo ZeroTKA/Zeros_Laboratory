@@ -57,4 +57,11 @@ public class PauseMenu : MonoBehaviour
     {
         audioMenu.SetActive(!audioMenu.activeSelf);
     }
+
+    public void BackButtonWasPressed()
+    {        
+        settingsMenu.SetActive(false);
+        audioMenu.SetActive(false);
+        escMenu.SetActive(true);
+    }
 }
