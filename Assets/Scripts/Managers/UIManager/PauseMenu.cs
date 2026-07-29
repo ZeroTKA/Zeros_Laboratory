@@ -1,31 +1,22 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEditor.Rendering;
 
 public class PauseMenu : MonoBehaviour
 {
+    GameObject currentAcitvatedMenu;
     [Header("Escape Menu")]
     [SerializeField] GameObject escMenu;
-
-    [SerializeField] Button quitButton;
-    [SerializeField] Button resumeButton;
-    [SerializeField] Button settingsButton;
-
+    
     [Header("Settings Menu")]
     [SerializeField] GameObject settingsMenu;
 
-    [SerializeField] Button audioButton;
-    [SerializeField] Button backButton;
-    [SerializeField] Button displayButton;
-    [SerializeField] Button gameButton;
-    [SerializeField] Button graphicsButton;
-    [SerializeField] Button saveButton;
-    [SerializeField] Button discardButton;
-    [SerializeField] Button UIButton;
-    [SerializeField] Button AccessibilityButton;
-
     [Header("Audio Menu")]
     [SerializeField] GameObject audioMenu;
+
+    [Header("Graphics Menu")]
+    [SerializeField] GameObject graphicsMenu;
 
     // -- Escape Menu Functions -- //
     public void EscapeMenuButtonPressed()
@@ -55,7 +46,11 @@ public class PauseMenu : MonoBehaviour
 
     public void AudioButtonWasPressed()
     {
-        audioMenu.SetActive(!audioMenu.activeSelf);
+        ChangeToMenu(audioMenu);
+    }
+    public void GraphicsButtonWasPressed()
+    {
+        ChangeToMenu(graphicsMenu);
     }
 
     public void BackButtonWasPressed()
@@ -63,5 +58,14 @@ public class PauseMenu : MonoBehaviour
         settingsMenu.SetActive(false);
         audioMenu.SetActive(false);
         escMenu.SetActive(true);
+    }
+
+    // -- Supplemental Functions -- //
+    private void ChangeToMenu(GameObject menuToTurnOn)
+    {
+        if(menuToTurnOn == currentAcitvatedMenu) { return; }
+        if(currentAcitvatedMenu != null) { currentAcitvatedMenu.SetActive(false); }        
+        menuToTurnOn.SetActive(true);
+        currentAcitvatedMenu = menuToTurnOn;
     }
 }
