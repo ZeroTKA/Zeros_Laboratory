@@ -50,4 +50,11 @@ public class PauseMenu : MonoBehaviour
     Application.Quit();
 #endif        
     }
+
+    // -- Settings Menu Functions -- //
+
+    public void AudioButtonWasPressed()
+    {
+        audioMenu.SetActive(!audioMenu.activeSelf);
+    }
 }

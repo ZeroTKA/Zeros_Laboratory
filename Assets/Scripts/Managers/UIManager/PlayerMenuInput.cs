@@ -1,14 +1,9 @@
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.InputSystem;
 
 
 public class PlayerMenuInput : MonoBehaviour
 {
-    // -- Unite Events -- //
-    public UnityEvent OnEscActionPress; // wire up to UI Manager.EscapeMenuButtonPressed
-
-
     // -- Input Actions -- //  Make sure to add in Project Settings, OnDisable, OnEnable, and in StartErrorChecking.
     private InputAction escAction;
 
@@ -21,7 +16,10 @@ public class PlayerMenuInput : MonoBehaviour
     {
         if(escAction.WasPressedThisFrame())
         {
-            OnEscActionPress?.Invoke();
+            if(UIManager.Instance.CurrentState != UIManager.UIState.Pause)
+            {
+                UIManager.Instance.ChangeState(UIManager.UIState.Pause);
+            }
         }
     }
     private void OnDisable()
