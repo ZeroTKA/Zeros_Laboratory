@@ -74,6 +74,7 @@ public class PoolManager : MonoBehaviour
         {
             Instance = this;
         }
+#if UNITY_EDITOR
         else
         {
             Debug.LogWarning("[PoolManager] Multiple instances were created. Destroying duplicate instance.");
@@ -85,6 +86,7 @@ public class PoolManager : MonoBehaviour
             Debug.LogError("[PoolManager] masterPool is not assigned in the inspector!");
             return;
         }
+#endif
 
         // -- Initialize dictionaries for each PoolType -- //
         foreach (PoolType type in System.Enum.GetValues(typeof(PoolType)))
@@ -140,10 +142,12 @@ public class PoolManager : MonoBehaviour
             }
 #endif
         }
+#if UNITY_EDITOR
         else
         {
             Debug.LogError($"[PoolManager] Prefab missing Poolable component. It's named {genericObject.name}");
         }
+#endif
         return genericObject;
     }
     /// <summary>
