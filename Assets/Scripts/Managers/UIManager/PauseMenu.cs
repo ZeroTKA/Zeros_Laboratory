@@ -15,7 +15,7 @@ public class PauseMenu : MonoBehaviour
     [Header("Graphics Menu")]
     [SerializeField] GameObject graphicsMenu;
 
-    // -- Escape Menu Functions -- //
+    // -- Escape Menu Methods -- //
     /// <summary>
     /// Either brings up or takes down Escape Menu.
     /// </summary>
@@ -52,8 +52,7 @@ public class PauseMenu : MonoBehaviour
 #endif        
     }
 
-    // -- Settings Menu Functions -- //
-
+    // -- Settings Menu Methods -- //
     /// <summary>
     /// Does all the things to show Audio Settings.
     /// </summary>
@@ -78,8 +77,7 @@ public class PauseMenu : MonoBehaviour
         UIManager.Instance.ChangeState(UIManager.UIState.Pause);
     }
 
-    // -- Supplemental Functions -- //
-
+    // -- Supplemental Methods -- //
     /// <summary>
     /// Pass in whatever GameObject you wish to be active--it'll also turn off the current menu.
     /// </summary>
