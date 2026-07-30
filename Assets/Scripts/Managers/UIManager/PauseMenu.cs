@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class PauseMenu : MonoBehaviour
 {
-    GameObject currentAcitvatedMenu;
+    GameObject currentAcitveMenu;
     [Header("Escape Menu")]
     [SerializeField] GameObject escMenu;
 
@@ -16,21 +16,33 @@ public class PauseMenu : MonoBehaviour
     [SerializeField] GameObject graphicsMenu;
 
     // -- Escape Menu Functions -- //
+    /// <summary>
+    /// Either brings up or takes down Escape Menu.
+    /// </summary>
     public void EscapeMenuButtonPressed()
     {
         escMenu.SetActive(!escMenu.activeSelf);
     }
+    /// <summary>
+    /// Does everything to bring us back to Gameplay.
+    /// </summary>
     public void ResumeWasClicked()
     {
         EscapeMenuButtonPressed();
         UIManager.Instance.ChangeState(UIManager.UIState.Gameplay);
     }
+    /// <summary>
+    /// Does everything to bring up the Settings Menu.
+    /// </summary>
     public void SettingsWasClicked()
     {
         settingsMenu.SetActive(true);
         escMenu.SetActive(false);
         UIManager.Instance.ChangeState(UIManager.UIState.Settings);
     }
+    /// <summary>
+    /// Stops literally everything.
+    /// </summary>
     public void QuitWasClicked()
     {
 #if UNITY_EDITOR
@@ -42,15 +54,23 @@ public class PauseMenu : MonoBehaviour
 
     // -- Settings Menu Functions -- //
 
+    /// <summary>
+    /// Does all the things to show Audio Settings.
+    /// </summary>
     public void AudioButtonWasPressed()
     {
         ChangeToMenu(audioMenu);
     }
+    /// <summary>
+    /// Does all the things to show Graphics Settings.
+    /// </summary>
     public void GraphicsButtonWasPressed()
     {
         ChangeToMenu(graphicsMenu);
     }
-
+    /// <summary>
+    /// Does all the things to get us back to the Escape Menu.
+    /// </summary>
     public void BackButtonWasPressed()
     {
         ChangeToMenu(escMenu);
@@ -59,11 +79,16 @@ public class PauseMenu : MonoBehaviour
     }
 
     // -- Supplemental Functions -- //
+
+    /// <summary>
+    /// Pass in whatever GameObject you wish to be active--it'll also turn off the current menu.
+    /// </summary>
+    /// <param name="menuToTurnOn">GameObject to be visible.</param>
     private void ChangeToMenu(GameObject menuToTurnOn)
     {
-        if (menuToTurnOn == currentAcitvatedMenu) { return; }
-        if (currentAcitvatedMenu != null) { currentAcitvatedMenu.SetActive(false); }
+        if (menuToTurnOn == currentAcitveMenu) { return; }
+        if (currentAcitveMenu != null) { currentAcitveMenu.SetActive(false); }
         menuToTurnOn.SetActive(true);
-        currentAcitvatedMenu = menuToTurnOn;
+        currentAcitveMenu = menuToTurnOn;
     }
 }
