@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.InputSystem;
 
 
@@ -6,6 +7,7 @@ public class PlayerMenuInput : MonoBehaviour
 {
     // -- Input Actions -- //  Make sure to add in Project Settings, OnDisable, OnEnable, and in StartErrorChecking.
     private InputAction escAction;
+    public UnityEvent escButtonPressed;
 
     // -- Specialty Methods -- //
     private void Awake()
@@ -14,12 +16,10 @@ public class PlayerMenuInput : MonoBehaviour
     }
     private void Update()
     {
-        if(escAction.WasPressedThisFrame())
+        if (escAction.WasPressedThisFrame())
         {
-            if(UIManager.Instance.CurrentState != UIManager.UIState.Pause)
-            {
-                UIManager.Instance.ChangeState(UIManager.UIState.Pause);
-            }
+            if (UIManager.Instance.CurrentState == UIManager.UIState.Gameplay){ UIManager.Instance.ChangeState(UIManager.UIState.Pause); escButtonPressed?.Invoke(); }
+            else if(UIManager.Instance.CurrentState == UIManager.UIState.Pause) { UIManager.Instance.ChangeState(UIManager.UIState.Gameplay); escButtonPressed?.Invoke(); }            
         }
     }
     private void OnDisable()

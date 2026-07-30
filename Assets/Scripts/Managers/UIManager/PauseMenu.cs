@@ -1,14 +1,11 @@
 using UnityEngine;
-using UnityEngine.UI;
-using TMPro;
-using UnityEditor.Rendering;
 
 public class PauseMenu : MonoBehaviour
 {
     GameObject currentAcitvatedMenu;
     [Header("Escape Menu")]
     [SerializeField] GameObject escMenu;
-    
+
     [Header("Settings Menu")]
     [SerializeField] GameObject settingsMenu;
 
@@ -22,16 +19,17 @@ public class PauseMenu : MonoBehaviour
     public void EscapeMenuButtonPressed()
     {
         escMenu.SetActive(!escMenu.activeSelf);
-        Cursor.lockState = escMenu.activeSelf ? CursorLockMode.None : CursorLockMode.Locked;
     }
     public void ResumeWasClicked()
     {
         EscapeMenuButtonPressed();
+        UIManager.Instance.ChangeState(UIManager.UIState.Gameplay);
     }
     public void SettingsWasClicked()
     {
         settingsMenu.SetActive(true);
         escMenu.SetActive(false);
+        UIManager.Instance.ChangeState(UIManager.UIState.Settings);
     }
     public void QuitWasClicked()
     {
@@ -54,17 +52,17 @@ public class PauseMenu : MonoBehaviour
     }
 
     public void BackButtonWasPressed()
-    {        
+    {
+        ChangeToMenu(escMenu);
         settingsMenu.SetActive(false);
-        audioMenu.SetActive(false);
-        escMenu.SetActive(true);
+        UIManager.Instance.ChangeState(UIManager.UIState.Pause);
     }
 
     // -- Supplemental Functions -- //
     private void ChangeToMenu(GameObject menuToTurnOn)
     {
-        if(menuToTurnOn == currentAcitvatedMenu) { return; }
-        if(currentAcitvatedMenu != null) { currentAcitvatedMenu.SetActive(false); }        
+        if (menuToTurnOn == currentAcitvatedMenu) { return; }
+        if (currentAcitvatedMenu != null) { currentAcitvatedMenu.SetActive(false); }
         menuToTurnOn.SetActive(true);
         currentAcitvatedMenu = menuToTurnOn;
     }

@@ -4,9 +4,11 @@ using UnityEngine.Events;
 public class UIManager : MonoBehaviour
 {
     public UIState CurrentState { get; private set; }
-    public enum UIState { Pause, Inventory, Dialogue, Gameplay, MainMenu }
+    public enum UIState { Pause, Settings, Inventory, Dialogue, Gameplay, MainMenu }
 
-    public UnityEvent PauseMenu;
+    public UnityEvent pauseMenu;
+    public UnityEvent settingsMenu;
+    public UnityEvent gamePlay;
 
     public static UIManager Instance { get; private set; }
 
@@ -24,13 +26,12 @@ public class UIManager : MonoBehaviour
             Destroy(gameObject);
             return;
         }
-        CurrentState = UIState.Gameplay;
     }
 
     public void ChangeState(UIState newState)
     {
 #if UNITY_EDITOR
-        if(CurrentState == newState)
+        if (CurrentState == newState)
         {
             Debug.LogError($"[UIManager] We are already in the currentState: {newState} but we are trying to change to it again.");
         }
@@ -43,13 +44,19 @@ public class UIManager : MonoBehaviour
         switch (CurrentState)
         {
             case UIState.Pause:
-                PauseMenu?.Invoke();
+                pauseMenu?.Invoke();
+                if (Cursor.lockState != CursorLockMode.None) { Cursor.lockState = CursorLockMode.None; }
                 break;
             case UIState.Inventory:
+                break;
+            case UIState.Settings:
+                settingsMenu?.Invoke();
                 break;
             case UIState.Dialogue:
                 break;
             case UIState.Gameplay:
+                gamePlay?.Invoke();
+                Cursor.lockState = CursorLockMode.Locked;
                 break;
             case UIState.MainMenu:
                 break;
