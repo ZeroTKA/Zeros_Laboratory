@@ -12,7 +12,7 @@ public class SpawnManager : MonoBehaviour
     /// •	SpawnByDuration(...) overloads (fixed interval between spawns).
     /// •	Uses object pool to Rent(GameObject) 
     /// •	Stops early when enemySpawnCount >= maxEnemies.
-    /// •
+    /// •   Capped at 1 spawn per frame.   
     /// </summary>
 
     /// <summary>
@@ -20,6 +20,7 @@ public class SpawnManager : MonoBehaviour
     /// •	Hook up to your PoolManager.
     /// •   Provide GameObjects with box colliders to use as spawn points
     /// •   Make sure you decrement enemyspawncount.
+    /// •   
     /// </summary>
 
 
@@ -28,9 +29,10 @@ public class SpawnManager : MonoBehaviour
     /// • summary / how to use SpawnManager. / Directions
     /// • 
     /// </summary>
-    public static SpawnManager instance;
+    public static SpawnManager Instance { get; private set; }
     [Tooltip("Duration we wait incase there are no valid spawns.")]
-    [SerializeField] private WaitForSeconds _WaitForSeconds = new(.5f);
+    [SerializeField] private float _waitForSeconds = .5f;
+    private WaitForSeconds _cachedWaitForSeconds;
     [Tooltip("Maximum enemies allowed at once. Helps prevent too many things on screen at once.")]
     [SerializeField] int maxEnemies;
     private int _enemySpawnCount = 0;
@@ -46,9 +48,9 @@ public class SpawnManager : MonoBehaviour
     /// </summary>
     private void Awake()
     {
-        if (instance == null)
+        if (Instance == null)
         {
-            instance = this;
+            Instance = this;
         }
         else
         {
@@ -56,6 +58,7 @@ public class SpawnManager : MonoBehaviour
             Destroy(gameObject);
             return;
         }
+        _cachedWaitForSeconds = new WaitForSeconds(_waitForSeconds);
     }
     private void OnDisable()
     {
@@ -273,7 +276,7 @@ public class SpawnManager : MonoBehaviour
                 {
                     Debug.LogWarning("[SpawnManager] No valid spawn point. Waiting to try and spawn.");
                     // this basically means the accumlator will continue to build and it will catch-up when it can spawn.
-                    yield return _WaitForSeconds;
+                    yield return _cachedWaitForSeconds;
                     break;
                 }
                 if (_enemySpawnCount >= maxEnemies)
@@ -396,7 +399,7 @@ public class SpawnManager : MonoBehaviour
             {
                 Debug.LogWarning("[SpawnManager] No valid spawn point. Waiting to retry.");
                 i--; // Don't consume this spawn attempt
-                yield return _WaitForSeconds;
+                yield return _cachedWaitForSeconds;
                 continue;
             }
 

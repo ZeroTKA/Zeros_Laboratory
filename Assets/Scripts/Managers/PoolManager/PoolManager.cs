@@ -27,7 +27,7 @@ public class PoolManager : MonoBehaviour
     /// 4. Call PoolManager.Instance.Rent(prefab) to retrieve an object from the pool (returned object is active).
     /// 5. Call PoolManager.Instance.PutBack(obj) to return the object to the pool when you're finished with it.
     /// 6. (Optional) Call PoolManager.Instance.Prewarm(prefab, count) at scene start to pre-populate pools.
-    /// 7. (Optional) Use GetTotalCount/GetAvailableCount/GetActiveCount for debugging pool state.
+    /// 7. (Optional) Use GetPoolSize/GetInactiveCount/GetActiveCount for debugging pool state.
     /// 8. (Optional) Call ClearPool(type) or ClearAllPools() when transitioning scenes or resetting game state.
     /// </summary>
     
@@ -42,7 +42,13 @@ public class PoolManager : MonoBehaviour
     // -- Enums -- //
     public enum PoolType
     {
-        Enemy
+        EnemyBurst,
+        EnemyBurstDual,
+        EnemySpawn,
+        EnemySpawnDual,
+        EnemyDuration,
+        EnemyDurationDual,
+        PoolManagerTestOne
     }
 
     // -- Transform References -- //
@@ -68,6 +74,7 @@ public class PoolManager : MonoBehaviour
         {
             Instance = this;
         }
+#if UNITY_EDITOR
         else
         {
             Debug.LogWarning("[PoolManager] Multiple instances were created. Destroying duplicate instance.");
@@ -79,6 +86,7 @@ public class PoolManager : MonoBehaviour
             Debug.LogError("[PoolManager] masterPool is not assigned in the inspector!");
             return;
         }
+#endif
 
         // -- Initialize dictionaries for each PoolType -- //
         foreach (PoolType type in System.Enum.GetValues(typeof(PoolType)))
@@ -134,10 +142,12 @@ public class PoolManager : MonoBehaviour
             }
 #endif
         }
+#if UNITY_EDITOR
         else
         {
             Debug.LogError($"[PoolManager] Prefab missing Poolable component. It's named {genericObject.name}");
         }
+#endif
         return genericObject;
     }
     /// <summary>
@@ -219,7 +229,7 @@ public class PoolManager : MonoBehaviour
         poolStacks[type].Clear();
     }
     /// <summary>
-    /// ClearPools() big brother. It's a nuke to all pools.
+    /// TestTwo() big brother. It's a nuke to all pools.
     /// </summary>
     public void ClearAllPools()
     {
@@ -257,7 +267,7 @@ public class PoolManager : MonoBehaviour
     /// <summary>
     /// This is used to preload at your time of choosing instead of during gameplay.
     /// </summary>
-    /// <param name="prefab">GameObject we want to prewarm</param>
+    /// <param name="prefab">GameObject we want to testOnePrewarm</param>
     /// <param name="count">How many times are we insantiating the prefab?</param>
     public void Prewarm(GameObject prefab, int count)
     {
@@ -290,7 +300,7 @@ public class PoolManager : MonoBehaviour
     }
 
     // -- Query Methods -- //
-    public int GetTotalCount(PoolType type) => poolLists[type].Count;
-    public int GetAvailableCount(PoolType type) => poolStacks[type].Count;
-    public int GetActiveCount(PoolType type) => GetTotalCount(type) - GetAvailableCount(type);
+    public int GetPoolSize(PoolType type) => poolLists[type].Count;
+    public int GetInactiveCount(PoolType type) => poolStacks[type].Count;
+    public int GetActiveCount(PoolType type) => GetPoolSize(type) - GetInactiveCount(type);
 }

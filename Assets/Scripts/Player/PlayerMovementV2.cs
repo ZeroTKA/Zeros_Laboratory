@@ -11,7 +11,7 @@ public class PlayerMovementV2 : MonoBehaviour
     private Stance currentStance;
     private Mobility mobility;
 
-    //-- Input Actions --//  -- To add an action, make sure to add in OnDisable, OnEnable, and in StartErrorChecking.
+    // -- Input Actions -- //  Make sure to add in Project Settings, OnDisable, OnEnable, and in StartErrorChecking.
     private InputAction lookAction;
     private InputAction moveAction;
     private InputAction sprintAction;
