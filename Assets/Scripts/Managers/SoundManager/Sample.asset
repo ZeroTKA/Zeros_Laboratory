@@ -12,6 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 52edc80e810ac964faa4811cd7769d98, type: 3}
   m_Name: Sample
   m_EditorClassIdentifier: Assembly-CSharp::SoundData
-  _soundCategory: 0
+  _clips: []
+  _category: 0
   _volume: 1
   _loop: 0
+  _minPitchAdjustment: 1
+  _maxPitchAdjustment: 1
+  _is3D: 0
+  _minDistanceFor3D: 0
+  _maxDistanceFor3D: 0
+  _cooldownForThrottling: 0
