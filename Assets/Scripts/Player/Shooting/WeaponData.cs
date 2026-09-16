@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "WeaponData", menuName = "Scriptable Objects/WeaponData")]
+[CreateAssetMenu(fileName = "WeaponData", menuName = "Scriptable Objects/WeaponData", order = 2)]
 public class WeaponData : ScriptableObject
 {
     [System.Flags]
@@ -18,7 +18,7 @@ public class WeaponData : ScriptableObject
     }
 
     [Header("Shoot Settings")]
-    [Tooltip("Raycast: Shoots a ray to see if it hits anything. Projectile: places a projectile and lets the projectile do the work. ")]
+    [Tooltip("Raycast: Shoots a ray to see if it hits anything. Projectile: Places a projectile and lets it do the work. ")]
     [SerializeField] private ShotTypes _shotType;
     [Tooltip("The prefab of the projectile it is going to be using.")]
     [SerializeField] private GameObject _projectilePrefab;
