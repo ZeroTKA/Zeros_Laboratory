@@ -24,22 +24,20 @@ public class SoundData : ScriptableObject
     [Tooltip("Should the sound loop when played?")]
     [SerializeField] private bool _loop;
     [Tooltip("Minimum random pitch adjustment. Set both min and max to 1 for no variation")]
-    [Range(0f, 1f)]
     [SerializeField] private float _minPitchAdjustment = 1f;
     [Tooltip("Maximum random pitch adjustment. Set both min and max to 1 for no variation")]
-    [Range(0f, 1f)]
     [SerializeField] private float _maxPitchAdjustment = 1f;
 
     [Header("Spatial Settings")]
     [Tooltip("Keeps track if this is 2d or 3d.")]
     [SerializeField] private bool _is3D;
-    [Tooltip("Minimum distance for full volume in 3d. Ignored if 2d.")]
+    [Tooltip("Minimum distance, in meters, for full volume in 3d. For reference: 5 = a small room, 15 = a house. Ignored if 2d.")]
     [SerializeField] private float _minDistanceFor3D;
-    [Tooltip("Maximum distance before the audio is no longer audible.")]
+    [Tooltip("Maximum distance, in meters, before the audio is no longer audible. For reference: 5 = a small room, 15 = a house. Ignored if 2d.")]
     [SerializeField] private float _maxDistanceFor3D;
 
     [Header("Throttling")]
-    [Tooltip("Minimum time in seconds before this clip can play again. 0 to disable")]
+    [Tooltip("Minimum time, in seconds, before this clip can play again. 0 to disable")]
     [SerializeField] private float _cooldownForThrottling = 0f;
 
     public AudioClip[] Clips => _clips;
@@ -82,10 +80,25 @@ public class SoundData : ScriptableObject
         }
         return _clips[index];
     }
+    public float GetPitch()
+    {
+        return Random.Range(_minPitchAdjustment, _minPitchAdjustment);
+    }
 
     private void OnValidate()
     {
-        
+        if (_clips == null || _clips.Length == 0) { Debug.LogWarning($"[SoundData] '{name}' has no clips assigned."); return; }
+        for (int i = 0; i < _clips.Length; i++)
+        {
+            if (_clips[i] == null) { Debug.LogWarning($"[SoundData] '{name}' has a null clip at index {i}."); return; }
+        }
+        if (_volume < 0f) { Debug.LogWarning($"[SoundData] '{name}' Volume can not be negative."); return; }
+        if (_minPitchAdjustment <= 0f) { Debug.LogWarning($"[SoundData] '{name}' Min Pitch must be greater than 0."); return; }
+        if (_maxPitchAdjustment <= 0f) { Debug.LogWarning($"[SoundData] '{name}' Max Pitch must be greater than 0."); return; }
+        if (_minPitchAdjustment > _maxPitchAdjustment) { Debug.LogWarning($"[SoundData] '{name}' Min Pitch can not be greater than Max Pitch."); return; }
+        if (_is3D && _minDistanceFor3D <= 0f) { Debug.LogWarning($"[SoundData] '{name}' Min Distance must be greater than 0 for 3D sounds."); return; }
+        if (_is3D && _minDistanceFor3D > _maxDistanceFor3D) { Debug.LogWarning($"[SoundData] '{name}' Min Distance can not be greater than Max Distance."); return; }
+        if (_cooldownForThrottling < 0f) { Debug.LogWarning($"[SoundData] '{name}' Cooldown can not be negative."); return; }
     }
 
 }
