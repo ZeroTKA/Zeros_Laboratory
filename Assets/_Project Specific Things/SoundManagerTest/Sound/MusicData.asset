@@ -12,8 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 52edc80e810ac964faa4811cd7769d98, type: 3}
   m_Name: MusicData
   m_EditorClassIdentifier: Assembly-CSharp::SoundData
-  _clips: []
-  _category: 0
+  _clips:
+  - {fileID: 8300000, guid: ad92938ae9f7f5a4d967ebfee26e7a20, type: 3}
+  - {fileID: 8300000, guid: 1c86cc31e8fbd7b44987f209a7a876fd, type: 3}
+  - {fileID: 8300000, guid: d4e5b97a79b1e2e499a5b7f843185213, type: 3}
+  - {fileID: 8300000, guid: ef6ceee9c4046734b8030bd9f19e8628, type: 3}
+  _category: 1
   _volume: 1
   _loop: 0
   _minPitchAdjustment: 1

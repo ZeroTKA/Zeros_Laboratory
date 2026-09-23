@@ -98,7 +98,7 @@ public class SoundData : ScriptableObject
     }
     public float GetPitch()
     {
-        return Random.Range(_minPitchAdjustment, _minPitchAdjustment);
+        return Random.Range(_minPitchAdjustment, _maxPitchAdjustment);
     }
 
     private void OnValidate()
