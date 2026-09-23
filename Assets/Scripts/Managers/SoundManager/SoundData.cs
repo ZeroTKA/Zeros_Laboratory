@@ -3,6 +3,17 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "SoundData", menuName = "Scriptable Objects/SoundData", order = 1)]
 public class SoundData : ScriptableObject
 {
+    /// <summary>
+    /// SoundData defines the properties for a sound event so all variants are consistent (think: all footstep variants defined once). 
+    /// This lets a designer create a sound event and plug it into the game. Hopefully this limits any need for a programmer after they set it up once.
+    /// Making slight changes to the behavior of the variants, such as pitch, should be achievable without help from said programmer. Design away.
+    /// </summary>
+
+    // -- This is only here to split the <summary>s up properly.
+
+    /// <summary>
+    /// This tells us what silder we need to attach it to for the mixer.
+    /// </summary>
     public enum SoundCategory
     {
         Environment,
@@ -66,6 +77,11 @@ public class SoundData : ScriptableObject
         }
         return _clips[Random.Range(0, _clips.Length)];
     }
+    /// <summary>
+    /// Returns a specific clip at <paramref name="index"/>.
+    /// </summary>
+    /// <param name="index">The index of the clip in the array.</param>
+    /// <returns>AudipClip at specified index.</returns>
     public AudioClip GetClip(int index)
     {
         if (_clips == null || _clips.Length == 0)
