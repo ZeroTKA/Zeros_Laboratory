@@ -96,6 +96,10 @@ public class SoundData : ScriptableObject
         }
         return _clips[index];
     }
+    /// <summary>
+    /// Returns a random pitch within this sound's configured range, used to avoid repetitive-sounding playback.
+    /// </summary>
+    /// <returns>A random value between minimum pitch (inclusive) and maximum pitch (inclusive)</returns>
     public float GetPitch()
     {
         return Random.Range(_minPitchAdjustment, _maxPitchAdjustment);
