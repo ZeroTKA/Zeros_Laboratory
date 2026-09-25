@@ -16,7 +16,7 @@ MonoBehaviour:
   _category: 0
   _volume: 0.645
   _loop: 1
-  _minPitchAdjustment: 1
+  _minPitchAdjustment: 464.7
   _maxPitchAdjustment: 1
   _is3D: 0
   _minDistanceFor3D: 0

@@ -12,7 +12,7 @@ public class SoundData : ScriptableObject
     // -- This is only here to split the <summary>s up properly.
 
     /// <summary>
-    /// This tells us what silder we need to attach it to for the mixer.
+    /// This tells us what slider we need to attach it to for the mixer.
     /// </summary>
     public enum SoundCategory
     {
