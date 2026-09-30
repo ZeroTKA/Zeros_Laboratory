@@ -48,16 +48,16 @@ public class SceneDirector_PoolManager : MonoBehaviour
         StartCoroutine(SpawnManager.Instance.Spawn(testOneObject, testOneQTY, testOneSpawnPoint, testOneSpawnsPerSecond));
     }
 
-    void UpdatePoolNumbers(PoolManager.PoolType Pool)
+    void UpdatePoolNumbers(GameObject prefab)
     {
-        TestOnePoolSize.text = $"Pool Size: {PoolManager.Instance.GetPoolSize(Pool)}";
-        TestOneActiveCount.text = $"Total Active: {PoolManager.Instance.GetActiveCount(Pool)}";    
-        TestOneInactiveCount.text = $"Total Inactive: {PoolManager.Instance.GetInactiveCount(Pool)}";
+        TestOnePoolSize.text = $"Pool Size: {PoolManager.Instance.GetPoolSize(prefab)}";
+        TestOneActiveCount.text = $"Total Active: {PoolManager.Instance.GetActiveCount(prefab)}";
+        TestOneInactiveCount.text = $"Total Inactive: {PoolManager.Instance.GetInactiveCount(prefab)}";
     }
     IEnumerator TestTwo()
     {
         yield return new WaitForSeconds(testOneQTY/testOneSpawnsPerSecond + 3);
-        PoolManager.Instance.ClearPool(PoolManager.PoolType.PoolManagerTestOne);
+        PoolManager.Instance.ClearPool(testOneObject);
         StartCoroutine(TestThree());
     }
     IEnumerator TestThree()
@@ -80,7 +80,7 @@ public class SceneDirector_PoolManager : MonoBehaviour
             StartCoroutine(SpawnManager.Instance.SpawnBurst(testThreeObject, 50, testOneSpawnPoint));
         }
         yield return new WaitForSeconds(1);
-        PoolManager.Instance.ReturnAllActive(PoolManager.PoolType.EnemySpawn);
+        PoolManager.Instance.ReturnAllActive(testThreeObject);
     }
     IEnumerator UpdateUICounts()
     {
@@ -88,7 +88,7 @@ public class SceneDirector_PoolManager : MonoBehaviour
         while (true)
         {
             yield return wait;
-            UpdatePoolNumbers(PoolManager.PoolType.PoolManagerTestOne);
+            UpdatePoolNumbers(testOneObject);
         }
     }
 }

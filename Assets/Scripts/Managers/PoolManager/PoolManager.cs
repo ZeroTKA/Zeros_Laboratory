@@ -21,16 +21,16 @@ public class PoolManager : MonoBehaviour
 
     /// <summary>
     /// Instructions:
-    /// 1. Add the Poolable component to any prefab you want to be pooled, and assign its PoolType in the inspector.
-    /// 2. If you're introducing a new pool category, add the corresponding PoolType value to the PoolManager enum.
+    /// 1. Add the Poolable component to any prefab you want to be pooled.
+    /// 2. Pools are keyed by prefab and created automatically. No enum edits needed.
     /// 3. Assign masterPool in the PoolManager inspector to a dedicated GameObject in your scene for organization.
     /// 4. Call PoolManager.Instance.Rent(prefab) to retrieve an object from the pool (returned object is active).
     /// 5. Call PoolManager.Instance.PutBack(obj) to return the object to the pool when you're finished with it.
     /// 6. (Optional) Call PoolManager.Instance.Prewarm(prefab, count) at scene start to pre-populate pools.
     /// 7. (Optional) Use GetPoolSize/GetInactiveCount/GetActiveCount for debugging pool state.
-    /// 8. (Optional) Call ClearPool(type) or ClearAllPools() when transitioning scenes or resetting game state.
+    /// 8. (Optional) Call ClearPool(prefab) or ClearAllPools() when transitioning scenes or resetting game state.
     /// </summary>
-    
+
 
     /// <summary>
     /// To Do List:
@@ -39,18 +39,6 @@ public class PoolManager : MonoBehaviour
 
     public static PoolManager Instance { get; private set; }
 
-    // -- Enums -- //
-    public enum PoolType
-    {
-        EnemyBurst,
-        EnemyBurstDual,
-        EnemySpawn,
-        EnemySpawnDual,
-        EnemyDuration,
-        EnemyDurationDual,
-        PoolManagerTestOne
-    }
-
     // -- Transform References -- //
     [Tooltip("The main parent object all pools go under.")]
     [SerializeField] private Transform masterPool;
@@ -58,9 +46,9 @@ public class PoolManager : MonoBehaviour
     [SerializeField] private int maxPoolSize;
 
     // -- Dictionary -- //
-    private readonly Dictionary<PoolType, List<GameObject>> poolLists = new(); // our list of all objects per pool.
-    private readonly Dictionary<PoolType, Stack<int>> poolStacks = new(); // used to cache indices that are ready to pop()
-    private readonly Dictionary<PoolType, Transform> poolTransforms = new(); // organizational purposes.
+    private readonly Dictionary<GameObject, List<GameObject>> poolLists = new(); // our list of all objects per pool.
+    private readonly Dictionary<GameObject, Stack<int>> poolStacks = new(); // used to cache indices that are ready to pop()
+    private readonly Dictionary<GameObject, Transform> poolTransforms = new(); // organizational purposes.
 
     // -- Specialty Methods -- //
 
@@ -81,24 +69,12 @@ public class PoolManager : MonoBehaviour
             Destroy(gameObject);
             return;
         }
-        if(masterPool == null)
+        if (masterPool == null)
         {
             Debug.LogError("[PoolManager] masterPool is not assigned in the inspector!");
             return;
         }
 #endif
-
-        // -- Initialize dictionaries for each PoolType -- //
-        foreach (PoolType type in System.Enum.GetValues(typeof(PoolType)))
-        {
-            poolLists[type] = new List<GameObject>();
-            poolStacks[type] = new Stack<int>();
-
-            // -- transform parenting -- //
-            GameObject poolTransform = new(type.ToString());
-            poolTransform.transform.SetParent(masterPool);
-            poolTransforms[type] = poolTransform.transform;
-        }
     }
 
     private void OnDestroy()
@@ -124,21 +100,22 @@ public class PoolManager : MonoBehaviour
         // -- Actual work on the object -- //
         if (genericObject.TryGetComponent<Poolable>(out var poolable))
         {
-            EnsurePoolExists(poolable.typeOfPool);
+            EnsurePoolExists(prefab);
+            poolable.SourcePrefab = prefab;
             genericObject.SetActive(activate);
-            genericObject.transform.SetParent(poolTransforms[poolable.typeOfPool]);
-            poolLists[poolable.typeOfPool].Add(genericObject);
-            int index = poolLists[poolable.typeOfPool].Count - 1;
+            genericObject.transform.SetParent(poolTransforms[prefab]);
+            poolLists[prefab].Add(genericObject);
+            int index = poolLists[prefab].Count - 1;
             if (!activate)
             {
                 // if the object is inactive, make sure to add it to the stack to be used. 
-                poolStacks[poolable.typeOfPool].Push(index);
+                poolStacks[prefab].Push(index);
             }
             poolable.PoolIndex = index;
 #if UNITY_EDITOR // if there's a run away pool, make sure to log warnings like mad.
-            if (poolLists[poolable.typeOfPool].Count > maxPoolSize)
+            if (poolLists[prefab].Count > maxPoolSize)
             {
-                Debug.LogWarning($"[PoolManager] Pool '{poolable.typeOfPool}' has {poolLists[poolable.typeOfPool].Count} objects. Possible leak?");
+                Debug.LogWarning($"[PoolManager] Pool '{prefab.name}' has {poolLists[prefab].Count} objects. Possible leak?");
             }
 #endif
         }
@@ -175,7 +152,7 @@ public class PoolManager : MonoBehaviour
 
         if (genericObject.TryGetComponent<Poolable>(out var poolable))
         {
-            poolStacks[poolable.typeOfPool].Push(poolable.PoolIndex);
+            poolStacks[poolable.SourcePrefab].Push(poolable.PoolIndex);
         }
         else
         {
@@ -193,11 +170,12 @@ public class PoolManager : MonoBehaviour
     {
         if (prefab.TryGetComponent<Poolable>(out var poolable))
         {
+            EnsurePoolExists(prefab);
             // -- If we have something in the stack, use it. -- //
-            if (poolStacks[poolable.typeOfPool].Count > 0)
+            if (poolStacks[prefab].Count > 0)
             {
-                int index = poolStacks[poolable.typeOfPool].Pop();
-                GameObject genericObject = poolLists[poolable.typeOfPool][index];
+                int index = poolStacks[prefab].Pop();
+                GameObject genericObject = poolLists[prefab][index];
                 genericObject.SetActive(true);
                 return genericObject;
             }
@@ -218,51 +196,44 @@ public class PoolManager : MonoBehaviour
     /// <summary>
     /// This destroys all the objects in the pool, clears the list, and clears the stack. 
     /// </summary>
-    /// <param name="type">The type of pool we are clearing.</param>
-    public void ClearPool(PoolType type)
+    /// <param name="prefab">The prefab whose pool we are clearing.</param>
+    public void ClearPool(GameObject prefab)
     {
-        foreach (var obj in poolLists[type])
+        foreach (var obj in poolLists[prefab])
         {
             if (obj != null) Destroy(obj);
         }
-        poolLists[type].Clear();
-        poolStacks[type].Clear();
+        poolLists[prefab].Clear();
+        poolStacks[prefab].Clear();
     }
     /// <summary>
     /// TestTwo() big brother. It's a nuke to all pools.
     /// </summary>
     public void ClearAllPools()
     {
-        foreach (PoolType type in System.Enum.GetValues(typeof(PoolType)))
+        foreach (GameObject prefab in new List<GameObject>(poolLists.Keys))
         {
-            ClearPool(type);
+            ClearPool(prefab);
         }
     }
     /// <summary>
-    /// During creation, figures out if the list / stack / transform exist for the PoolType. If not, create them.
+    /// During creation, figures out if the list / stack / transform exist for the prefab. If not, create them.
     /// </summary>
     /// <remarks>
-    /// Truthfully this is all organizational purposes--at least for now. Maybe in the future the PoolType will have something else attached to it.
+    /// Truthfully this is all organizational purposes--at least for now.
     /// </remarks>
-    /// <param name="type">Enum describing what pool this object belongs to.</param>
-    private void EnsurePoolExists(PoolType type)
+    /// <param name="prefab">The prefab this pool belongs to.</param>
+    private void EnsurePoolExists(GameObject prefab)
     {
-        // Fallback for unknown or newly added pool types
-        if (!poolLists.ContainsKey(type))
-        {
-            poolLists[type] = new List<GameObject>();
-        }
-        if (!poolStacks.ContainsKey(type))
-        {
-            poolStacks[type] = new Stack<int>();
-        }
-        if (!poolTransforms.ContainsKey(type))
-        {
-            // -- transform parenting -- //
-            GameObject poolTransform = new(type.ToString());
-            poolTransform.transform.SetParent(masterPool);
-            poolTransforms[type] = poolTransform.transform;
-        }
+        if (poolLists.ContainsKey(prefab)) return;
+
+        poolLists[prefab] = new List<GameObject>();
+        poolStacks[prefab] = new Stack<int>();
+
+        // -- transform parenting -- //
+        GameObject poolTransform = new(prefab.name);
+        poolTransform.transform.SetParent(masterPool);
+        poolTransforms[prefab] = poolTransform.transform;
     }
     /// <summary>
     /// This is used to preload at your time of choosing instead of during gameplay.
@@ -271,7 +242,7 @@ public class PoolManager : MonoBehaviour
     /// <param name="count">How many times are we insantiating the prefab?</param>
     public void Prewarm(GameObject prefab, int count)
     {
-        if(count < 0)
+        if (count < 0)
         {
             Debug.LogWarning($"[PoolManager] Prewarm() called with count: {count}. Must be positive!");
         }
@@ -281,17 +252,17 @@ public class PoolManager : MonoBehaviour
         }
     }
     /// <summary>
-    /// Returns all active objects of the specified pool type to the pool.
+    /// Returns all active objects of the specified pool to the pool.
     /// </summary>
     /// <remarks>Use this method to ensure that all currently active objects in the specified pool are
     /// deactivated and made available for reuse. This can be useful for resetting the pool's state or preparing for a
     /// new operation. The method does not affect inactive objects.</remarks>
-    /// <param name="type">The type of object pool whose active objects will be returned.</param>
-    public void ReturnAllActive(PoolType type)
+    /// <param name="prefab">The prefab whose pool's active objects will be returned.</param>
+    public void ReturnAllActive(GameObject prefab)
     {
-        for (int i = 0; i < poolLists[type].Count; i++)
+        for (int i = 0; i < poolLists[prefab].Count; i++)
         {
-            GameObject obj = poolLists[type][i];
+            GameObject obj = poolLists[prefab][i];
             if (obj != null && obj.activeSelf)
             {
                 PutBack(obj);
@@ -300,7 +271,7 @@ public class PoolManager : MonoBehaviour
     }
 
     // -- Query Methods -- //
-    public int GetPoolSize(PoolType type) => poolLists[type].Count;
-    public int GetInactiveCount(PoolType type) => poolStacks[type].Count;
-    public int GetActiveCount(PoolType type) => GetPoolSize(type) - GetInactiveCount(type);
+    public int GetPoolSize(GameObject prefab) => poolLists.TryGetValue(prefab, out var l) ? l.Count : 0;
+    public int GetInactiveCount(GameObject prefab) => poolStacks.TryGetValue(prefab, out var s) ? s.Count : 0;
+    public int GetActiveCount(GameObject prefab) => GetPoolSize(prefab) - GetInactiveCount(prefab);
 }
