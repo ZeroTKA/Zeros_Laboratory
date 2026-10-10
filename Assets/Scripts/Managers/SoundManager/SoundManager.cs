@@ -37,7 +37,7 @@ public class SoundManager : MonoBehaviour
         speaker.volume = data.Volume;
         speaker.pitch = data.GetPitch();
         speaker.loop = data.Loop;
-        speaker.spatialBlend = 0f;
+        speaker.spatialBlend = data.Is3d ? 1f : 0f;
         speaker.Play();
     }
     /// <summary>
