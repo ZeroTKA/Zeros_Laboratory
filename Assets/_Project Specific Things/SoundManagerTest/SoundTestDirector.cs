@@ -7,6 +7,7 @@ public class SoundTestDirector : MonoBehaviour
     void Start()
     {
         SoundManager.Instance.Play(musicData);
+        SoundManager.Instance.Play(musicData, 8);
     }
 
     // Update is called once per frame

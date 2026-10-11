@@ -37,7 +37,24 @@ public class SoundManager : MonoBehaviour
         speaker.volume = data.Volume;
         speaker.pitch = data.GetPitch();
         speaker.loop = data.Loop;
-        speaker.spatialBlend = data.Is3d ? 1f : 0f;
+        speaker.spatialBlend = 0f;
+        speaker.Play();
+    }
+    public void Play(SoundData data, int index)
+    {
+        if (data == null) { Debug.LogError("[SoundManager] Play was called with a null SoundData"); return; }
+        if (data.Is3d) { Debug.LogWarning("[SoundManager] Play was called for a 2d audio but it's marked 3D. Playing as 2D."); }
+        
+        GameObject speakerObject = PoolManager.Instance.Rent(audioSpeakerPrefab);
+        AudioSource speaker = speakerObject.GetComponent<AudioSource>();
+
+        // -- Data to assign
+        speaker.clip = data.GetClip(index);
+        if (speaker.clip == null) { PoolManager.Instance.PutBack(speakerObject); return; } // SoundData already checks for out of bounds. It logs an error and returns null.
+        speaker.volume = data.Volume;
+        speaker.pitch = data.GetPitch();
+        speaker.loop = data.Loop;
+        speaker.spatialBlend = 0f;
         speaker.Play();
     }
     /// <summary>
