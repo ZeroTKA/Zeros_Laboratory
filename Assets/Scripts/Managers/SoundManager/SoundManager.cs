@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class SoundManager : MonoBehaviour
@@ -28,34 +29,12 @@ public class SoundManager : MonoBehaviour
     public void Play(SoundData data)
     {
         if (data == null) { Debug.LogError("[SoundManager] Play was called with a null SoundData"); return; }
-        if (data.Is3d) { Debug.LogWarning("[SoundManager] Play was called for a 2d audio but it's marked 3D. Playing as 2D."); }
-        GameObject speakerObject = PoolManager.Instance.Rent(audioSpeakerPrefab);
-        AudioSource speaker = speakerObject.GetComponent<AudioSource>();
-
-        // -- Data to assign
-        speaker.clip = data.GetClip();
-        speaker.volume = data.Volume;
-        speaker.pitch = data.GetPitch();
-        speaker.loop = data.Loop;
-        speaker.spatialBlend = 0f;
-        speaker.Play();
+        PlayClip(data, data.GetClip());
     }
     public void Play(SoundData data, int index)
     {
         if (data == null) { Debug.LogError("[SoundManager] Play was called with a null SoundData"); return; }
-        if (data.Is3d) { Debug.LogWarning("[SoundManager] Play was called for a 2d audio but it's marked 3D. Playing as 2D."); }
-        
-        GameObject speakerObject = PoolManager.Instance.Rent(audioSpeakerPrefab);
-        AudioSource speaker = speakerObject.GetComponent<AudioSource>();
-
-        // -- Data to assign
-        speaker.clip = data.GetClip(index);
-        if (speaker.clip == null) { PoolManager.Instance.PutBack(speakerObject); return; } // SoundData already checks for out of bounds. It logs an error and returns null.
-        speaker.volume = data.Volume;
-        speaker.pitch = data.GetPitch();
-        speaker.loop = data.Loop;
-        speaker.spatialBlend = 0f;
-        speaker.Play();
+        PlayClip(data, data.GetClip(index));
     }
     /// <summary>
     /// Play sound at 3d location and forget.
@@ -77,4 +56,25 @@ public class SoundManager : MonoBehaviour
     }    
 
     // -- Supplemental Methods -- //
+    /// <summary>
+    /// This method is specifically to play clips. This will keep the code in a single location. Rephrase it.
+    /// </summary>
+    /// <param name="data"></param>
+    /// <param name="clip"></param>
+    private void PlayClip(SoundData data, AudioClip clip)
+    {
+        if (data.Is3d) { Debug.LogWarning("[SoundManager] Play was called for a 2d audio but it's marked 3D. Playing as 2D."); }
+
+        GameObject speakerObject = PoolManager.Instance.Rent(audioSpeakerPrefab);
+        AudioSource speaker = speakerObject.GetComponent<AudioSource>();
+
+        // -- Data to assign
+        speaker.clip = clip;
+        if (speaker.clip == null) { PoolManager.Instance.PutBack(speakerObject); return; } // SoundData already checks for out of bounds. It logs an error and returns null.
+        speaker.volume = data.Volume;
+        speaker.pitch = data.GetPitch();
+        speaker.loop = data.Loop;
+        speaker.spatialBlend = 0f;
+        speaker.Play();
+    }
 }
