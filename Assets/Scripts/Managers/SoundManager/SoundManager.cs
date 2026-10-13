@@ -31,6 +31,11 @@ public class SoundManager : MonoBehaviour
         if (data == null) { Debug.LogError("[SoundManager] Play was called with a null SoundData"); return; }
         PlayClip(data, data.GetClip());
     }
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="data"></param>
+    /// <param name="index"></param>
     public void Play(SoundData data, int index)
     {
         if (data == null) { Debug.LogError("[SoundManager] Play was called with a null SoundData"); return; }
@@ -70,7 +75,6 @@ public class SoundManager : MonoBehaviour
 
         // -- Data to assign
         speaker.clip = clip;
-        if (speaker.clip == null) { PoolManager.Instance.PutBack(speakerObject); return; } // SoundData already checks for out of bounds. It logs an error and returns null.
         speaker.volume = data.Volume;
         speaker.pitch = data.GetPitch();
         speaker.loop = data.Loop;

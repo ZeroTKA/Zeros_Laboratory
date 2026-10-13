@@ -12,7 +12,7 @@ public class SoundTestDirector : MonoBehaviour
     void TestOne() // testing SoundManager.Instance.Play()
     {
         SoundManager.Instance.Play(musicData);
-        SoundManager.Instance.Play(musicData, 2);
+        // SoundManager.Instance.Play(musicData, 2);
 
         // Things that causes errors.
         SoundManager.Instance.Play(musicData, 99); // index out of range error.
