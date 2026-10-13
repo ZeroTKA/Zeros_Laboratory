@@ -68,6 +68,7 @@ public class SoundManager : MonoBehaviour
     /// <param name="clip"></param>
     private void PlayClip(SoundData data, AudioClip clip)
     {
+        if (clip == null) { return; }; // we don't need to log this as it's already logged but we do need to prevent renting objects with null cips.
         if (data.Is3d) { Debug.LogWarning("[SoundManager] Play was called for a 2d audio but it's marked 3D. Playing as 2D."); }
 
         GameObject speakerObject = PoolManager.Instance.Rent(audioSpeakerPrefab);
