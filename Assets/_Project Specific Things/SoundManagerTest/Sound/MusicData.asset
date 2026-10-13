@@ -18,11 +18,12 @@ MonoBehaviour:
   - {fileID: 8300000, guid: d4e5b97a79b1e2e499a5b7f843185213, type: 3}
   - {fileID: 8300000, guid: ef6ceee9c4046734b8030bd9f19e8628, type: 3}
   _category: 1
-  _volume: 0.301
+  _volume: 0.158
   _loop: 0
   _minPitchAdjustment: 1
   _maxPitchAdjustment: 1
-  _is3D: 0
-  _minDistanceFor3D: 0
-  _maxDistanceFor3D: 0
+  _rolloffMode: 0
+  _is3D: 1
+  _minDistanceFor3D: 2
+  _maxDistanceFor3D: 5
   _cooldownForThrottling: 0

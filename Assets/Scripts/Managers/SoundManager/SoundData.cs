@@ -29,21 +29,30 @@ public class SoundData : ScriptableObject
     [Header("Mix Settings")]
     [Tooltip("Which mixer channel this belongs to.")]
     [SerializeField] private SoundCategory _category;
+
     [Tooltip("Base volume before any effects applied. 0 to 1")]
     [Range(0f,1f)]
     [SerializeField] private float _volume = 1f;
+
     [Tooltip("Should the sound loop when played?")]
     [SerializeField] private bool _loop;
+
     [Tooltip("Minimum random pitch adjustment. Set both min and max to 1 for no variation")]
     [SerializeField] private float _minPitchAdjustment = 1f;
+
     [Tooltip("Maximum random pitch adjustment. Set both min and max to 1 for no variation")]
     [SerializeField] private float _maxPitchAdjustment = 1f;
 
     [Header("Spatial Settings")]
+    [Tooltip("Logarithmic: realistic roll. Never truely silent. Linear: even fade, silent at Max Distance. Ignored if 2d.")]
+    [SerializeField] private AudioRolloffMode _rolloffMode = AudioRolloffMode.Logarithmic;
+
     [Tooltip("Keeps track if this is 2d or 3d.")]
     [SerializeField] private bool _is3D;
+
     [Tooltip("Minimum distance, in meters, for full volume in 3d. For reference: 5 = a small room, 15 = a house. Ignored if 2d.")]
     [SerializeField] private float _minDistanceFor3D;
+
     [Tooltip("Maximum distance, in meters, before the audio is no longer audible. For reference: 5 = a small room, 15 = a house. Ignored if 2d.")]
     [SerializeField] private float _maxDistanceFor3D;
 
@@ -55,6 +64,7 @@ public class SoundData : ScriptableObject
     public SoundCategory Category => _category;
     public float Volume => _volume;
     public bool Loop => _loop;
+    public AudioRolloffMode RolloffMode => _rolloffMode;
     public float MinPitch => _minPitchAdjustment;
     public float MaxPitch => _maxPitchAdjustment;
     public bool Is3d => _is3D;

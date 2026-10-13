@@ -18,6 +18,7 @@ MonoBehaviour:
   _loop: 1
   _minPitchAdjustment: 464.7
   _maxPitchAdjustment: 1
+  _rolloffMode: 0
   _is3D: 0
   _minDistanceFor3D: 0
   _maxDistanceFor3D: 0

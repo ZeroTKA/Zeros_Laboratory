@@ -32,7 +32,7 @@ public class SoundManager : MonoBehaviour
         PlayClip(data, data.GetClip());
     }
     /// <summary>
-    /// 
+    /// Play a specific sound (2D). 
     /// </summary>
     /// <param name="data"></param>
     /// <param name="index"></param>
@@ -42,13 +42,19 @@ public class SoundManager : MonoBehaviour
         PlayClip(data, data.GetClip(index));
     }
     /// <summary>
-    /// Play sound at 3d location and forget.
+    /// Play sound at a 3D location and forget.
     /// </summary>
     /// <param name="data"></param>
     /// <param name="position"></param>
     public void Play(SoundData data, Vector3 position)
     {
-
+        if (data == null) { Debug.LogError("[SoundManager] Play was called with a null SoundData"); return; }
+        PlayClip(data, data.GetClip(), position);
+    }
+    public void Play(SoundData data, int index, Vector3 position)
+    {
+        if (data == null) { Debug.LogError("[SoundManager] Play was called with a null SoundData"); return; }
+        PlayClip(data, data.GetClip(index), position);
     }
     /// <summary>
     /// Play a sound at a 3d location and followan transform.
@@ -58,7 +64,7 @@ public class SoundManager : MonoBehaviour
     public void Play(SoundData data, Transform toFollow)
     {
 
-    }    
+    }
 
     // -- Supplemental Methods -- //
     /// <summary>
@@ -66,10 +72,11 @@ public class SoundManager : MonoBehaviour
     /// </summary>
     /// <param name="data"></param>
     /// <param name="clip"></param>
-    private void PlayClip(SoundData data, AudioClip clip)
+    private void PlayClip(SoundData data, AudioClip clip, Vector3? position = null)
     {
-        if (clip == null) { return; }; // we don't need to log this as it's already logged but we do need to prevent renting objects with null cips.
-        if (data.Is3d) { Debug.LogWarning("[SoundManager] Play was called for a 2d audio but it's marked 3D. Playing as 2D."); }
+        if (clip == null) { return; } // we don't need to log this as it's already logged but we do need to prevent renting objects with null cips.
+        if (data.Is3d && !position.HasValue) { Debug.LogWarning("[SoundManager] Play() was called for a 3d audio but no position passed into Play(). Playing as 2D."); }
+        if (!data.Is3d && position.HasValue) { Debug.LogWarning("[SoundManager] Play() was called for a 2d audio but a position was passed into Play(). Playing as 2d."); }
 
         GameObject speakerObject = PoolManager.Instance.Rent(audioSpeakerPrefab);
         AudioSource speaker = speakerObject.GetComponent<AudioSource>();
@@ -79,7 +86,19 @@ public class SoundManager : MonoBehaviour
         speaker.volume = data.Volume;
         speaker.pitch = data.GetPitch();
         speaker.loop = data.Loop;
-        speaker.spatialBlend = 0f;
+        if (position.HasValue && data.Is3d) // if it's 3d
+        { 
+            speakerObject.transform.position = position.Value; 
+            speaker.spatialBlend = 1f;
+            speaker.maxDistance = data.MaxDistance;
+            speaker.minDistance = data.MinDistance;
+            speaker.rolloffMode = data.RolloffMode;
+
+        }
+        else
+        {
+            speaker.spatialBlend = 0f;
+        }
         speaker.Play();
     }
 }
