@@ -76,9 +76,9 @@ public class SoundManager : MonoBehaviour
     /// <summary>
     /// This method is specifically to play clips. This will keep the code in a single location. Rephrase it.
     /// </summary>
-    /// <param name="data"></param>
-    /// <param name="clip"></param>
-    private void PlayClip(SoundData data, AudioClip clip, Vector3? position = null)
+    /// <param name="data">The SoundData scriptable object that defines the clip, volume, pitch, and loop behavior.</param>
+    /// <param name="clip">The audio clip to play.</param>
+    private void PlayClip(SoundData data, AudioClip clip, Vector3? position = null, Transform toFollow = null)
     {
         if (clip == null) { return; } // we don't need to log this as it's already logged but we do need to prevent renting objects with null clips.
         if (data.Is3d && !position.HasValue) { Debug.LogWarning("[SoundManager] Play() was called for a 3d audio but no position passed into Play(). Playing as 2D."); }
@@ -93,7 +93,12 @@ public class SoundManager : MonoBehaviour
         speaker.pitch = data.GetPitch();
         speaker.loop = data.Loop;
         if (position.HasValue && data.Is3d) // if it's 3d
-        { 
+        {
+            if (toFollow != null)
+            {
+                speakerObject.transform.SetParent(toFollow, false);
+                speakerObject.transform.localPosition = Vector3.zero;
+            }
             speakerObject.transform.position = position.Value; 
             speaker.spatialBlend = 1f;
             speaker.maxDistance = data.MaxDistance;
