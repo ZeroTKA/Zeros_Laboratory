@@ -25,7 +25,7 @@ public class SoundManager : MonoBehaviour
     /// <summary>
     /// Play sound (2D).
     /// </summary>
-    /// <param name="data">SoundData defines the clip, volume, pitch, and loop behavior.</param>
+    /// <param name="data">The SoundData scriptable object that defines the clip, volume, pitch, and loop behavior.</param>
     public void Play(SoundData data)
     {
         if (data == null) { Debug.LogError("[SoundManager] Play was called with a null SoundData"); return; }
@@ -34,33 +34,39 @@ public class SoundManager : MonoBehaviour
     /// <summary>
     /// Play a specific sound (2D). 
     /// </summary>
-    /// <param name="data"></param>
-    /// <param name="index"></param>
+    /// <param name="data">The SoundData scriptable object that defines the clip, volume, pitch, and loop behavior.</param>
+    /// <param name="index">Index of clip in SoundData's clip array.</param>
     public void Play(SoundData data, int index)
     {
         if (data == null) { Debug.LogError("[SoundManager] Play was called with a null SoundData"); return; }
         PlayClip(data, data.GetClip(index));
     }
     /// <summary>
-    /// Play sound at a 3D location and forget.
+    /// Play sound at a 3D location.
     /// </summary>
-    /// <param name="data"></param>
-    /// <param name="position"></param>
+    /// <param name="data">The SoundData scriptable object that defines the clip, volume, pitch, and loop behavior.</param>
+    /// <param name="position">The Vector3 for the origin of this 3D sound.</param>
     public void Play(SoundData data, Vector3 position)
     {
         if (data == null) { Debug.LogError("[SoundManager] Play was called with a null SoundData"); return; }
         PlayClip(data, data.GetClip(), position);
     }
+    /// <summary>
+    /// Play a specific sound at a 3d location.
+    /// </summary>
+    /// <param name="data">The SoundData scriptable object that defines the clip, volume, pitch, and loop behavior.</param>
+    /// <param name="index">Index of clip in SoundData's clip array.</param>
+    /// <param name="position">The Vector3 for the origin of this 3D sound.</param>
     public void Play(SoundData data, int index, Vector3 position)
     {
         if (data == null) { Debug.LogError("[SoundManager] Play was called with a null SoundData"); return; }
         PlayClip(data, data.GetClip(index), position);
     }
     /// <summary>
-    /// Play a sound at a 3d location and followan transform.
+    /// Play a sound at a 3d location and follow a transform.
     /// </summary>
-    /// <param name="data"></param>
-    /// <param name="toFollow"></param>
+    /// <param name="data">The SoundData scriptable object that defines the clip, volume, pitch, and loop behavior.</param>
+    /// <param name="toFollow">The transform the sound should become attached to.</param>
     public void Play(SoundData data, Transform toFollow)
     {
 
@@ -74,7 +80,7 @@ public class SoundManager : MonoBehaviour
     /// <param name="clip"></param>
     private void PlayClip(SoundData data, AudioClip clip, Vector3? position = null)
     {
-        if (clip == null) { return; } // we don't need to log this as it's already logged but we do need to prevent renting objects with null cips.
+        if (clip == null) { return; } // we don't need to log this as it's already logged but we do need to prevent renting objects with null clips.
         if (data.Is3d && !position.HasValue) { Debug.LogWarning("[SoundManager] Play() was called for a 3d audio but no position passed into Play(). Playing as 2D."); }
         if (!data.Is3d && position.HasValue) { Debug.LogWarning("[SoundManager] Play() was called for a 2d audio but a position was passed into Play(). Playing as 2d."); }
 
