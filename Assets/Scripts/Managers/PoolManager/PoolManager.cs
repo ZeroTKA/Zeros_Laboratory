@@ -153,6 +153,7 @@ public class PoolManager : MonoBehaviour
         if (genericObject.TryGetComponent<Poolable>(out var poolable))
         {
             poolStacks[poolable.SourcePrefab].Push(poolable.PoolIndex);
+            genericObject.transform.SetParent(poolTransforms[poolable.SourcePrefab], false);
         }
         else
         {
@@ -168,22 +169,23 @@ public class PoolManager : MonoBehaviour
     /// </remarks>
     public GameObject Rent(GameObject prefab)
     {
-        if (prefab.TryGetComponent<Poolable>(out var poolable))
+        if (prefab.TryGetComponent<Poolable>(out _))
         {
             EnsurePoolExists(prefab);
             // -- If we have something in the stack, use it. -- //
-            if (poolStacks[prefab].Count > 0)
+            while (poolStacks[prefab].Count > 0)
             {
                 int index = poolStacks[prefab].Pop();
                 GameObject genericObject = poolLists[prefab][index];
+                if (genericObject == null) 
+                {
+                    Debug.LogWarning($"[PoolManager] Popped a destroyed object from the '{prefab.name}' pool.");
+                    continue; 
+                }
                 genericObject.SetActive(true);
                 return genericObject;
-            }
-            else
-            {
-                GameObject genericObject = Create(prefab);
-                return genericObject;
-            }
+            }                       
+            return Create(prefab);                            
         }
         else
         {

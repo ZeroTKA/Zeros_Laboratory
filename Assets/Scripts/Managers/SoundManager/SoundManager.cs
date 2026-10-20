@@ -69,7 +69,8 @@ public class SoundManager : MonoBehaviour
     /// <param name="toFollow">The transform the sound should become attached to.</param>
     public void Play(SoundData data, Transform toFollow)
     {
-
+        if (data == null) { Debug.LogError("[SoundManager] Play was called with a null SoundData"); return; }
+        PlayClip(data, data.GetClip(), toFollow: toFollow);
     }
 
     // -- Supplemental Methods -- //
@@ -81,8 +82,8 @@ public class SoundManager : MonoBehaviour
     private void PlayClip(SoundData data, AudioClip clip, Vector3? position = null, Transform toFollow = null)
     {
         if (clip == null) { return; } // we don't need to log this as it's already logged but we do need to prevent renting objects with null clips.
-        if (data.Is3d && !position.HasValue) { Debug.LogWarning("[SoundManager] Play() was called for a 3d audio but no position passed into Play(). Playing as 2D."); }
-        if (!data.Is3d && position.HasValue) { Debug.LogWarning("[SoundManager] Play() was called for a 2d audio but a position was passed into Play(). Playing as 2d."); }
+        if (data.Is3d && !position.HasValue && toFollow == null) { Debug.LogWarning("[SoundManager] Play() was called for a 3d audio but no position nor transform was passed into Play(). Playing as 2D."); }
+        if (!data.Is3d && (position.HasValue || toFollow != null)) { Debug.LogWarning("[SoundManager] Play() was called for a 2d audio but a position or a transform was passed into Play(). Playing as 2d."); }
 
         GameObject speakerObject = PoolManager.Instance.Rent(audioSpeakerPrefab);
         AudioSource speaker = speakerObject.GetComponent<AudioSource>();
@@ -92,19 +93,21 @@ public class SoundManager : MonoBehaviour
         speaker.volume = data.Volume;
         speaker.pitch = data.GetPitch();
         speaker.loop = data.Loop;
-        if (position.HasValue && data.Is3d) // if it's 3d
+        if ((position.HasValue || toFollow != null) && data.Is3d ) // if it's 3d
         {
             if (toFollow != null)
             {
                 speakerObject.transform.SetParent(toFollow, false);
                 speakerObject.transform.localPosition = Vector3.zero;
             }
-            speakerObject.transform.position = position.Value; 
+            else
+            {
+                speakerObject.transform.position = position.Value;
+            }
             speaker.spatialBlend = 1f;
             speaker.maxDistance = data.MaxDistance;
             speaker.minDistance = data.MinDistance;
             speaker.rolloffMode = data.RolloffMode;
-
         }
         else
         {
