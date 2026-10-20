@@ -72,6 +72,17 @@ public class SoundManager : MonoBehaviour
         if (data == null) { Debug.LogError("[SoundManager] Play was called with a null SoundData"); return; }
         PlayClip(data, data.GetClip(), toFollow: toFollow);
     }
+    /// <summary>
+    /// Play a specific sound at a 3d location and follow a transform.
+    /// </summary>
+    /// <param name="data">The SoundData scriptable object that defines the clip, volume, pitch, and loop behavior.</param>
+    /// <param name="index">Index of clip in SoundData's clip array.</param>
+    /// <param name="toFollow">The transform the sound should become attached to.</param>
+    public void Play(SoundData data, int index, Transform toFollow)
+    {
+        if (data == null) { Debug.LogError("[SoundManager] Play was called with a null SoundData"); return; }
+        PlayClip(data, data.GetClip(index), toFollow: toFollow);
+    }
 
     // -- Supplemental Methods -- //
     /// <summary>
