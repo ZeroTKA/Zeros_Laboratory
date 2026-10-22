@@ -1,9 +1,19 @@
 using System;
 using UnityEngine;
+using UnityEngine.Audio;
 
 public class SoundManager : MonoBehaviour
 {
     public static SoundManager Instance { get; private set; }
+    [SerializeField] AudioMixer audioMixer;
+    [SerializeField] AudioMixerGroup Master;
+    [SerializeField] AudioMixerGroup UI;
+    [SerializeField] AudioMixerGroup Game;
+    [SerializeField] AudioMixerGroup Music;
+    [SerializeField] AudioMixerGroup Ambience;
+    [SerializeField] AudioMixerGroup Voice;
+
+
     public GameObject audioSpeakerPrefab;
 
     // -- Specialty Methods -- //

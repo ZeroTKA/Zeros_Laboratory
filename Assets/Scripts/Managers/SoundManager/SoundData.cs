@@ -16,10 +16,11 @@ public class SoundData : ScriptableObject
     /// </summary>
     public enum SoundCategory
     {
-        Environment,
+        Ambience,        
+        Game,
         Music,
-        SFX,
-        UI
+        UI,
+        Voice
     }
 
     [Header("Clips")]
