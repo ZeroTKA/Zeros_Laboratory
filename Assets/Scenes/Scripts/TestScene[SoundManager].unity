@@ -255,12 +255,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SoundManager
   audioMixer: {fileID: 24100000, guid: b92379a1fc37eff49a64998fffd8440e, type: 2}
-  Master: {fileID: 24300002, guid: b92379a1fc37eff49a64998fffd8440e, type: 2}
-  UI: {fileID: 3057315437675384327, guid: b92379a1fc37eff49a64998fffd8440e, type: 2}
-  Game: {fileID: -3468565683633739931, guid: b92379a1fc37eff49a64998fffd8440e, type: 2}
-  Music: {fileID: -1398251392794912374, guid: b92379a1fc37eff49a64998fffd8440e, type: 2}
-  Ambience: {fileID: 2141656142599725227, guid: b92379a1fc37eff49a64998fffd8440e, type: 2}
-  Voice: {fileID: -2738159564724839974, guid: b92379a1fc37eff49a64998fffd8440e, type: 2}
+  masterGroup: {fileID: 24300002, guid: b92379a1fc37eff49a64998fffd8440e, type: 2}
+  uiGroup: {fileID: 3057315437675384327, guid: b92379a1fc37eff49a64998fffd8440e, type: 2}
+  gameGroup: {fileID: -3468565683633739931, guid: b92379a1fc37eff49a64998fffd8440e, type: 2}
+  musicGroup: {fileID: -1398251392794912374, guid: b92379a1fc37eff49a64998fffd8440e, type: 2}
+  ambienceGroup: {fileID: 2141656142599725227, guid: b92379a1fc37eff49a64998fffd8440e, type: 2}
+  voiceGroup: {fileID: -2738159564724839974, guid: b92379a1fc37eff49a64998fffd8440e, type: 2}
   audioSpeakerPrefab: {fileID: 9107851009707513860, guid: 5c3c5606a3bcbc543b75f24af6a2e193, type: 3}
 --- !u!1 &345905532
 GameObject:

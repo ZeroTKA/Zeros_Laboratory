@@ -29,6 +29,7 @@ public class SoundManager : MonoBehaviour
             Destroy(gameObject);
             return;
         }
+        StartErrorChecking();
     }
 
     // -- Main Methods -- //
@@ -150,5 +151,14 @@ public class SoundManager : MonoBehaviour
                 Debug.LogError($"[SoundManager No mixer group for {category}");
                 return null;
         }
+    }
+    private void StartErrorChecking()
+    {
+        if (audioMixer == null) { Debug.LogError("[SoundManager] The aduioMixer is null. Assign something to it in the inspector."); }
+        if (ambienceGroup == null) { Debug.LogError("[SoundManager] The ambienceGroup is null. Assign something to it in the inspector."); }
+        if (gameGroup == null) { Debug.LogError("[SoundManager] The gameGroup is null. Assign something to it in the inspector."); }
+        if (musicGroup == null) { Debug.LogError("[SoundManager] The musicGroup is null. Assign something to it in the inspector."); }
+        if (uiGroup == null) { Debug.LogError("[SoundManager] The uiGroup is null. Assign something to it in the inspector."); }
+        if (voiceGroup == null) { Debug.LogError("[SoundManager] The voiceGroup is null. Assign something to it in the inspector."); }
     }
 }
