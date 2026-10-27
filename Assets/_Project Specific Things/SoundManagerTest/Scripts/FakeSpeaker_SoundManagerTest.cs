@@ -15,8 +15,8 @@ public class FakeSpeaker_SoundManagerTest : MonoBehaviour
     }
     private IEnumerator ReturnWhenDone()
     {
-        while(!source.isPlaying) yield return null;
-        if (source.loop) yield break;
+        while (!source.isPlaying) { yield return null; }
+        if (source.loop) { yield break; }
 
         float pitch = Mathf.Max(Mathf.Abs(source.pitch), 0.01f);
         yield return new WaitForSeconds(source.clip.length / pitch);

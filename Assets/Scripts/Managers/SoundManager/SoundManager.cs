@@ -138,6 +138,11 @@ public class SoundManager : MonoBehaviour
         }
         speaker.Play();
     }
+    /// <summary>
+    /// Returns the correct category based on the SoundData information.
+    /// </summary>
+    /// <param name="category">The assigned category in the SoundData file.</param>
+    /// <returns>Audio Mixer Group</returns>
     private AudioMixerGroup GetCategoryGroup(SoundData.SoundCategory category)
     {
         switch (category)
@@ -152,6 +157,9 @@ public class SoundManager : MonoBehaviour
                 return null;
         }
     }
+    /// <summary>
+    /// Basic error checks to make sure things are setup correctly.
+    /// </summary>
     private void StartErrorChecking()
     {
         if (audioMixer == null) { Debug.LogError("[SoundManager] The aduioMixer is null. Assign something to it in the inspector."); }

@@ -22,7 +22,7 @@ public class SoundTestDirector : MonoBehaviour
 
     private IEnumerator TestGiver()
     {
-        for (int i = 0; i < 2; i++)
+        for (int i = 0; i < 1; i++)
         {
             TestOne();
             yield return new WaitForSeconds(UnityEngine.Random.Range(90, 180));
