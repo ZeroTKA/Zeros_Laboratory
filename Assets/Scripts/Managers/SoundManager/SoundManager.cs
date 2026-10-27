@@ -6,12 +6,12 @@ public class SoundManager : MonoBehaviour
 {
     public static SoundManager Instance { get; private set; }
     [SerializeField] AudioMixer audioMixer;
-    [SerializeField] AudioMixerGroup Master;
-    [SerializeField] AudioMixerGroup UI;
-    [SerializeField] AudioMixerGroup Game;
-    [SerializeField] AudioMixerGroup Music;
-    [SerializeField] AudioMixerGroup Ambience;
-    [SerializeField] AudioMixerGroup Voice;
+    [SerializeField] AudioMixerGroup masterGroup;
+    [SerializeField] AudioMixerGroup uiGroup;
+    [SerializeField] AudioMixerGroup gameGroup;
+    [SerializeField] AudioMixerGroup musicGroup;
+    [SerializeField] AudioMixerGroup ambienceGroup;
+    [SerializeField] AudioMixerGroup voiceGroup;
 
 
     public GameObject audioSpeakerPrefab;
@@ -114,6 +114,7 @@ public class SoundManager : MonoBehaviour
         speaker.volume = data.Volume;
         speaker.pitch = data.GetPitch();
         speaker.loop = data.Loop;
+        speaker.outputAudioMixerGroup = GetCategoryGroup(data.Category);
         if ((position.HasValue || toFollow != null) && data.Is3d ) // if it's 3d
         {
             if (toFollow != null)
@@ -135,5 +136,19 @@ public class SoundManager : MonoBehaviour
             speaker.spatialBlend = 0f;
         }
         speaker.Play();
+    }
+    private AudioMixerGroup GetCategoryGroup(SoundData.SoundCategory category)
+    {
+        switch (category)
+        {
+            case SoundData.SoundCategory.Ambience: return ambienceGroup;
+            case SoundData.SoundCategory.Game: return gameGroup;
+            case SoundData.SoundCategory.Music: return musicGroup;
+            case SoundData.SoundCategory.UI: return uiGroup;
+            case SoundData.SoundCategory.Voice: return voiceGroup;
+            default:
+                Debug.LogError($"[SoundManager No mixer group for {category}");
+                return null;
+        }
     }
 }
