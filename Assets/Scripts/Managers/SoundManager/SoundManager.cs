@@ -14,7 +14,7 @@ public class SoundManager : MonoBehaviour
     [SerializeField] AudioMixerGroup ambienceGroup;
     [SerializeField] AudioMixerGroup voiceGroup;
 
-    private Dictionary<int, AudioSource> activeSpeakers;
+    private readonly Dictionary<int, AudioSource> activeSpeakersDictionary = new();
     private int id = 1;
     public GameObject audioSpeakerPrefab;
 
@@ -112,6 +112,7 @@ public class SoundManager : MonoBehaviour
         GameObject speakerObject = PoolManager.Instance.Rent(audioSpeakerPrefab);
         AudioSource speaker = speakerObject.GetComponent<AudioSource>();
         SoundHandler handler = new(id);
+        activeSpeakersDictionary.Add(handler.Id, speaker);
         id++;
 
         // -- Data to assign
