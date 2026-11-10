@@ -4,6 +4,7 @@ using UnityEngine;
 public class SoundTestDirector : MonoBehaviour
 {
     [SerializeField] SoundData musicData;
+    private SoundHandler test;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -12,7 +13,7 @@ public class SoundTestDirector : MonoBehaviour
 
     void TestOne() // testing SoundManager.Instance.Play()
     {
-        SoundManager.Instance.Play(musicData, new Vector3(0,0,0)); // random clip
+        test = SoundManager.Instance.Play(musicData, new Vector3(0,0,0)); // random clip
         //SoundManager.Instance.Play(musicData, 2); // index in range.
 
         // Things that causes errors.
@@ -22,10 +23,12 @@ public class SoundTestDirector : MonoBehaviour
 
     private IEnumerator TestGiver()
     {
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < 10; i++)
         {
             TestOne();
-            yield return new WaitForSeconds(UnityEngine.Random.Range(90, 180));
+            yield return new WaitForSeconds(UnityEngine.Random.Range(10, 20));
+            SoundManager.Instance.StopSound(test);
+            
         }
     }
 }
