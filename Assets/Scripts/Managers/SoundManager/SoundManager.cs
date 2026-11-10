@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
 
@@ -13,7 +14,8 @@ public class SoundManager : MonoBehaviour
     [SerializeField] AudioMixerGroup ambienceGroup;
     [SerializeField] AudioMixerGroup voiceGroup;
 
-
+    private Dictionary<int, AudioSource> activeSpeakers;
+    private int id = 1;
     public GameObject audioSpeakerPrefab;
 
     // -- Specialty Methods -- //
@@ -109,6 +111,8 @@ public class SoundManager : MonoBehaviour
 
         GameObject speakerObject = PoolManager.Instance.Rent(audioSpeakerPrefab);
         AudioSource speaker = speakerObject.GetComponent<AudioSource>();
+        SoundHandler handler = new(id);
+        id++;
 
         // -- Data to assign
         speaker.clip = clip;
