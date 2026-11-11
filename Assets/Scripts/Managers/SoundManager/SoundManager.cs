@@ -14,7 +14,7 @@ public class SoundManager : MonoBehaviour
     [SerializeField] AudioMixerGroup ambienceGroup;
     [SerializeField] AudioMixerGroup voiceGroup;
 
-    private readonly Dictionary<int, AudioSource> activeSpeakersDictionary = new();
+    private readonly Dictionary<int, (AudioSource speaker, SoundData.SoundCategory category)> activeSpeakersDictionary = new();
     private int id = 1;
     public GameObject audioSpeakerPrefab;
 
@@ -112,7 +112,7 @@ public class SoundManager : MonoBehaviour
         GameObject speakerObject = PoolManager.Instance.Rent(audioSpeakerPrefab);
         AudioSource speaker = speakerObject.GetComponent<AudioSource>();
         SoundHandler handler = new(id);
-        activeSpeakersDictionary.Add(handler.Id, speaker);
+        activeSpeakersDictionary.Add(handler.Id, (speaker, data.Category));
         id++;
 
         // -- Data to assign
@@ -181,7 +181,7 @@ public class SoundManager : MonoBehaviour
         // Error Checking
         if(handler.Id == 0) { Debug.Log("[SoundManager] There's a sound trying to be stopped but SoundHandler was never set."); }
 
-        if (activeSpeakersDictionary.TryGetValue(handler.Id, out AudioSource speaker)){speaker.Stop();}
+        if (activeSpeakersDictionary.TryGetValue(handler.Id, out var active)){active.speaker.Stop();}
         else { Debug.LogWarning($"[SoundManager] {handler.Id} appears to be an invalid Id as it is not in the activeSpeakersDictionary.");}
     }
 }
