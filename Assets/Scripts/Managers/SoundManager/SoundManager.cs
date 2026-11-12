@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using TMPro.EditorUtilities;
 using UnityEngine;
 using UnityEngine.Audio;
+using UnityEngine.InputSystem;
 
 public class SoundManager : MonoBehaviour
 {
@@ -17,6 +19,7 @@ public class SoundManager : MonoBehaviour
     private readonly Dictionary<int, (AudioSource speaker, SoundData.SoundCategory category)> activeSpeakersDictionary = new();
     private int id = 1;
     public GameObject audioSpeakerPrefab;
+    private readonly List<int> idsToRemove = new();
 
     // -- Specialty Methods -- //
     private void Awake()
@@ -183,5 +186,21 @@ public class SoundManager : MonoBehaviour
 
         if (activeSpeakersDictionary.TryGetValue(handler.Id, out var active)){active.speaker.Stop();}
         else { Debug.LogWarning($"[SoundManager] {handler.Id} appears to be an invalid Id as it is not in the activeSpeakersDictionary.");}
+    }
+    public void StopSoundCategory(SoundData.SoundCategory category)
+    {
+        idsToRemove.Clear();
+        foreach(var pair in activeSpeakersDictionary)
+        {
+            if (pair.Value.category == category)
+            {
+                pair.Value.speaker.Stop();
+                idsToRemove.Add(pair.Key);
+            }
+        }
+        for (int i = 0; i< idsToRemove.Count; i++)
+        {
+            activeSpeakersDictionary.Remove(idsToRemove[i]);
+        }
     }
 }
