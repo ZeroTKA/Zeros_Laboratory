@@ -198,6 +198,7 @@ public class SoundManager : MonoBehaviour
                 idsToRemove.Add(pair.Key);
             }
         }
+
         for (int i = 0; i< idsToRemove.Count; i++)
         {
             activeSpeakersDictionary.Remove(idsToRemove[i]);

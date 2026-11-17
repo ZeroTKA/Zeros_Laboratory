@@ -1,5 +1,3 @@
-using UnityEngine;
-
 public readonly struct SoundHandler
 {    
     public int Id { get; }

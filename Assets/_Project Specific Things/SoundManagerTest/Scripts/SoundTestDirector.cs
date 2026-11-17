@@ -27,7 +27,7 @@ public class SoundTestDirector : MonoBehaviour
         {
             TestOne();
             yield return new WaitForSeconds(UnityEngine.Random.Range(10, 20));
-            SoundManager.Instance.StopSound(test);
+            SoundManager.Instance.StopSoundCategory(musicData.Category);
             
         }
     }
