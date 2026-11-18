@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
@@ -17,6 +18,9 @@ public class SoundManager : MonoBehaviour
     private int id = 1;
     public GameObject audioSpeakerPrefab;
     private readonly List<int> idsToRemove = new();
+
+    [Tooltip("The amount of active speakers needed before we check for null speakers on PlaySound().")]
+    [SerializeField] int dictionarySweepThreshold = 40;
 
     // -- Specialty Methods -- //
     private void Awake()
@@ -108,6 +112,7 @@ public class SoundManager : MonoBehaviour
         if (clip == null) { return default; } // we don't need to log this as it's already logged but we do need to prevent renting objects with null clips.
         if (data.Is3d && !position.HasValue && toFollow == null) { Debug.LogWarning("[SoundManager] PlaySound() was called for a 3d audio but no position nor transform was passed into PlaySound(). Playing as 2D."); }
         if (!data.Is3d && (position.HasValue || toFollow != null)) { Debug.LogWarning("[SoundManager] PlaySound() was called for a 2d audio but a position or a transform was passed into PlaySound(). Playing as 2d."); }
+        if (dictionarySweepThreshold <= activeSpeakersDictionary.Count){ dictionarySweep(); } // trying to find nulls in the dictionary.
 
         GameObject speakerObject = PoolManager.Instance.Rent(audioSpeakerPrefab);
         AudioSource speaker = speakerObject.GetComponent<AudioSource>();
@@ -207,5 +212,24 @@ public class SoundManager : MonoBehaviour
             activeSpeakersDictionary.Remove(idsToRemove[i]);
         }
         Debug.Log($"After: {activeSpeakersDictionary.Count}");
+    }
+    /// <summary>
+    /// Once we hit more active speakers than expected, we do a quick check and clear out any null speakers.
+    /// </summary>
+    private void dictionarySweep()
+    {
+        idsToRemove.Clear();
+        foreach (var pair in activeSpeakersDictionary)
+        {
+            if (pair.Value.speaker == null)
+            {
+                Debug.LogWarning("[SoundManager] The speaker is null and was removed from the dictionary activeSpeakerDictionary. You should find out how that happened.");
+                idsToRemove.Add(pair.Key);
+            }
+        }
+        for (int i = 0; i < idsToRemove.Count; i++)
+        {
+            activeSpeakersDictionary.Remove(idsToRemove[i]);
+        }
     }
 }
