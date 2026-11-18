@@ -1,9 +1,6 @@
-using System;
 using System.Collections.Generic;
-using TMPro.EditorUtilities;
 using UnityEngine;
 using UnityEngine.Audio;
-using UnityEngine.InputSystem;
 
 public class SoundManager : MonoBehaviour
 {
@@ -39,64 +36,64 @@ public class SoundManager : MonoBehaviour
 
     // -- Main Methods -- //
     /// <summary>
-    /// Play sound (2D).
+    /// PlaySound sound (2D).
     /// </summary>
     /// <param name="data">The SoundData scriptable object that defines the clip, volume, pitch, and loop behavior.</param>
-    public SoundHandler Play(SoundData data)
+    public SoundHandler PlaySound(SoundData data)
     {
-        if (data == null) { Debug.LogError("[SoundManager] Play was called with a null SoundData"); return default; }
+        if (data == null) { Debug.LogError("[SoundManager] PlaySound was called with a null SoundData"); return default; }
         return PlayClip(data, data.GetClip());
     }
     /// <summary>
-    /// Play a specific sound (2D). 
+    /// PlaySound a specific sound (2D). 
     /// </summary>
     /// <param name="data">The SoundData scriptable object that defines the clip, volume, pitch, and loop behavior.</param>
     /// <param name="index">Index of clip in SoundData's clip array.</param>
-    public SoundHandler Play(SoundData data, int index)
+    public SoundHandler PlaySound(SoundData data, int index)
     {
-        if (data == null) { Debug.LogError("[SoundManager] Play was called with a null SoundData"); return default; }
+        if (data == null) { Debug.LogError("[SoundManager] PlaySound was called with a null SoundData"); return default; }
         return PlayClip(data, data.GetClip(index));
     }
     /// <summary>
-    /// Play sound at a 3D location.
+    /// PlaySound sound at a 3D location.
     /// </summary>
     /// <param name="data">The SoundData scriptable object that defines the clip, volume, pitch, and loop behavior.</param>
     /// <param name="position">The Vector3 for the origin of this 3D sound.</param>
-    public SoundHandler Play(SoundData data, Vector3 position)
+    public SoundHandler PlaySound(SoundData data, Vector3 position)
     {
-        if (data == null) { Debug.LogError("[SoundManager] Play was called with a null SoundData"); return default; }
+        if (data == null) { Debug.LogError("[SoundManager] PlaySound was called with a null SoundData"); return default; }
         return PlayClip(data, data.GetClip(), position);
     }
     /// <summary>
-    /// Play a specific sound at a 3d location.
+    /// PlaySound a specific sound at a 3d location.
     /// </summary>
     /// <param name="data">The SoundData scriptable object that defines the clip, volume, pitch, and loop behavior.</param>
     /// <param name="index">Index of clip in SoundData's clip array.</param>
     /// <param name="position">The Vector3 for the origin of this 3D sound.</param>
-    public SoundHandler Play(SoundData data, int index, Vector3 position)
+    public SoundHandler PlaySound(SoundData data, int index, Vector3 position)
     {
-        if (data == null) { Debug.LogError("[SoundManager] Play was called with a null SoundData"); return default; }
+        if (data == null) { Debug.LogError("[SoundManager] PlaySound was called with a null SoundData"); return default; }
         return PlayClip(data, data.GetClip(index), position);
     }
     /// <summary>
-    /// Play a sound at a 3d location and follow a transform.
+    /// PlaySound a sound at a 3d location and follow a transform.
     /// </summary>
     /// <param name="data">The SoundData scriptable object that defines the clip, volume, pitch, and loop behavior.</param>
     /// <param name="toFollow">The transform the sound should become attached to.</param>
-    public SoundHandler Play(SoundData data, Transform toFollow)
+    public SoundHandler PlaySound(SoundData data, Transform toFollow)
     {
-        if (data == null) { Debug.LogError("[SoundManager] Play was called with a null SoundData"); return default; }
+        if (data == null) { Debug.LogError("[SoundManager] PlaySound was called with a null SoundData"); return default; }
         return PlayClip(data, data.GetClip(), toFollow: toFollow);
     }
     /// <summary>
-    /// Play a specific sound at a 3d location and follow a transform.
+    /// PlaySound a specific sound at a 3d location and follow a transform.
     /// </summary>
     /// <param name="data">The SoundData scriptable object that defines the clip, volume, pitch, and loop behavior.</param>
     /// <param name="index">Index of clip in SoundData's clip array.</param>
     /// <param name="toFollow">The transform the sound should become attached to.</param>
-    public SoundHandler Play(SoundData data, int index, Transform toFollow)
+    public SoundHandler PlaySound(SoundData data, int index, Transform toFollow)
     {
-        if (data == null) { Debug.LogError("[SoundManager] Play was called with a null SoundData"); return default; }
+        if (data == null) { Debug.LogError("[SoundManager] PlaySound was called with a null SoundData"); return default; }
         return PlayClip(data, data.GetClip(index), toFollow: toFollow);
     }
 
@@ -109,8 +106,8 @@ public class SoundManager : MonoBehaviour
     private SoundHandler PlayClip(SoundData data, AudioClip clip, Vector3? position = null, Transform toFollow = null)
     {
         if (clip == null) { return default; } // we don't need to log this as it's already logged but we do need to prevent renting objects with null clips.
-        if (data.Is3d && !position.HasValue && toFollow == null) { Debug.LogWarning("[SoundManager] Play() was called for a 3d audio but no position nor transform was passed into Play(). Playing as 2D."); }
-        if (!data.Is3d && (position.HasValue || toFollow != null)) { Debug.LogWarning("[SoundManager] Play() was called for a 2d audio but a position or a transform was passed into Play(). Playing as 2d."); }
+        if (data.Is3d && !position.HasValue && toFollow == null) { Debug.LogWarning("[SoundManager] PlaySound() was called for a 3d audio but no position nor transform was passed into PlaySound(). Playing as 2D."); }
+        if (!data.Is3d && (position.HasValue || toFollow != null)) { Debug.LogWarning("[SoundManager] PlaySound() was called for a 2d audio but a position or a transform was passed into PlaySound(). Playing as 2d."); }
 
         GameObject speakerObject = PoolManager.Instance.Rent(audioSpeakerPrefab);
         AudioSource speaker = speakerObject.GetComponent<AudioSource>();
@@ -178,30 +175,37 @@ public class SoundManager : MonoBehaviour
         if (uiGroup == null) { Debug.LogError("[SoundManager] The uiGroup is null. Assign something to it in the inspector."); }
         if (voiceGroup == null) { Debug.LogError("[SoundManager] The voiceGroup is null. Assign something to it in the inspector."); }
     }
-
     public void StopSound(SoundHandler handler)
     {
-        // Error Checking
-        if(handler.Id == 0) { Debug.Log("[SoundManager] There's a sound trying to be stopped but SoundHandler was never set."); }
+        if (handler.Id == 0) { Debug.Log("[SoundManager] There's a sound trying to be stopped but SoundHandler was never set."); }
 
-        if (activeSpeakersDictionary.TryGetValue(handler.Id, out var active)){active.speaker.Stop();}
-        else { Debug.LogWarning($"[SoundManager] {handler.Id} appears to be an invalid Id as it is not in the activeSpeakersDictionary.");}
+        if (activeSpeakersDictionary.ContainsKey(handler.Id)) { Stop(id: handler.Id); }
+        else { Debug.LogWarning($"[SoundManager] {handler.Id} appears to be an invalid Id as it is not in the activeSpeakersDictionary."); }
     }
-    public void StopSoundCategory(SoundData.SoundCategory category)
+    public void StopSound(SoundData.SoundCategory category) { Stop(category: category); } 
+    public void StopSound() { Stop(); }
+    private void Stop(int? id = null, SoundData.SoundCategory? category = null)
     {
         idsToRemove.Clear();
-        foreach(var pair in activeSpeakersDictionary)
+        foreach (var pair in activeSpeakersDictionary)
         {
-            if (pair.Value.category == category)
+            if (pair.Value.speaker == null)
             {
-                pair.Value.speaker.Stop();
+                Debug.LogWarning("[SoundManager] The speaker is null and was removed from the dictionary activeSpeakerDictionary. You should find out how that happened.");
                 idsToRemove.Add(pair.Key);
+                continue;
             }
-        }
+            if (id.HasValue && pair.Key != id.Value) continue; // Looks for the ID to do a StopSoundByID type thing.
+            if (category.HasValue && pair.Value.category != category.Value) continue; // Looks for the category to do a StopSoundByCategory type thing.
 
-        for (int i = 0; i< idsToRemove.Count; i++)
+            pair.Value.speaker.Stop();
+            idsToRemove.Add(pair.Key);
+        }
+        Debug.Log($"Before: {activeSpeakersDictionary.Count}");
+        for (int i = 0; i < idsToRemove.Count; i++)
         {
             activeSpeakersDictionary.Remove(idsToRemove[i]);
         }
+        Debug.Log($"After: {activeSpeakersDictionary.Count}");
     }
 }
