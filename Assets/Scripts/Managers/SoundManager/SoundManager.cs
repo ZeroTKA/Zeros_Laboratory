@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
@@ -6,21 +5,26 @@ using UnityEngine.Audio;
 public class SoundManager : MonoBehaviour
 {
     public static SoundManager Instance { get; private set; }
+    [Header("Audio Mixer")]
     [SerializeField] AudioMixer audioMixer;
+    [Header("Audio Mixer Groups")]
     [SerializeField] AudioMixerGroup masterGroup;
     [SerializeField] AudioMixerGroup uiGroup;
     [SerializeField] AudioMixerGroup gameGroup;
     [SerializeField] AudioMixerGroup musicGroup;
     [SerializeField] AudioMixerGroup ambienceGroup;
     [SerializeField] AudioMixerGroup voiceGroup;
+    [Header("Settings")]
+    [SerializeField] int dictionarySweepThreshold = 40;
+    public GameObject audioSpeakerPrefab;
 
     private readonly Dictionary<int, (AudioSource speaker, SoundData.SoundCategory category)> activeSpeakersDictionary = new();
     private int id = 1;
-    public GameObject audioSpeakerPrefab;
+
     private readonly List<int> idsToRemove = new();
 
     [Tooltip("The amount of active speakers needed before we check for null speakers on PlaySound().")]
-    [SerializeField] int dictionarySweepThreshold = 40;
+
 
     // -- Specialty Methods -- //
     private void Awake()
