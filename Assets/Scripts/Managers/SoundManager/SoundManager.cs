@@ -6,16 +6,25 @@ public class SoundManager : MonoBehaviour
 {
     public static SoundManager Instance { get; private set; }
     [Header("Audio Mixer")]
+    [Tooltip("The main Audio Mixer")]
     [SerializeField] AudioMixer audioMixer;
     [Header("Audio Mixer Groups")]
+    [Tooltip("This is the master slider")]
     [SerializeField] AudioMixerGroup masterGroup;
+    [Tooltip("This is the UI slider")]
     [SerializeField] AudioMixerGroup uiGroup;
+    [Tooltip("This is the game slider")]
     [SerializeField] AudioMixerGroup gameGroup;
+    [Tooltip("This is the music slider")]
     [SerializeField] AudioMixerGroup musicGroup;
+    [Tooltip("This is the ambience slider")]
     [SerializeField] AudioMixerGroup ambienceGroup;
+    [Tooltip("This is the voice slider")]
     [SerializeField] AudioMixerGroup voiceGroup;
     [Header("Settings")]
+    [Tooltip("The threshold of active sounds before Play() clears out null entries.")]
     [SerializeField] int dictionarySweepThreshold = 40;
+    [Tooltip("The prefab to be used as the Audio Source for sounds.")]
     public GameObject audioSpeakerPrefab;
 
     private readonly Dictionary<int, (AudioSource speaker, SoundData.SoundCategory category)> activeSpeakersDictionary = new();
