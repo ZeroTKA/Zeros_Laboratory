@@ -22,18 +22,14 @@ public class SoundManager : MonoBehaviour
     [Tooltip("This is the voice slider")]
     [SerializeField] AudioMixerGroup voiceGroup;
     [Header("Settings")]
-    [Tooltip("The threshold of active sounds before Play() clears out null entries.")]
-    [SerializeField] int dictionarySweepThreshold = 40;
+    [Tooltip("The number of active sounds reaches this value, Play() cleans up null entries.")]
+    [SerializeField] int dictionaryCleanupThreshold = 40;
     [Tooltip("The prefab to be used as the Audio Source for sounds.")]
     public GameObject audioSpeakerPrefab;
-
     private readonly Dictionary<int, (AudioSource speaker, SoundData.SoundCategory category)> activeSpeakersDictionary = new();
     private int id = 1;
 
     private readonly List<int> idsToRemove = new();
-
-    [Tooltip("The amount of active speakers needed before we check for null speakers on PlaySound().")]
-
 
     // -- Specialty Methods -- //
     private void Awake()
@@ -113,6 +109,15 @@ public class SoundManager : MonoBehaviour
         if (data == null) { Debug.LogError("[SoundManager] PlaySound was called with a null SoundData"); return default; }
         return PlayClip(data, data.GetClip(index), toFollow: toFollow);
     }
+    public void StopSound(SoundHandler handler)
+    {
+        if (handler.Id == 0) { Debug.Log("[SoundManager] There's a sound trying to be stopped but SoundHandler was never set."); }
+
+        if (activeSpeakersDictionary.ContainsKey(handler.Id)) { Stop(id: handler.Id); }
+        else { Debug.LogWarning($"[SoundManager] {handler.Id} appears to be an invalid Id as it is not in the activeSpeakersDictionary."); }
+    }
+    public void StopSound(SoundData.SoundCategory category) { Stop(category: category); }
+    public void StopSound() { Stop(); }
 
     // -- Supplemental Methods -- //
     /// <summary>
@@ -125,7 +130,7 @@ public class SoundManager : MonoBehaviour
         if (clip == null) { return default; } // we don't need to log this as it's already logged but we do need to prevent renting objects with null clips.
         if (data.Is3d && !position.HasValue && toFollow == null) { Debug.LogWarning("[SoundManager] PlaySound() was called for a 3d audio but no position nor transform was passed into PlaySound(). Playing as 2D."); }
         if (!data.Is3d && (position.HasValue || toFollow != null)) { Debug.LogWarning("[SoundManager] PlaySound() was called for a 2d audio but a position or a transform was passed into PlaySound(). Playing as 2d."); }
-        if (dictionarySweepThreshold <= activeSpeakersDictionary.Count){ dictionarySweep(); } // trying to find nulls in the dictionary.
+        if (activeSpeakersDictionary.Count >= dictionaryCleanupThreshold){ dictionaryCleanup(); } // trying to find nulls in the dictionary.
 
         GameObject speakerObject = PoolManager.Instance.Rent(audioSpeakerPrefab);
         AudioSource speaker = speakerObject.GetComponent<AudioSource>();
@@ -193,15 +198,6 @@ public class SoundManager : MonoBehaviour
         if (uiGroup == null) { Debug.LogError("[SoundManager] The uiGroup is null. Assign something to it in the inspector."); }
         if (voiceGroup == null) { Debug.LogError("[SoundManager] The voiceGroup is null. Assign something to it in the inspector."); }
     }
-    public void StopSound(SoundHandler handler)
-    {
-        if (handler.Id == 0) { Debug.Log("[SoundManager] There's a sound trying to be stopped but SoundHandler was never set."); }
-
-        if (activeSpeakersDictionary.ContainsKey(handler.Id)) { Stop(id: handler.Id); }
-        else { Debug.LogWarning($"[SoundManager] {handler.Id} appears to be an invalid Id as it is not in the activeSpeakersDictionary."); }
-    }
-    public void StopSound(SoundData.SoundCategory category) { Stop(category: category); } 
-    public void StopSound() { Stop(); }
     private void Stop(int? id = null, SoundData.SoundCategory? category = null)
     {
         idsToRemove.Clear();
@@ -229,7 +225,7 @@ public class SoundManager : MonoBehaviour
     /// <summary>
     /// Once we hit more active speakers than expected, we do a quick check and clear out any null speakers.
     /// </summary>
-    private void dictionarySweep()
+    private void dictionaryCleanup()
     {
         idsToRemove.Clear();
         foreach (var pair in activeSpeakersDictionary)
