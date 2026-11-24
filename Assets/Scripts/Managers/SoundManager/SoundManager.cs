@@ -109,14 +109,25 @@ public class SoundManager : MonoBehaviour
         if (data == null) { Debug.LogError("[SoundManager] PlaySound was called with a null SoundData"); return default; }
         return PlayClip(data, data.GetClip(index), toFollow: toFollow);
     }
+    /// <summary>
+    /// Stops a specific sound.
+    /// </summary>
+    /// <param name="handler">The struct which contains the ID for the sound.</param>
     public void StopSound(SoundHandler handler)
     {
         if (handler.Id == 0) { Debug.Log("[SoundManager] There's a sound trying to be stopped but SoundHandler was never set."); }
 
         if (activeSpeakersDictionary.ContainsKey(handler.Id)) { Stop(id: handler.Id); }
-        else { Debug.LogWarning($"[SoundManager] {handler.Id} appears to be an invalid Id as it is not in the activeSpeakersDictionary."); }
+        else { Debug.LogWarning($"[SoundManager] {handler.Id} appears to be an invalid Id as it is not in the activeSpeakersDictionary. Was it already stopped?"); }
     }
+    /// <summary>
+    /// Stops all sounds belonging to a specific category.
+    /// </summary>
+    /// <param name="category">The group of sounds we want to stop.</param>
     public void StopSound(SoundData.SoundCategory category) { Stop(category: category); }
+    /// <summary>
+    /// Stops every single sound--assuming activeSpeakersDictionary knows about the speaker.
+    /// </summary>
     public void StopSound() { Stop(); }
 
     // -- Supplemental Methods -- //
